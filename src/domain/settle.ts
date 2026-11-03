@@ -1,4 +1,4 @@
-import type { Store } from "./store";
+import type { Settlement, Store } from "./store";
 
 /** Latest settlement time at or before `now`, or null if never settled. */
 async function lastSettlementAt(store: Store, now: Date): Promise<number | null> {
@@ -13,4 +13,16 @@ export async function owed(store: Store, now: Date): Promise<number> {
   return presses
     .filter((p) => p.at <= now.getTime() && (since === null || p.at > since))
     .reduce((sum, p) => sum + p.pricePence, 0);
+}
+
+/** Records that `amountPence` was invested at `at`; everything pressed up to then is settled. */
+export async function settle(
+  store: Store,
+  amountPence: number,
+  at: Date,
+  newId: () => string = () => crypto.randomUUID(),
+): Promise<Settlement> {
+  const settlement: Settlement = { id: newId(), amountPence, at: at.getTime() };
+  await store.settlements.put(settlement);
+  return settlement;
 }
