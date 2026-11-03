@@ -1,3 +1,4 @@
+import { formatPounds } from "./money";
 import type { Press, Settlement, Store } from "./store";
 
 /** Latest settlement time at or before `now`, or null if never settled. */
@@ -47,9 +48,24 @@ export function isSettleWindow(now: Date, payday: number, owedSince: Date | null
 
 /** The shelf's reminder, e.g. "£12.50 owed since October", or null when nothing is overdue. */
 export function overdueLine(now: Date, owedSince: Date | null, owedPence: number): string | null {
-  if (owedPence <= 0 || !isOverdue(now, owedSince)) return null;
-  return "";
+  if (owedPence <= 0 || !owedSince || !isOverdue(now, owedSince)) return null;
+  return `${formatPounds(owedPence)} owed since ${MONTHS[owedSince.getMonth()]}`;
 }
+
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 /** Owed money dates from before this calendar month, so last month's window passed unsettled. */
 function isOverdue(now: Date, owedSince: Date | null): boolean {

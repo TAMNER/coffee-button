@@ -77,4 +77,8 @@ describe("overdueLine", () => {
   it("is null on 28 Nov when everything owed is from November", () => {
     expect(overdueLine(new Date(2026, 10, 28, 12, 0), new Date(2026, 10, 2, 9, 0), 1250)).toBeNull();
   });
+
+  it('reads "£12.50 owed since October" on 3 Nov when October went unsettled', () => {
+    expect(overdueLine(new Date(2026, 10, 3, 12, 0), new Date(2026, 9, 20, 9, 0), 1250)).toBe("£12.50 owed since October");
+  });
 });
