@@ -41,4 +41,16 @@ describe("generateIcs", () => {
     expect(lines).toContain("RRULE:FREQ=MONTHLY;BYMONTHDAY=1");
     expect(lines).toContain("DTSTART;TZID=Europe/London:20261201T090000");
   });
+
+  it("ends every line with CRLF and folds lines longer than 75 octets, losing nothing", () => {
+    const longUrl = "https://black-box.tail1234.ts.net/coffee-button/a/very/long/path/that/goes/on/and/on/?ref=calendar";
+    const ics = generateIcs({ payday: 25, appUrl: longUrl, now: new Date(2026, 10, 3, 10, 0), tz: "Europe/London" });
+
+    expect(ics.endsWith("\r\n")).toBe(true);
+    expect(ics.replace(/\r\n/g, "")).not.toMatch(/[\r\n]/);
+    const lines = ics.slice(0, -2).split("\r\n");
+    for (const line of lines) expect(new TextEncoder().encode(line).length).toBeLessThanOrEqual(75);
+    const unfolded = ics.replace(/\r\n /g, "").split("\r\n");
+    expect(unfolded).toContain(`URL:${longUrl}`);
+  });
 });
