@@ -17,8 +17,11 @@ you clear into your Stocks and Shares ISA once a month.
   the cup. Long-press on the total opens settings.
 - **Press.** Records an item (default: Coffee, £3.50) with timestamp. A 5-second
   undo toast reverses it. No hold-to-confirm.
-- **Items.** Presses reference an item (name, icon, price). V1 shows only Coffee
-  on screen; adding Beer etc. is a settings change, not a code change.
+- **Items.** Presses reference an item (name, icon, price). Coffee (£3.50) and
+  Beer (£6.00) are seeded; more items are a settings change, not a code change.
+  A horizontal swipe on the main screen cycles the active item, the vessel
+  slides out and the next slides in, and the press uses that item's price
+  (added 2026-11-03, ticket 12).
 - **Ceremony on every press.** Pour, coin drop into the cup, cheer with
   confetti. Identical stimulus every time (Pavlovian), ~2 s, never blocks: the
   press is recorded before the animation starts and the user may leave
