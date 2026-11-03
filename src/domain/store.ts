@@ -48,6 +48,15 @@ export interface Collection<T extends { id: string }> {
   delete(id: string): Promise<void>;
 }
 
+/** Everything the app stores, as import and export see it. */
+export interface Snapshot {
+  items: Item[];
+  presses: Press[];
+  settlements: Settlement[];
+  goals: Goal[];
+  settings: Settings;
+}
+
 export interface Store {
   items: Collection<Item>;
   presses: Collection<Press>;
@@ -55,6 +64,8 @@ export interface Store {
   goals: Collection<Goal>;
   getSettings(): Promise<Settings>;
   putSettings(settings: Settings): Promise<void>;
+  /** Replaces everything with `snapshot` all at once: on failure nothing changes. */
+  replaceAll(snapshot: Snapshot): Promise<void>;
 }
 
 class MemoryCollection<T extends { id: string }> implements Collection<T> {
@@ -95,5 +106,21 @@ export class MemoryStore implements Store {
 
   async putSettings(settings: Settings): Promise<void> {
     this.settings = structuredClone(settings);
+  }
+
+  async replaceAll(snapshot: Snapshot): Promise<void> {
+    // Built aside first, so a row that cannot be cloned leaves the store as it was.
+    const next = {
+      items: new MemoryCollection<Item>(snapshot.items),
+      presses: new MemoryCollection<Press>(snapshot.presses),
+      settlements: new MemoryCollection<Settlement>(snapshot.settlements),
+      goals: new MemoryCollection<Goal>(snapshot.goals),
+      settings: structuredClone(snapshot.settings),
+    };
+    this.items = next.items;
+    this.presses = next.presses;
+    this.settlements = next.settlements;
+    this.goals = next.goals;
+    this.settings = next.settings;
   }
 }

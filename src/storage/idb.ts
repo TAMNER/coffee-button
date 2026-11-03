@@ -8,6 +8,7 @@ import {
   type Press,
   type Settings,
   type Settlement,
+  type Snapshot,
   type Store,
 } from "../domain/store";
 
@@ -82,5 +83,27 @@ export class IndexedDbStore implements Store {
 
   async putSettings(settings: Settings): Promise<void> {
     await this.db.put("settings", settings, SETTINGS_KEY);
+  }
+
+  /** One readwrite transaction over every object store: any failure aborts it all. */
+  async replaceAll(snapshot: Snapshot): Promise<void> {
+    const tx = this.db.transaction(["items", "presses", "settlements", "goals", "settings"], "readwrite");
+    const writes: Promise<unknown>[] = [];
+    for (const name of ["items", "presses", "settlements", "goals"] as const) {
+      const os = tx.objectStore(name);
+      writes.push(os.clear());
+      for (const row of snapshot[name]) writes.push(os.put(row as never));
+    }
+    writes.push(tx.objectStore("settings").put(snapshot.settings, SETTINGS_KEY));
+    try {
+      await Promise.all([...writes, tx.done]);
+    } catch (err) {
+      try {
+        tx.abort();
+      } catch {
+        // already aborted
+      }
+      throw err;
+    }
   }
 }

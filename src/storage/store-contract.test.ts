@@ -44,6 +44,26 @@ describe.each(backends)("Store contract: $name", (backend) => {
     expect(await store.presses.list()).toEqual([pressB]);
   });
 
+  it("replaceAll swaps every collection and the settings for the given snapshot", async () => {
+    const store = await backend.open(freshName());
+    await store.presses.put(pressA);
+    const snapshot = {
+      items: [beer],
+      presses: [pressB],
+      settlements: [{ id: "s1", amountPence: 600, at: Date.UTC(2026, 10, 26, 9, 0) }],
+      goals: [{ id: "g1", name: "Tent", pricePence: 20000 }],
+      settings: { paydayDay: 20 },
+    };
+
+    await store.replaceAll(snapshot);
+
+    expect(await store.items.list()).toEqual([beer]);
+    expect(await store.presses.list()).toEqual([pressB]);
+    expect(await store.settlements.list()).toEqual(snapshot.settlements);
+    expect(await store.goals.list()).toEqual(snapshot.goals);
+    expect(await store.getSettings()).toEqual({ paydayDay: 20 });
+  });
+
   it.runIf(backend.persistent)("a new store instance on the same database name sees earlier writes", async () => {
     const dbName = freshName();
     const first = await backend.open(dbName);
