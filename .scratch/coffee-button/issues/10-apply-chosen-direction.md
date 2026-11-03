@@ -4,9 +4,9 @@
 
 **Blocked by:** 02 Visual directions mockup; 04 Press ceremony; 07 Shelf screen; the author's choice of direction.
 
-**Status:** blocked: awaiting author's choice from mockups/directions.html
+**Status:** code done (direction B, Cut Paper); light and dark appearance await the device check (ticket 11)
 
-- [ ] Cup, coin, liquid, confetti palette match the chosen direction
-- [ ] All shelf items have drawn SVG artwork in the chosen style
-- [ ] Home Screen icon and splash present and correct on iOS
+- [x] Cup, coin, liquid, confetti palette match the chosen direction
+- [x] All shelf items have drawn SVG artwork in the chosen style
+- [x] Home Screen icon and splash present and correct on iOS
 - [ ] Light and dark appearance both acceptable
