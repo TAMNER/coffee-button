@@ -54,8 +54,21 @@ export async function exportData(store: Store): Promise<string> {
   return JSON.stringify(data, null, 2);
 }
 
+const NOT_EXPORT = "This file is not a Coffee Button export";
+
+/** Parses and checks the whole file before anything is written. */
+function parseExport(json: string): ExportFile {
+  let data: unknown;
+  try {
+    data = JSON.parse(json);
+  } catch {
+    throw new Error(`${NOT_EXPORT} (not JSON)`);
+  }
+  return data as ExportFile;
+}
+
 export async function importData(store: Store, json: string): Promise<void> {
-  const data = JSON.parse(json) as ExportFile;
+  const data = parseExport(json);
   await replaceAll(store.items, data.items);
   await replaceAll(store.presses, data.presses);
   await replaceAll(store.settlements, data.settlements);

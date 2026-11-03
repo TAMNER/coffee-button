@@ -110,3 +110,13 @@ describe("settings: export and import", () => {
     expect((await store.presses.list()).map((p) => p.id)).toEqual(["p1", "p2"]);
   });
 });
+
+describe("settings: malformed import", () => {
+  it("text that is not JSON is rejected with 'not a Coffee Button export' and the store is untouched", async () => {
+    const store = await storeWithFixture();
+
+    await expect(importData(store, "hello {")).rejects.toThrow("This file is not a Coffee Button export (not JSON)");
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
+});
