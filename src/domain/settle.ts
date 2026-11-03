@@ -55,9 +55,25 @@ export function overdueLine(now: Date, owedSince: Date | null, owedPence: number
   return `${formatPounds(owedPence)} owed since ${MONTHS[owedSince.getMonth()]}`;
 }
 
-/** The shelf's reminder line for `now`, read from the store. */
+const REMINDER_EVERY_DAYS = 7;
+
+/** Local calendar day number, so daylight-saving shifts do not move the week. */
+function dayNumber(d: Date): number {
+  return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86_400_000;
+}
+
+/**
+ * The shelf's reminder line for `now`, at most once every seven days
+ * (DESIGN.md: one reminder line per week). Showing it records the day in settings.
+ */
 export async function weeklyOverdueLine(store: Store, now: Date): Promise<string | null> {
-  return overdueLine(now, await owedSince(store, now), await owed(store, now));
+  const line = overdueLine(now, await owedSince(store, now), await owed(store, now));
+  if (line === null) return null;
+  const settings = await store.getSettings();
+  const shownAt = settings.overdueShownAt;
+  if (shownAt !== undefined && dayNumber(now) - dayNumber(new Date(shownAt)) < REMINDER_EVERY_DAYS) return null;
+  await store.putSettings({ ...settings, overdueShownAt: now.getTime() });
+  return line;
 }
 
 const MONTHS = [

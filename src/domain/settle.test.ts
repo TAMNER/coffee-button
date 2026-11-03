@@ -90,4 +90,14 @@ describe("weeklyOverdueLine (the shelf's reminder)", () => {
 
     expect(await weeklyOverdueLine(store, new Date(2026, 10, 3, 12, 0))).toBe("£12.50 owed since October");
   });
+
+  it("shows at most once a week: shown 3 Nov, hidden on 5 Nov and 9 Nov, shown again on 10 Nov", async () => {
+    const store = new MemoryStore();
+    await store.presses.put(press("a", 1250, new Date(2026, 9, 20, 9, 0)));
+
+    const seen = [];
+    for (const day of [3, 5, 9, 10]) seen.push(await weeklyOverdueLine(store, new Date(2026, 10, day, 12, 0)));
+
+    expect(seen).toEqual(["£12.50 owed since October", null, null, "£12.50 owed since October"]);
+  });
 });

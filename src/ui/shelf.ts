@@ -91,7 +91,10 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
   const form = el.querySelector<HTMLFormElement>("[data-role=goal-form]")!;
 
   let alive = true;
-  const overdueLine = (now: Date) => weeklyOverdueLine(ctx.store, now);
+  // Asked once per visit: the weekly cadence counts visits, and a refresh after
+  // adding a goal must not hide a line that is already showing.
+  let visitLine: Promise<string | null> | undefined;
+  const overdueLine = (now: Date) => (visitLine ??= weeklyOverdueLine(ctx.store, now));
   const refresh = async () => {
     const view = await shelfView({ store: ctx.store, ledger: ctx.ledger, now: ctx.clock.now(), overdueLine });
     if (!alive) return;
