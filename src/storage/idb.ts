@@ -1,5 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import {
+  DEFAULT_ITEM,
   DEFAULT_SETTINGS,
   type Collection,
   type Goal,
@@ -62,12 +63,14 @@ export class IndexedDbStore implements Store {
 
   static async open(name = "coffee-button"): Promise<IndexedDbStore> {
     const db = await openDB<CoffeeDb>(name, 1, {
-      upgrade(db) {
+      upgrade(db, oldVersion, _newVersion, tx) {
+        if (oldVersion >= 1) return;
         db.createObjectStore("items", { keyPath: "id" });
         db.createObjectStore("presses", { keyPath: "id" });
         db.createObjectStore("settlements", { keyPath: "id" });
         db.createObjectStore("goals", { keyPath: "id" });
         db.createObjectStore("settings");
+        void tx.objectStore("items").put(DEFAULT_ITEM);
       },
     });
     return new IndexedDbStore(db);

@@ -34,6 +34,9 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = { paydayDay: 25 };
 
+/** Seeded into every fresh store. Users may reprice it in settings. */
+export const DEFAULT_ITEM: Item = { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 };
+
 export interface Collection<T extends { id: string }> {
   get(id: string): Promise<T | undefined>;
   put(value: T): Promise<void>;
@@ -52,6 +55,10 @@ export interface Store {
 
 class MemoryCollection<T extends { id: string }> implements Collection<T> {
   private rows = new Map<string, T>();
+
+  constructor(seed: T[] = []) {
+    for (const row of seed) this.rows.set(row.id, structuredClone(row));
+  }
 
   async get(id: string): Promise<T | undefined> {
     const row = this.rows.get(id);
@@ -72,7 +79,7 @@ class MemoryCollection<T extends { id: string }> implements Collection<T> {
 }
 
 export class MemoryStore implements Store {
-  items: Collection<Item> = new MemoryCollection<Item>();
+  items: Collection<Item> = new MemoryCollection<Item>([DEFAULT_ITEM]);
   presses: Collection<Press> = new MemoryCollection<Press>();
   settlements: Collection<Settlement> = new MemoryCollection<Settlement>();
   goals: Collection<Goal> = new MemoryCollection<Goal>();

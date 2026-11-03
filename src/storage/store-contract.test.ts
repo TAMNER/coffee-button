@@ -23,6 +23,14 @@ const pressA = { id: "p1", itemId: "beer", pricePence: 600, at: Date.UTC(2026, 1
 const pressB = { id: "p2", itemId: "beer", pricePence: 600, at: Date.UTC(2026, 10, 4, 18, 0) };
 
 describe.each(backends)("Store contract: $name", (backend) => {
+  it("a fresh store holds one item, Coffee at 350 pence", async () => {
+    const store = await backend.open(freshName());
+    const items = await store.items.list();
+
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({ name: "Coffee", pricePence: 350 });
+  });
+
   it("puts, gets and lists items and presses; delete removes one", async () => {
     const store = await backend.open(freshName());
     await store.items.put(beer);
