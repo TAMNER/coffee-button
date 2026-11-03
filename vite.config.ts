@@ -2,7 +2,8 @@
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-const cream = "#f6ead7";
+// Cut Paper salmon: the launch background and the status bar colour.
+const paper = "#F6CDC1";
 
 export default defineConfig({
   plugins: [
@@ -17,10 +18,12 @@ export default defineConfig({
         display: "standalone",
         start_url: "./",
         scope: "./",
-        theme_color: cream,
-        background_color: cream,
+        theme_color: paper,
+        background_color: paper,
         icons: [
-          { src: "apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+          { src: "pwa-192.png", sizes: "192x192", type: "image/png" },
+          { src: "pwa-512.png", sizes: "512x512", type: "image/png" },
+          { src: "pwa-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
           { src: "favicon.svg", sizes: "any", type: "image/svg+xml" },
         ],
       },

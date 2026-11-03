@@ -1,3 +1,7 @@
+/* Settings in Cut Paper: flat coloured card with hard offset shadows.
+   Tokens come from src/style.css; the fallbacks are the light values, so the
+   panel still reads correctly if a token is missing. */
+
 /* The total is a hidden long-press target: no iOS callout or selection. */
 [data-role="total"] {
   -webkit-touch-callout: none;
@@ -5,13 +9,19 @@
 #app[data-screen="settings"] {
   justify-content: flex-start;
   align-items: stretch;
+  background: var(--paper, #F6CDC1);
 }
 .settings {
+  /* Text on cream cards stays dark navy in both appearances: cream is light
+     in dark mode too. */
+  --card-ink: #1D2A6E;
+  --display: var(--font-display, Futura, "Century Gothic", "Avenir Next", "Trebuchet MS", sans-serif);
   width: 100%;
   max-width: 32rem;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1rem 1rem 2.5rem;
   box-sizing: border-box;
+  color: var(--ink, #1D2A6E);
   -webkit-user-select: text;
   user-select: text;
 }
@@ -19,16 +29,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+}
+.settings h1,
+.settings h2 {
+  font-family: var(--display);
+  font-weight: 800;
+  text-transform: uppercase;
 }
 .settings h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+.settings section {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 4px solid var(--paper-2, #EFB9AA);
 }
 .settings h2 {
-  margin: 1.5rem 0 0.5rem;
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
 }
 .settings-items {
   list-style: none;
@@ -38,39 +61,116 @@
 .settings-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin: 0.4rem 0;
+  gap: 0.6rem;
+  margin: 0.6rem 0;
 }
-.settings input,
-.settings button,
-.settings-file {
+.settings label {
+  font-weight: 600;
+}
+
+/* Inputs: cream cards stuck down with a hard shadow. */
+.settings input {
   font: inherit;
   font-size: 1rem;
-  color: var(--ink);
-  border: 1px solid var(--ink);
-  border-radius: 0.4rem;
-  padding: 0.35rem 0.5rem;
-  background: transparent;
+  font-weight: 600;
+  color: var(--card-ink);
+  background: var(--cream, #FFF9EF);
+  border: 0;
+  border-radius: 4px;
+  padding: 0.5rem 0.6rem;
   min-width: 0;
+  box-shadow: 4px 4px 0 var(--shadow, #8E2F25);
+}
+.settings input::placeholder {
+  color: var(--card-ink);
+  opacity: 0.45;
+}
+.settings input:focus-visible {
+  outline: 3px solid var(--mustard-deep, #D48E12);
+  outline-offset: 2px;
 }
 .settings input[name="name"] {
   flex: 1;
 }
+
+/* Buttons: cobalt with cream type by default; import is tomato. Bold 1.2rem
+   counts as large text, so cream on tomato still meets contrast. */
 .settings button,
 .settings-file {
-  background: var(--ink);
-  color: var(--cream);
-  font-weight: 600;
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  color: var(--on-dark, #FFF9EF);
+  background: var(--cobalt, #2443B0);
+  border: 0;
+  border-radius: 4px;
+  padding: 0.55rem 0.9rem;
   cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 4px 4px 0 var(--shadow, #8E2F25);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.settings-file {
+  background: var(--tomato, #E5533C);
+}
+.settings button:active,
+.settings-file:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--shadow, #8E2F25);
+}
+.settings button:focus-visible,
+.settings-file:focus-within {
+  outline: 3px solid var(--mustard-deep, #D48E12);
+  outline-offset: 2px;
 }
 .settings-file input {
   display: none;
 }
+
+/* Close: a small cut-paper chip in the muted card colours. */
+.settings .settings-close {
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  color: var(--ink, #1D2A6E);
+  background: var(--off-hi, #ECC4B9);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  box-shadow: 3px 3px 0 var(--off-shadow, #CC9283);
+}
+.settings .settings-close:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--off-shadow, #CC9283);
+}
+
+/* An item's icon name, as a mustard tag. */
+.settings-icon {
+  font-family: var(--display);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--card-ink);
+  background: var(--mustard, #F5B335);
+  border-radius: 3px;
+  padding: 0.3rem 0.45rem;
+}
+
 .settings-status {
-  margin: 0.25rem 0 0;
+  margin: 0.4rem 0 0;
   min-height: 1.2em;
   font-size: 0.9rem;
+  font-weight: 600;
 }
+/* Errors as a cream slip with a tomato edge: readable in both appearances. */
 .settings-status.is-error {
-  color: #a0301c;
+  color: var(--card-ink);
+  background: var(--cream, #FFF9EF);
+  border-left: 6px solid var(--tomato, #E5533C);
+  border-radius: 3px;
+  padding: 0.4rem 0.6rem;
+  box-shadow: 3px 3px 0 var(--shadow, #8E2F25);
 }
