@@ -34,7 +34,8 @@ function utcStamp(d: Date): string {
 
 export function generateIcs({ payday, appUrl, now, tz }: IcsOptions): string {
   const settleDay = payday + 1;
-  const start = new Date(now.getFullYear(), now.getMonth(), settleDay);
+  const month = now.getDate() > settleDay ? now.getMonth() + 1 : now.getMonth();
+  const start = new Date(now.getFullYear(), month, settleDay);
   const dtstart = `${start.getFullYear()}${pad(start.getMonth() + 1)}${pad(start.getDate())}T090000`;
   const lines = [
     "BEGIN:VCALENDAR",

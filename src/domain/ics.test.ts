@@ -28,4 +28,10 @@ describe("generateIcs", () => {
     expect(uid(generateIcs({ ...options, payday: 20, now: new Date(2027, 0, 9, 8, 0) }))).toBe(uid(first));
     expect(uid(generateIcs({ ...options, appUrl: "https://elsewhere.example/" }))).not.toBe(uid(first));
   });
+
+  it("starts next month when this month's settle day has passed: 27 Nov 2026 -> 26 Dec 2026", () => {
+    const ics = generateIcs({ payday: 25, appUrl, now: new Date(2026, 10, 27, 10, 0), tz: "Europe/London" });
+
+    expect(ics.split("\r\n")).toContain("DTSTART;TZID=Europe/London:20261226T090000");
+  });
 });
