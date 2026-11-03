@@ -6,3 +6,4 @@ import "./settle";
 import "./shelf";
 import "./ceremony";
 import "./reminder";
+import "./settle-ceremony";
