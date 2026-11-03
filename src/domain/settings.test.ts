@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addItem, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
+import { addItem, exportData,renameItem, repriceItem, setPayday, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -49,5 +49,41 @@ describe("settings: payday", () => {
     await expect(setPayday(store, 29)).rejects.toThrow(/1 to 28/);
 
     expect((await store.getSettings()).paydayDay).toBe(1);
+  });
+});
+
+/** The demo from the ticket: Beer at £6, Coffee at £3.80, a press of each, one settlement, a goal, payday 20. */
+const FIXTURE = {
+  version: 1,
+  items: [
+    { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 380 },
+    { id: "beer", name: "Beer", icon: "pint", pricePence: 600 },
+  ],
+  presses: [
+    { id: "p1", itemId: "coffee", pricePence: 350, at: 1790000000000 },
+    { id: "p2", itemId: "beer", pricePence: 600, at: 1790003600000 },
+  ],
+  settlements: [{ id: "s1", amountPence: 950, at: 1790100000000 }],
+  settings: { paydayDay: 20 },
+  goals: [{ id: "g1", name: "Ski week", pricePence: 120000 }],
+};
+
+async function storeWithFixture(): Promise<MemoryStore> {
+  const store = new MemoryStore();
+  for (const item of FIXTURE.items) await store.items.put(item);
+  for (const press of FIXTURE.presses) await store.presses.put(press);
+  for (const settlement of FIXTURE.settlements) await store.settlements.put(settlement);
+  for (const goal of FIXTURE.goals) await store.goals.put(goal);
+  await store.putSettings(FIXTURE.settings);
+  return store;
+}
+
+describe("settings: export and import", () => {
+  it("exportData writes version 1 with every press, item, settlement, setting and goal", async () => {
+    const store = await storeWithFixture();
+
+    const json = await exportData(store);
+
+    expect(JSON.parse(json)).toEqual(FIXTURE);
   });
 });

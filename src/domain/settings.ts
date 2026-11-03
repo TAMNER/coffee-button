@@ -1,4 +1,4 @@
-import type { Item, Store } from "./store";
+import type { Goal, Item, Press, Settings, Settlement, Store } from "./store";
 
 export async function addItem(
   store: Store,
@@ -29,6 +29,29 @@ export function repriceItem(store: Store, id: string, pricePence: number): Promi
 /** Payday must exist in every month, so 1 to 28. */
 export function validatePayday(day: number): boolean {
   return Number.isInteger(day) && day >= 1 && day <= 28;
+}
+
+export const EXPORT_VERSION = 1;
+
+export interface ExportFile {
+  version: typeof EXPORT_VERSION;
+  items: Item[];
+  presses: Press[];
+  settlements: Settlement[];
+  settings: Settings;
+  goals: Goal[];
+}
+
+export async function exportData(store: Store): Promise<string> {
+  const data: ExportFile = {
+    version: EXPORT_VERSION,
+    items: await store.items.list(),
+    presses: await store.presses.list(),
+    settlements: await store.settlements.list(),
+    settings: await store.getSettings(),
+    goals: await store.goals.list(),
+  };
+  return JSON.stringify(data, null, 2);
 }
 
 export async function setPayday(store: Store, day: number): Promise<void> {
