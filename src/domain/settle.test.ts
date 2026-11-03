@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { owed, owedSince, settle } from "./settle";
+import { isSettleWindow, owed, owedSince, settle } from "./settle";
 import { MemoryStore } from "./store";
 
 const press = (id: string, pricePence: number, at: Date) => ({ id, itemId: "coffee", pricePence, at: at.getTime() });
@@ -52,5 +52,11 @@ describe("owedSince", () => {
     await store.settlements.put({ id: "s", amountPence: 350, at: new Date(2026, 9, 26, 8, 0).getTime() });
 
     expect(await owedSince(store, new Date(2026, 10, 3, 12, 0))).toEqual(new Date(2026, 9, 30, 9, 0));
+  });
+});
+
+describe("isSettleWindow (payday 25)", () => {
+  it("is open from 00:00 on 26 Nov while £12.50 is owed from 2 Nov", () => {
+    expect(isSettleWindow(new Date(2026, 10, 26, 0, 0), 25, new Date(2026, 10, 2, 9, 0), 1250)).toBe(true);
   });
 });

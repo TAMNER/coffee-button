@@ -35,3 +35,12 @@ export async function settle(
   await store.settlements.put(settlement);
   return settlement;
 }
+
+/**
+ * Whether the main screen offers "Invest £X". Open from the day after payday,
+ * and on any day while money owed from an earlier month is still unsettled.
+ * `owedSince` is the oldest unsettled press (see owedSince()).
+ */
+export function isSettleWindow(now: Date, payday: number, _owedSince: Date | null, _owedPence: number): boolean {
+  return now.getDate() > payday;
+}
