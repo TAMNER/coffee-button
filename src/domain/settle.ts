@@ -2,7 +2,7 @@ import type { Clipboard } from "../adapters/clipboard";
 import type { Clock } from "../adapters/clock";
 import type { UrlOpener } from "../adapters/open-url";
 import { formatPounds } from "./money";
-import type { Press, Settlement, Store } from "./store";
+import type { PendingInvest, Press, Settlement, Store } from "./store";
 
 /** Latest settlement time at or before `now`, or null if never settled. */
 async function lastSettlementAt(store: Store, now: Date): Promise<number | null> {
@@ -116,7 +116,7 @@ export class InvestFlow {
   private promptListeners = new Set<(text: string) => void>();
   private stopWaiting: (() => void) | null = null;
   /** The amount and the Invest tap's time, until the user answers. */
-  private pending: { amountPence: number; startedAt: number } | null = null;
+  private pending: PendingInvest | null = null;
 
   constructor(private deps: InvestDeps) {}
 
@@ -124,6 +124,26 @@ export class InvestFlow {
   onPrompt(fn: (text: string) => void): () => void {
     this.promptListeners.add(fn);
     return () => this.promptListeners.delete(fn);
+  }
+
+  /**
+   * On boot: if an Invest tap is still unanswered (the app may have been killed
+   * while the user was in InvestEngine), ask about it now.
+   */
+  async resume(): Promise<void> {
+    const saved = (await this.deps.store.getSettings()).pendingInvest;
+    if (!saved) return;
+    this.pending = saved;
+    this.ask(saved.amountPence);
+  }
+
+  private ask(amountPence: number): void {
+    for (const fn of this.promptListeners) fn(`Did you invest ${formatPounds(amountPence)}?`);
+  }
+
+  private async savePending(pending: PendingInvest | null): Promise<void> {
+    const { pendingInvest: _old, ...settings } = await this.deps.store.getSettings();
+    await this.deps.store.putSettings(pending ? { ...settings, pendingInvest: pending } : settings);
   }
 
   /**
@@ -150,11 +170,12 @@ export class InvestFlow {
     this.stopWaiting = this.deps.opener.onReturn(() => {
       this.stopWaiting?.();
       this.stopWaiting = null;
-      for (const fn of this.promptListeners) fn(`Did you invest ${formatPounds(amountPence)}?`);
+      this.ask(amountPence);
     });
     // Both start before any await: Safari only allows them inside the tap's user activation.
     const copied = this.deps.clipboard.writeText(formatPounds(amountPence).slice(1));
     const opened = this.deps.opener.open(INVESTENGINE_URL);
+    await this.savePending(this.pending);
     await copied;
     if (!(await opened)) await this.deps.opener.open(APP_STORE_URL);
   }

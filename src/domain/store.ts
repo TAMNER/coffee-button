@@ -34,6 +34,14 @@ export interface Settings {
   shelfPrices?: Record<string, number>;
   /** Epoch ms the shelf last showed the owed-since reminder; it shows at most weekly. */
   overdueShownAt?: number;
+  /** An Invest tap not yet answered, kept so the question survives the app being killed. */
+  pendingInvest?: PendingInvest;
+}
+
+export interface PendingInvest {
+  amountPence: number;
+  /** Epoch ms of the Invest tap. */
+  startedAt: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = { paydayDay: 25 };

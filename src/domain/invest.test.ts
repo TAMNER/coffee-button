@@ -99,3 +99,20 @@ describe("InvestFlow", () => {
     expect((await store.settlements.list()).map((s) => s.at)).toEqual([new Date(2026, 10, 26, 9, 0).getTime()]);
   });
 });
+
+describe("InvestFlow across an app restart (iOS kills the PWA while InvestEngine is open)", () => {
+  it('a fresh flow on the same store asks "Did you invest £12.50?" on boot, and Yes settles £12.50 at the Invest tap\'s time', async () => {
+    const { store, clock, clipboard, opener, flow } = setup();
+    await flow.invest(1250);
+
+    clock.set(new Date(2026, 10, 26, 9, 20));
+    const relaunched = new InvestFlow({ store, clock, clipboard, opener });
+    const prompts: string[] = [];
+    relaunched.onPrompt((text) => prompts.push(text));
+    await relaunched.resume();
+    const settlement = await relaunched.yes();
+
+    expect(prompts).toEqual(["Did you invest £12.50?"]);
+    expect(settlement).toMatchObject({ amountPence: 1250, at: new Date(2026, 10, 26, 9, 0).getTime() });
+  });
+});
