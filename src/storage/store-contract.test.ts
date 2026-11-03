@@ -91,3 +91,17 @@ describe.each(backends)("Store contract: $name", (backend) => {
     expect(await second.presses.list()).toEqual([pressA]);
   });
 });
+
+describe("IndexedDbStore after WebKit drops the connection (app backgrounded)", () => {
+  it("reopens and retries: a press put after the connection closed is stored and readable", async () => {
+    const dbName = freshName();
+    const store = await IndexedDbStore.open(dbName);
+    store.dropConnectionForTest();
+
+    await store.presses.put(pressA);
+
+    expect(await store.presses.list()).toEqual([pressA]);
+    const other = await IndexedDbStore.open(dbName);
+    expect(await other.presses.get("p1")).toEqual(pressA);
+  });
+});
