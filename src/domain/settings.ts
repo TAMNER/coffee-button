@@ -1,3 +1,4 @@
+import { listItems } from "./items";
 import { DEFAULT_ITEM, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
 
 export async function addItem(
@@ -100,6 +101,9 @@ function parseExport(json: string): ExportFile {
   if (!validatePayday(Number(settings?.paydayDay))) {
     throw new Error(`${NOT_EXPORT} (payday must be 1 to 28)`);
   }
+  if (settings?.activeItemId !== undefined && typeof settings.activeItemId !== "string") {
+    throw new Error(`${NOT_EXPORT} (active item must be an item id)`);
+  }
   return data as ExportFile;
 }
 
@@ -111,4 +115,15 @@ export async function importData(store: Store, json: string): Promise<void> {
 export async function setPayday(store: Store, day: number): Promise<void> {
   if (!validatePayday(day)) throw new Error(`Payday must be a whole day from 1 to 28, got ${day}`);
   await store.putSettings({ ...(await store.getSettings()), paydayDay: day });
+}
+
+/** The item a tap on the cup records: the stored choice while it exists, else the first item in cycling order. */
+export async function activeItemId(store: Store): Promise<string> {
+  const chosen = (await store.getSettings()).activeItemId;
+  const items = await listItems(store);
+  return items.find((item) => item.id === chosen)?.id ?? items[0].id;
+}
+
+export async function setActiveItem(store: Store, id: string): Promise<void> {
+  await store.putSettings({ ...(await store.getSettings()), activeItemId: id });
 }

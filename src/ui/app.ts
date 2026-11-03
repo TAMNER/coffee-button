@@ -10,7 +10,7 @@
 import type { Clock } from "../adapters/clock";
 import type { Ledger } from "../domain/ledger";
 import type { MoneyMover } from "../domain/money-mover";
-import type { Press, Settlement, Store } from "../domain/store";
+import type { Item, Press, Settlement, Store } from "../domain/store";
 
 export interface AppEvents {
   /** Emitted after the press is persisted. */
@@ -19,6 +19,8 @@ export interface AppEvents {
   undo: { pressId: string };
   /** Emitted after the settlement is persisted. */
   settle: { settlement: Settlement };
+  /** Emitted when a swipe on the cup screen switches the active item (persisted in the background). */
+  item: { item: Item };
 }
 
 export type EventName = keyof AppEvents;

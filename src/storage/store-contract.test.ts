@@ -1,5 +1,6 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
+import { listItems } from "../domain/items";
 import { exportData, importData } from "../domain/settings";
 import { MemoryStore, type Store } from "../domain/store";
 import { IndexedDbStore } from "./idb";
@@ -24,12 +25,13 @@ const pressA = { id: "p1", itemId: "beer", pricePence: 600, at: Date.UTC(2026, 1
 const pressB = { id: "p2", itemId: "beer", pricePence: 600, at: Date.UTC(2026, 10, 4, 18, 0) };
 
 describe.each(backends)("Store contract: $name", (backend) => {
-  it("a fresh store holds one item, Coffee at 350 pence", async () => {
+  it("a fresh store holds Coffee at 350 then Beer at 600, in that order", async () => {
     const store = await backend.open(freshName());
-    const items = await store.items.list();
 
-    expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({ name: "Coffee", pricePence: 350 });
+    expect(await listItems(store)).toEqual([
+      { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
+      { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+    ]);
   });
 
   it("puts, gets and lists items and presses; delete removes one", async () => {
@@ -105,6 +107,7 @@ describe.each(backends)("Store contract: $name", (backend) => {
       shelfPrices: { laptop: 120000 },
       overdueShownAt: Date.UTC(2026, 10, 3, 12, 0),
       pendingInvest: { amountPence: 1250, startedAt: Date.UTC(2026, 10, 26, 9, 0) },
+      activeItemId: "beer",
     };
     await store.putSettings(settings);
 

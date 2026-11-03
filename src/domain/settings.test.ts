@@ -1,18 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addItem, exportData, importData, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
+import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
-  it("addItem('Beer', 600) lists Coffee at £3.50 and Beer at £6.00", async () => {
+  it("addItem('Tea', 250) lists Coffee at £3.50, the seeded Beer at £6.00 and Tea at £2.50", async () => {
     const store = new MemoryStore();
 
-    await addItem(store, "Beer", 600, "pint", () => "beer-1");
+    await addItem(store, "Tea", 250, "cup", () => "tea-1");
 
     const items = await store.items.list();
     expect(items).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
-      { id: "beer-1", name: "Beer", icon: "pint", pricePence: 600 },
+      { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+      { id: "tea-1", name: "Tea", icon: "cup", pricePence: 250 },
     ]);
   });
 
@@ -27,11 +28,37 @@ describe("settings: items", () => {
 
     expect(await store.items.list()).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 380 },
+      { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
       { id: "beer-1", name: "Pint", icon: "pint", pricePence: 600 },
     ]);
     expect(await store.presses.list()).toEqual([
       { id: "press-1", itemId: "coffee", pricePence: 350, at: new Date(2026, 10, 3, 9, 0).getTime() },
     ]);
+  });
+});
+
+describe("settings: active item", () => {
+  it("defaults to the first item, Coffee", async () => {
+    const store = new MemoryStore();
+
+    expect(await activeItemId(store)).toBe("coffee");
+  });
+
+  it("setActiveItem('beer') is remembered and leaves payday 25 alone", async () => {
+    const store = new MemoryStore();
+
+    await setActiveItem(store, "beer");
+
+    expect(await activeItemId(store)).toBe("beer");
+    expect(await store.getSettings()).toEqual({ paydayDay: 25, activeItemId: "beer" });
+  });
+
+  it("falls back to Coffee when the remembered item no longer exists", async () => {
+    const store = new MemoryStore();
+    await setActiveItem(store, "beer");
+    await store.items.delete("beer");
+
+    expect(await activeItemId(store)).toBe("coffee");
   });
 });
 
@@ -183,6 +210,29 @@ describe("settings: malformed import", () => {
 
     await expect(importData(store, JSON.stringify(noCoffee))).rejects.toThrow(
       "This file is not a Coffee Button export (it has no Coffee item)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
+
+  it("export then import round-trips the active item: Beer stays active", async () => {
+    const source = await storeWithFixture();
+    await setActiveItem(source, "beer");
+    const json = await exportData(source);
+
+    const target = new MemoryStore();
+    await importData(target, json);
+
+    expect(JSON.parse(json).settings).toEqual({ paydayDay: 20, activeItemId: "beer" });
+    expect(await activeItemId(target)).toBe("beer");
+  });
+
+  it("a file whose active item is not text is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { ...FIXTURE, settings: { paydayDay: 20, activeItemId: 7 } };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow(
+      "This file is not a Coffee Button export (active item must be an item id)",
     );
 
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
