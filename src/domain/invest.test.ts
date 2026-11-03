@@ -131,4 +131,18 @@ describe("InvestFlow across an app restart (iOS kills the PWA while InvestEngine
 
     expect(asked).toEqual([]);
   });
+
+  it("an Invest tap from 26 Nov 09:00 is not asked about on 27 Nov 09:01, more than a day later", async () => {
+    const { store, clock, clipboard, opener, flow } = setup();
+    await flow.invest(1250);
+
+    clock.set(new Date(2026, 10, 27, 9, 1));
+    const relaunched = new InvestFlow({ store, clock, clipboard, opener });
+    const prompts: string[] = [];
+    relaunched.onPrompt((text) => prompts.push(text));
+    await relaunched.resume();
+
+    expect(prompts).toEqual([]);
+    expect(await relaunched.yes()).toBeNull();
+  });
 });

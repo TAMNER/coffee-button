@@ -111,6 +111,9 @@ export interface InvestDeps {
   onSettled?: (settlement: Settlement) => void | Promise<void>;
 }
 
+/** How long an unanswered Invest tap is still asked about after a restart. */
+export const PENDING_INVEST_MAX_MS = 24 * 60 * 60 * 1000;
+
 /** Invest £X → copy, open InvestEngine, ask on return, settle on yes. */
 export class InvestFlow {
   private promptListeners = new Set<(text: string) => void>();
@@ -133,6 +136,10 @@ export class InvestFlow {
   async resume(): Promise<void> {
     const saved = (await this.deps.store.getSettings()).pendingInvest;
     if (!saved) return;
+    if (this.deps.clock.now().getTime() - saved.startedAt > PENDING_INVEST_MAX_MS) {
+      await this.savePending(null); // too old to be a fresh InvestEngine trip
+      return;
+    }
     this.pending = saved;
     this.ask(saved.amountPence);
   }
