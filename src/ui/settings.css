@@ -1,0 +1,76 @@
+/* The total is a hidden long-press target: no iOS callout or selection. */
+[data-role="total"] {
+  -webkit-touch-callout: none;
+}
+#app[data-screen="settings"] {
+  justify-content: flex-start;
+  align-items: stretch;
+}
+.settings {
+  width: 100%;
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 1rem;
+  box-sizing: border-box;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.settings h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+.settings h2 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.settings-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.4rem 0;
+}
+.settings input,
+.settings button,
+.settings-file {
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  background: transparent;
+  min-width: 0;
+}
+.settings input[name="name"] {
+  flex: 1;
+}
+.settings button,
+.settings-file {
+  background: var(--ink);
+  color: var(--cream);
+  font-weight: 600;
+  cursor: pointer;
+}
+.settings-file input {
+  display: none;
+}
+.settings-status {
+  margin: 0.25rem 0 0;
+  min-height: 1.2em;
+  font-size: 0.9rem;
+}
+.settings-status.is-error {
+  color: #a0301c;
+}
