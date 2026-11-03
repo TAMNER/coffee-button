@@ -4,15 +4,16 @@ import { addItem, exportData, importData, renameItem, repriceItem, setPayday, va
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
-  it("addItem('Beer', 600) lists Coffee at £3.50 and Beer at £6.00", async () => {
+  it("addItem('Tea', 250) lists Coffee at £3.50, the seeded Beer at £6.00 and Tea at £2.50", async () => {
     const store = new MemoryStore();
 
-    await addItem(store, "Beer", 600, "pint", () => "beer-1");
+    await addItem(store, "Tea", 250, "cup", () => "tea-1");
 
     const items = await store.items.list();
     expect(items).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
-      { id: "beer-1", name: "Beer", icon: "pint", pricePence: 600 },
+      { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+      { id: "tea-1", name: "Tea", icon: "cup", pricePence: 250 },
     ]);
   });
 
@@ -27,6 +28,7 @@ describe("settings: items", () => {
 
     expect(await store.items.list()).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 380 },
+      { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
       { id: "beer-1", name: "Pint", icon: "pint", pricePence: 600 },
     ]);
     expect(await store.presses.list()).toEqual([

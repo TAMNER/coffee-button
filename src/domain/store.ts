@@ -48,6 +48,9 @@ export const DEFAULT_SETTINGS: Settings = { paydayDay: 25 };
 
 /** Seeded into every fresh store. Users may reprice it in settings. */
 export const DEFAULT_ITEM: Item = { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 };
+export const BEER_ITEM: Item = { id: "beer", name: "Beer", icon: "beer", pricePence: 600 };
+/** Every item a fresh store starts with, in the order the cup screen cycles them. */
+export const DEFAULT_ITEMS: readonly Item[] = [DEFAULT_ITEM, BEER_ITEM];
 
 export interface Collection<T extends { id: string }> {
   get(id: string): Promise<T | undefined>;
@@ -106,7 +109,7 @@ class MemoryCollection<T extends { id: string }> implements Collection<T> {
 }
 
 export class MemoryStore implements Store {
-  items: Collection<Item> = new MemoryCollection<Item>([DEFAULT_ITEM]);
+  items: Collection<Item> = new MemoryCollection<Item>([...DEFAULT_ITEMS]);
   presses: Collection<Press> = new MemoryCollection<Press>();
   settlements: Collection<Settlement> = new MemoryCollection<Settlement>();
   goals: Collection<Goal> = new MemoryCollection<Goal>();

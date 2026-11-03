@@ -1,6 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import {
-  DEFAULT_ITEM,
+  DEFAULT_ITEMS,
   DEFAULT_SETTINGS,
   type Collection,
   type Goal,
@@ -60,7 +60,7 @@ function connect(name: string, onLost: () => void): Promise<IDBPDatabase<CoffeeD
       db.createObjectStore("settlements", { keyPath: "id" });
       db.createObjectStore("goals", { keyPath: "id" });
       db.createObjectStore("settings");
-      void tx.objectStore("items").put(DEFAULT_ITEM);
+      for (const item of DEFAULT_ITEMS) void tx.objectStore("items").put(item);
     },
     // WebKit drops connections of backgrounded apps ("Connection to Indexed
     // Database server lost"); a later version upgrade asks us to step aside.
