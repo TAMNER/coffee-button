@@ -133,7 +133,10 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
 
   el.querySelector("[data-role=back]")!.addEventListener("click", () => ctx.show(HOME_SCREEN));
 
-  const offSettle = ctx.bus.on("settle", () => void refresh());
+  const offSettle = ctx.bus.on("settle", () => {
+    visitLine = undefined; // settled: nothing may be overdue any more
+    void refresh();
+  });
   void refresh();
   return () => {
     alive = false;
