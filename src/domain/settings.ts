@@ -25,3 +25,8 @@ export function renameItem(store: Store, id: string, name: string): Promise<void
 export function repriceItem(store: Store, id: string, pricePence: number): Promise<void> {
   return updateItem(store, id, { pricePence });
 }
+
+/** Payday must exist in every month, so 1 to 28. */
+export function validatePayday(day: number): boolean {
+  return Number.isInteger(day) && day >= 1 && day <= 28;
+}

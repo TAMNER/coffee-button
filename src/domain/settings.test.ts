@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addItem, renameItem, repriceItem } from "./settings";
+import { addItem, renameItem, repriceItem, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -32,5 +32,12 @@ describe("settings: items", () => {
     expect(await store.presses.list()).toEqual([
       { id: "press-1", itemId: "coffee", pricePence: 350, at: new Date(2026, 10, 3, 9, 0).getTime() },
     ]);
+  });
+});
+
+describe("settings: payday", () => {
+  it("validatePayday accepts 1, 25 and 28 and rejects 0, 29, 31, 2.5 and NaN", () => {
+    expect([1, 25, 28].map((n) => validatePayday(n))).toEqual([true, true, true]);
+    expect([0, 29, 31, 2.5, NaN].map((n) => validatePayday(n))).toEqual([false, false, false, false, false]);
   });
 });
