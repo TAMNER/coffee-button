@@ -4,9 +4,13 @@
 
 **Blocked by:** 05 Settings.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Generated .ics validates and includes RRULE monthly on the configured day
-- [ ] Event URL and description point at the app
-- [ ] Changing payday regenerates the file on next use
-- [ ] ics generation unit tested
+- [x] Generated .ics validates and includes RRULE monthly on the configured day
+  (built to RFC 5545: VERSION, PRODID, UID, DTSTAMP, a VTIMEZONE for
+  Europe/London, CRLF, 75-octet folding; payday 28 recurs on the 1st. Not run
+  through an external validator; the iPhone Calendar add sheet is a device check)
+- [x] Event URL and description point at the app
+- [x] Changing payday regenerates the file on next use
+  (src/ui/reminder.ts reads payday when the button is tapped; UI is not unit tested)
+- [x] ics generation unit tested (src/domain/ics.test.ts)
