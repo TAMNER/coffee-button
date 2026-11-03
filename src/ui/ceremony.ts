@@ -19,10 +19,19 @@ export class Ceremony {
   constructor(private stage: Stage) {}
 
   async play(adapters: CeremonyAdapters): Promise<void> {
-    adapters.haptics.tap();
+    quietly(() => adapters.haptics.tap());
     for (const step of ceremonyTimeline()) {
       await this.stage.step(step);
-      if (step.name === "coin") adapters.audio.playCoin();
+      if (step.name === "coin") quietly(() => adapters.audio.playCoin());
     }
+  }
+}
+
+/** Sound and haptics are garnish: where they fail, the ceremony carries on silently. */
+function quietly(fn: () => void): void {
+  try {
+    fn();
+  } catch {
+    // unsupported or blocked on this device
   }
 }

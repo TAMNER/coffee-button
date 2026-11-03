@@ -11,4 +11,14 @@ describe("Ceremony.play", () => {
     expect(audio.coins).toBe(1);
     expect(haptics.taps).toBe(1);
   });
+
+  it("still resolves when audio and haptics throw", async () => {
+    const audio = new FakeAudio();
+    const haptics = new FakeHaptics();
+    audio.fail = true;
+    haptics.fail = true;
+    await expect(new Ceremony(instantStage).play({ audio, haptics })).resolves.toBeUndefined();
+    expect(audio.coins).toBe(1);
+    expect(haptics.taps).toBe(1);
+  });
 });
