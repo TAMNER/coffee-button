@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { FakeClipboard } from "../adapters/clipboard";
 import { FakeClock } from "../adapters/clock";
 import { FakeUrlOpener } from "../adapters/open-url";
-import { InvestFlow } from "./settle";
+import { InvestFlow, owed } from "./settle";
 import { MemoryStore, type Settlement } from "./store";
 
 function setup(failing: string[] = [], onSettled: (s: Settlement) => void | Promise<void> = () => {}) {
@@ -54,7 +54,7 @@ describe("InvestFlow", () => {
     expect(prompts).toEqual(["Did you invest £12.50?"]);
   });
 
-  it("Yes records a £12.50 settlement at the clock's time, then reports it with the settlement already stored", async () => {
+  it("Yes records a £12.50 settlement at the Invest tap's time, then reports it with the settlement already stored", async () => {
     const storedWhenReported: unknown[] = [];
     const { store, opener, flow } = setup([], async () => {
       storedWhenReported.push(...(await store.settlements.list()));
@@ -82,5 +82,20 @@ describe("InvestFlow", () => {
     expect(await flow.yes()).toBeNull();
     expect(await store.settlements.list()).toEqual([]);
     expect(reported).toEqual([]);
+  });
+
+  it("a £3.50 press made while the prompt is up stays owed after Yes: the £24.00 settles at the Invest tap's time", async () => {
+    const { store, clock, opener, flow } = setup();
+    await store.presses.put({ id: "oct", itemId: "coffee", pricePence: 2400, at: new Date(2026, 10, 20, 9, 0).getTime() });
+    await flow.invest(2400);
+    opener.returnToApp();
+    clock.set(new Date(2026, 10, 26, 9, 5));
+    await store.presses.put({ id: "mid", itemId: "coffee", pricePence: 350, at: new Date(2026, 10, 26, 9, 5).getTime() });
+    clock.set(new Date(2026, 10, 26, 9, 10));
+
+    await flow.yes();
+
+    expect(await owed(store, new Date(2026, 10, 26, 9, 10))).toBe(350);
+    expect((await store.settlements.list()).map((s) => s.at)).toEqual([new Date(2026, 10, 26, 9, 0).getTime()]);
   });
 });

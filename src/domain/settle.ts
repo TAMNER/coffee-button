@@ -115,7 +115,8 @@ export interface InvestDeps {
 export class InvestFlow {
   private promptListeners = new Set<(text: string) => void>();
   private stopWaiting: (() => void) | null = null;
-  private pendingPence: number | null = null;
+  /** The amount and the Invest tap's time, until the user answers. */
+  private pending: { amountPence: number; startedAt: number } | null = null;
 
   constructor(private deps: InvestDeps) {}
 
@@ -125,23 +126,26 @@ export class InvestFlow {
     return () => this.promptListeners.delete(fn);
   }
 
-  /** "Yes": records the pending amount as settled now, then calls onSettled. */
+  /**
+   * "Yes": records the pending amount, settled as of the Invest tap (not now:
+   * presses made while the prompt was up were not in that amount), then calls onSettled.
+   */
   async yes(): Promise<Settlement | null> {
-    const amountPence = this.pendingPence;
-    if (amountPence === null) return null;
-    this.pendingPence = null;
-    const settlement = await settle(this.deps.store, amountPence, this.deps.clock.now());
+    const pending = this.pending;
+    if (pending === null) return null;
+    this.pending = null;
+    const settlement = await settle(this.deps.store, pending.amountPence, new Date(pending.startedAt));
     await this.deps.onSettled?.(settlement);
     return settlement;
   }
 
   /** "Not yet": drops the pending amount; it stays owed. */
   notYet(): void {
-    this.pendingPence = null;
+    this.pending = null;
   }
 
   async invest(amountPence: number): Promise<void> {
-    this.pendingPence = amountPence;
+    this.pending = { amountPence, startedAt: this.deps.clock.now().getTime() };
     this.stopWaiting?.();
     this.stopWaiting = this.deps.opener.onReturn(() => {
       this.stopWaiting?.();
