@@ -17,31 +17,38 @@ type AudioContextCtor = typeof AudioContext;
 
 /**
  * Synthesised coin clink: two short bright bursts with a fast decay. No audio file.
- * iOS only lets an AudioContext start inside a user gesture, so call
- * unlockOnFirstGesture() at boot; until then playCoin() is silent.
+ *
+ * iOS only lets an AudioContext start or resume inside a user activation, and a
+ * touch pointerdown is not one in WebKit; touchend and click are. iOS also
+ * suspends or "interrupts" the context whenever the app is backgrounded (for
+ * example while the user is in InvestEngine). So unlock() runs on every
+ * touchend and click for the life of the page, never just the first, and the
+ * cup's click handler calls it again synchronously before its first await.
  */
 export class WebAudioCoin implements Audio {
   private ctx: AudioContext | null = null;
 
-  unlockOnFirstGesture(target: EventTarget): void {
-    const unlock = () => {
-      target.removeEventListener("pointerdown", unlock, true);
-      target.removeEventListener("touchend", unlock, true);
-      try {
-        const ctx = this.context();
-        if (!ctx) return;
-        if (ctx.state !== "running") void ctx.resume().catch(() => {});
-        // A silent one-sample buffer fully unlocks output on older WebKit.
-        const source = ctx.createBufferSource();
-        source.buffer = ctx.createBuffer(1, 1, 22050);
-        source.connect(ctx.destination);
-        source.start();
-      } catch {
-        // no Web Audio here; stay silent
-      }
-    };
-    target.addEventListener("pointerdown", unlock, true);
+  /** Listens permanently (capture phase) and unlocks on every gesture. */
+  unlockOnGestures(target: EventTarget): void {
+    const unlock = () => this.unlock();
     target.addEventListener("touchend", unlock, true);
+    target.addEventListener("click", unlock, true);
+  }
+
+  /** Call inside a user gesture: creates the context lazily and resumes it if needed. */
+  unlock(): void {
+    try {
+      const ctx = this.context();
+      if (!ctx || ctx.state === "running") return;
+      void ctx.resume().catch(() => {});
+      // A silent one-sample buffer fully unlocks output on older WebKit.
+      const source = ctx.createBufferSource();
+      source.buffer = ctx.createBuffer(1, 1, 22050);
+      source.connect(ctx.destination);
+      source.start();
+    } catch {
+      // no Web Audio here; stay silent
+    }
   }
 
   playCoin(): void {
@@ -73,4 +80,11 @@ export class WebAudioCoin implements Audio {
     osc.start(start);
     osc.stop(start + decay + 0.02);
   }
+}
+
+let shared: WebAudioCoin | undefined;
+
+/** One AudioContext for the whole page. */
+export function deviceAudio(): WebAudioCoin {
+  return (shared ??= new WebAudioCoin());
 }

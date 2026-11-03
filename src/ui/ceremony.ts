@@ -1,4 +1,4 @@
-import { WebAudioCoin, type Audio } from "../adapters/audio";
+import { deviceAudio, type Audio } from "../adapters/audio";
 import { ceremonyTimeline, type CeremonyStep } from "../domain/ceremony-timeline";
 import { onStart, type Bus } from "./app";
 
@@ -217,8 +217,8 @@ export function svgStage(seed: number): Stage {
 let plays = 0;
 
 onStart((ctx) => {
-  const audio = new WebAudioCoin();
-  audio.unlockOnFirstGesture(document);
+  const audio = deviceAudio();
+  audio.unlockOnGestures(document);
   wireCeremony(
     ctx.bus,
     { play: (adapters) => new Ceremony(svgStage(Date.now() + ++plays)).play(adapters) },
