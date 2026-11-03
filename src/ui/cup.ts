@@ -1,6 +1,6 @@
 import { formatPounds } from "../domain/money";
 import { DEFAULT_ITEM } from "../domain/store";
-import { registerScreen, type AppContext } from "./app";
+import { registerScreen, type AppContext, type Mount } from "./app";
 
 /** How long the undo toast stays up after a press. */
 export const UNDO_MS = 5000;
@@ -16,6 +16,7 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
   el.innerHTML = `
     <button class="cup-button" type="button" data-role="cup" aria-label="I skipped a coffee">${CUP_SVG}</button>
     <p class="total" id="total" data-role="total" aria-live="polite"></p>
+    <div class="below-total" data-role="below-total"></div>
     <div class="toast" data-role="undo-toast" hidden>
       <span data-role="toast-text"></span>
       <button type="button" data-role="undo">Undo</button>
@@ -73,10 +74,26 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
 
   render();
   void refresh();
+  const belowTotalCleanups = mountBelowTotal(el.querySelector<HTMLElement>("[data-role=below-total]")!, ctx);
   return () => {
     window.clearTimeout(toastTimer);
     document.removeEventListener("visibilitychange", onVisible);
+    for (const fn of belowTotalCleanups) fn();
   };
 }
 
 registerScreen("cup", mountCup);
+
+/** Modules that render under the total on the cup screen (e.g. the Invest button). */
+const belowTotal: Mount[] = [];
+
+export function registerBelowTotal(mount: Mount): void {
+  belowTotal.push(mount);
+}
+
+function mountBelowTotal(slot: HTMLElement, ctx: AppContext): (() => void)[] {
+  return belowTotal.flatMap((mount) => {
+    const el = slot.appendChild(document.createElement("div"));
+    return mount(el, ctx) ?? [];
+  });
+}
