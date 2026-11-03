@@ -4,12 +4,12 @@
 
 **Blocked by:** 03 Press and ledger.
 
-**Status:** done
+**Status:** code done; device checks outstanding (ticket 11)
 
 - [x] Ceremony runs on every press, identical each time, about two seconds
 - [x] Press is persisted before the first animation frame
-- [x] Audio plays after the first user gesture; silent failure if audio is unavailable
-- [x] Haptic attempted via switch toggle; no error where unsupported
+- [ ] Audio plays after the first user gesture; silent failure if audio is unavailable
+- [ ] Haptic attempted via switch toggle; no error where unsupported
 - [x] Rapid double tap records two presses and does not break the animation
 
 ## Notes
@@ -18,4 +18,5 @@
 - Not tested, by design (thin DOM): `svgStage` (WAAPI on a per-play SVG overlay with `pointer-events:none`, so the cup stays tappable), `WebAudioCoin`, `SwitchHaptics`. Typechecked and built; not run in a browser here (no headless browser on this machine).
 - Device checks for ticket 11: coin clink audible after the first tap (silent when the ringer switch is on), switch haptic ticks on iOS 18, overlay lines up with the cup.
 - Haptic fires at the start of play (closest to the gesture); the clink fires when the coin lands.
+- Review (2026-11-03): the haptic moved out of `Ceremony.play` into the cup's click handler, before any await, because iOS only ticks the switch inside the gesture. Audio now unlocks on every touchend and click (not just the first pointerdown) and in the cup tap. Both boxes stay unticked until the device checklist passes.
 - Confetti is randomised per play from a seed; everything else is identical each press.

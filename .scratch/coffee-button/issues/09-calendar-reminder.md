@@ -4,9 +4,9 @@
 
 **Blocked by:** 05 Settings.
 
-**Status:** done
+**Status:** code done; device checks outstanding (ticket 11)
 
-- [x] Generated .ics validates and includes RRULE monthly on the configured day
+- [ ] Generated .ics validates and includes RRULE monthly on the configured day
   (built to RFC 5545: VERSION, PRODID, UID, DTSTAMP, a VTIMEZONE for
   Europe/London, CRLF, 75-octet folding; payday 28 recurs on the 1st. Not run
   through an external validator; the iPhone Calendar add sheet is a device check)

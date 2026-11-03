@@ -22,3 +22,5 @@
   `sending serve config: Access denied: serve config denied`. Run
   `sudo tailscale set --operator=openclaw` once, then re-run the script.
   HTTPS certs are enabled (black-box.<tailnet>.ts.net).
+- Review (2026-11-03): `tailscale serve status` still reports "No serve config".
+  Still blocked on the owner running the sudo command above.

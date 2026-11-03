@@ -4,13 +4,14 @@
 
 **Blocked by:** 01 Scaffold and deploy.
 
-**Status:** done
+**Status:** code done; device checks outstanding (ticket 11)
 
 - [x] Tap records a press; total updates within one frame (total is updated synchronously once the IndexedDB write resolves; checked in a headless happy-dom smoke run, not frame-timed on device)
 - [x] Undo within 5 seconds removes exactly that press; after 5 seconds the toast is gone (Ledger.undo unit tested; toast timing checked in the headless smoke run)
-- [x] Presses survive reload and offline use (IndexedDB survival across a new store instance is contract tested; offline relies on the ticket 01 precache and no network calls; not yet checked on the iPhone)
+- [ ] Presses survive reload and offline use (IndexedDB survival across a new store instance is contract tested; offline relies on the ticket 01 precache and no network calls; not yet checked on the iPhone)
 - [x] Ledger logic (add, undo, month-to-date, lifetime) is unit tested with no DOM
 - [x] MoneyMover interface defined; ledger implementation passes the same tests
+  (review: src/domain/money-mover.test.ts is now a describe.each contract suite)
 
 ## Shell contract for later tickets
 

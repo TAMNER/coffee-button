@@ -13,6 +13,9 @@ Settings > Sounds & Haptics > System Haptics on.
 - [ ] Open the Tailscale URL in Safari, tap Share > Add to Home Screen > Add.
   - Expected: the icon appears on the Home Screen labelled "Coffee". Opening it
     shows the cup full screen with no Safari address bar or toolbar.
+- [ ] Compare the Safari tab with the Home Screen app.
+  - Expected: the Safari tab shows a dark banner asking to Add to Home Screen
+    (data is deleted after 7 days in a tab); the Home Screen app has no banner.
 
 ## 2. Offline launch
 
@@ -80,9 +83,15 @@ payday, set Settings > Payday to a day earlier than today first.
 - [ ] Tap Not yet.
   - Expected: the prompt closes and "Invest £X" is back with the same amount.
 - [ ] Tap Invest again, return, and tap Yes.
-  - Expected: the settle ceremony plays (coins cascade out of the cup with
-    haptic taps), then the shelf shows the lifetime invested ticking up to the
+  - Expected: one haptic tap on Yes, then the settle ceremony plays (coins
+    cascade out of the cup), then the shelf shows the lifetime invested ticking up to the
     new total. The Invest button is gone afterwards.
+
+- [ ] Make another press, tap Invest, and while in InvestEngine swipe Coffee
+  Button away in the app switcher. Reopen it from the Home Screen.
+  - Expected: "Did you invest £X?" appears straight away. Tap Not yet.
+- [ ] Return to the cup after a few seconds in another app, then tap the cup.
+  - Expected: the coin clink still plays (audio resumes after backgrounding).
 
 ## 9. Calendar reminder import
 

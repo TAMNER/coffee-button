@@ -15,7 +15,8 @@
 ## Notes for later tickets
 
 - Navigation is delegated from `src/ui/shelf.ts` (no edit to `cup.ts`): a plain tap on `[data-role=total]` (held under 500 ms, so ticket 05's 600 ms long press still wins) or a swipe up on the cup screen opens `shelf`; swipe down or the Back arrow returns.
-- Overdue line: `src/ui/shelf.ts` has a placeholder `overdueLine` returning null. Ticket 06 replaces it with the real one (signature `(now: Date) => string | null | Promise<string | null>`); `shelfView` carries it into the view state.
+- Overdue line: the placeholder is gone (review, 2026-11-03); the shelf asks `weeklyOverdueLine` once per visit, and again after a settlement.
+- Swipes: read from touchend as well as pointerup (iOS pans end in pointercancel); the cup screen has `touch-action: none`; swipe down on the shelf only counts at scrollTop 0.
 - `Settings` gained an optional `shelfPrices` field (additive; old data reads as defaults).
 - The shelf refreshes on the `settle` bus event so ticket 08's lifetime tick-up is visible.
 - Shapes are geometric placeholders keyed by item id, for ticket 10 to replace.
