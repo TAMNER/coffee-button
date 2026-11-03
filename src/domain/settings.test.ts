@@ -214,4 +214,16 @@ describe("settings: malformed import", () => {
 
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
+
+  it("export then import round-trips the active item: Beer stays active", async () => {
+    const source = await storeWithFixture();
+    await setActiveItem(source, "beer");
+    const json = await exportData(source);
+
+    const target = new MemoryStore();
+    await importData(target, json);
+
+    expect(JSON.parse(json).settings).toEqual({ paydayDay: 20, activeItemId: "beer" });
+    expect(await activeItemId(target)).toBe("beer");
+  });
 });
