@@ -60,10 +60,10 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 /** Same path as the cup body in cup.ts, in the same 120x120 viewBox. */
 const CUP_BODY = "M24 40 h60 v30 a30 30 0 0 1 -60 0 z";
 const CONFETTI_COUNT = 24;
-const CONFETTI_COLOURS = ["#e9b949", "#e07a5f", "#81b29a", "#f2cc8f", "#3d85c6", "#f6ead7"];
+export const CONFETTI_COLOURS = ["#e9b949", "#e07a5f", "#81b29a", "#f2cc8f", "#3d85c6", "#f6ead7"];
 
 /** Small deterministic PRNG so each play's confetti comes from its own seed. */
-function mulberry32(seed: number): () => number {
+export function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
     a = (a + 0x6d2b79f5) >>> 0;
@@ -74,11 +74,11 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-function wait(ms: number): Promise<void> {
+export function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function svgEl<K extends keyof SVGElementTagNameMap>(
+export function svgEl<K extends keyof SVGElementTagNameMap>(
   name: K,
   attrs: Record<string, string | number>,
 ): SVGElementTagNameMap[K] {
@@ -87,7 +87,7 @@ function svgEl<K extends keyof SVGElementTagNameMap>(
   return el;
 }
 
-function animate(el: Element, keyframes: Keyframe[], options: KeyframeAnimationOptions): void {
+export function animate(el: Element, keyframes: Keyframe[], options: KeyframeAnimationOptions): void {
   try {
     el.animate(keyframes, { fill: "forwards", ...options });
   } catch {

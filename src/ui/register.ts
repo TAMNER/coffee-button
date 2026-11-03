@@ -5,3 +5,4 @@ import "./settings";
 import "./settle";
 import "./shelf";
 import "./ceremony";
+import "./settle-ceremony";
