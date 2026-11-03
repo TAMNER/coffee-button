@@ -3,28 +3,25 @@ import { deviceHaptics } from "../adapters/haptics";
 import { formatPounds } from "../domain/money";
 import { DEFAULT_ITEM } from "../domain/store";
 import { registerScreen, type AppContext, type Mount } from "./app";
+import { cupSvg, PAPER_BAND_SVG } from "./cup-art";
 
 /** How long the undo toast stays up after a press. */
 export const UNDO_MS = 5000;
 
-const CUP_SVG = `
-<svg class="cup" viewBox="0 0 120 120" aria-hidden="true">
-  <path d="M24 40 h60 v30 a30 30 0 0 1 -60 0 z" fill="#7a4a2a" />
-  <path d="M84 48 h6 a12 12 0 0 1 0 24 h-7" fill="none" stroke="#7a4a2a" stroke-width="7" />
-  <ellipse cx="54" cy="104" rx="38" ry="6" fill="#d9c3a5" />
-</svg>`;
+/** Cut Paper cup (src/ui/cup-art.ts); one cup screen is mounted at a time. */
+const CUP_SVG = cupSvg("cup-body-clip");
 
 function mountCup(el: HTMLElement, ctx: AppContext): () => void {
-  el.innerHTML = `
+  el.innerHTML = `${PAPER_BAND_SVG}
     <button class="cup-button" type="button" data-role="cup" aria-label="I skipped a coffee">${CUP_SVG}</button>
-    <p class="total" id="total" data-role="total" aria-live="polite"></p>
+    <p class="total" id="total" data-role="total" aria-live="polite"><span class="total-amount" data-role="total-amount"></span> <span class="total-label">this month</span></p>
     <div class="below-total" data-role="below-total"></div>
     <div class="toast" data-role="undo-toast" hidden>
       <span data-role="toast-text"></span>
       <button type="button" data-role="undo">Undo</button>
     </div>`;
   const cup = el.querySelector<HTMLButtonElement>("[data-role=cup]")!;
-  const total = el.querySelector<HTMLElement>("[data-role=total]")!;
+  const totalAmount = el.querySelector<HTMLElement>("[data-role=total-amount]")!;
   const toast = el.querySelector<HTMLElement>("[data-role=undo-toast]")!;
   const toastText = el.querySelector<HTMLElement>("[data-role=toast-text]")!;
   const undoButton = el.querySelector<HTMLButtonElement>("[data-role=undo]")!;
@@ -34,7 +31,8 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
   let toastTimer: number | undefined;
 
   const render = () => {
-    total.textContent = `${formatPounds(monthPence)} this month`;
+    // The label is static markup; textContent still reads "£X this month".
+    totalAmount.textContent = formatPounds(monthPence);
   };
   const refresh = async () => {
     monthPence = await ctx.ledger.monthToDate(ctx.clock.now());
