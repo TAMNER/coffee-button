@@ -86,12 +86,15 @@ export interface InvestDeps {
   clock: Clock;
   clipboard: Clipboard;
   opener: UrlOpener;
+  /** Called after a confirmed settlement is persisted (the UI emits 'settle' on the bus). */
+  onSettled?: (settlement: Settlement) => void | Promise<void>;
 }
 
 /** Invest £X → copy, open InvestEngine, ask on return, settle on yes. */
 export class InvestFlow {
   private promptListeners = new Set<(text: string) => void>();
   private stopWaiting: (() => void) | null = null;
+  private pendingPence: number | null = null;
 
   constructor(private deps: InvestDeps) {}
 
@@ -101,7 +104,18 @@ export class InvestFlow {
     return () => this.promptListeners.delete(fn);
   }
 
+  /** "Yes": records the pending amount as settled now, then calls onSettled. */
+  async yes(): Promise<Settlement | null> {
+    const amountPence = this.pendingPence;
+    if (amountPence === null) return null;
+    this.pendingPence = null;
+    const settlement = await settle(this.deps.store, amountPence, this.deps.clock.now());
+    await this.deps.onSettled?.(settlement);
+    return settlement;
+  }
+
   async invest(amountPence: number): Promise<void> {
+    this.pendingPence = amountPence;
     this.stopWaiting?.();
     this.stopWaiting = this.deps.opener.onReturn(() => {
       this.stopWaiting?.();
