@@ -4,10 +4,13 @@
 
 **Blocked by:** 03 Press and ledger.
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [ ] Long press on total opens settings; main screen stays a cup otherwise
-- [ ] Items can be added, renamed, repriced; presses keep the price at time of press
-- [ ] Payday stored and validated as 1 to 28
-- [ ] Export produces a JSON file; import restores presses, items, settings, settlements
-- [ ] Import of malformed JSON is rejected with a message and changes nothing
+  (implemented in src/ui/settings.ts as a 600 ms delegated long press on
+  `[data-role=total]`, with no cup.ts change; it type-checks and builds, but no
+  browser was available to try it, so check it on a device)
+- [x] Items can be added, renamed, repriced; presses keep the price at time of press
+- [x] Payday stored and validated as 1 to 28
+- [x] Export produces a JSON file; import restores presses, items, settings, settlements
+- [x] Import of malformed JSON is rejected with a message and changes nothing
