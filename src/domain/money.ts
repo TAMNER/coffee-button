@@ -1,3 +1,5 @@
-export function formatPounds(_pence: number): string {
-  return "£3.50";
+export function formatPounds(pence: number): string {
+  const pounds = Math.floor(pence / 100);
+  const rest = String(pence % 100).padStart(2, "0");
+  return `£${pounds}.${rest}`;
 }
