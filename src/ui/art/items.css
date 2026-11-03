@@ -1,0 +1,17 @@
+/* Cut Paper item artwork. Tokens live in style.css; fallbacks are the light values. */
+.art {
+  display: block;
+  overflow: visible;
+}
+.art .c-cobalt { fill: var(--cobalt, #2443b0); }
+.art .c-mustard { fill: var(--mustard, #f5b335); }
+.art .c-mustard-deep { fill: var(--mustard-deep, #d48e12); }
+.art .c-tomato { fill: var(--tomato, #e5533c); }
+.art .c-cream { fill: var(--cream, #fff9ef); }
+.art .c-dark { fill: var(--dark, #1d2a6e); }
+.art .art-sh * { fill: var(--shadow, #8e2f25); }
+
+/* Not yet reached: cut from the muted card instead. */
+.art-off .art * { fill: var(--off, #e3ada0); }
+.art-off .art .c-cream { fill: var(--off-hi, #ecc4b9); }
+.art-off .art .art-sh * { fill: var(--off-shadow, #cc9283); }
