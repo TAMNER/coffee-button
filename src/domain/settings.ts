@@ -68,6 +68,9 @@ function parseExport(json: string): ExportFile {
   if (file?.version !== EXPORT_VERSION) {
     throw new Error(`${NOT_EXPORT} (unsupported version ${String(file?.version)}; expected ${EXPORT_VERSION})`);
   }
+  for (const key of ["items", "presses", "settlements", "goals"]) {
+    if (!Array.isArray(file[key])) throw new Error(`${NOT_EXPORT} (${key} must be a list)`);
+  }
   return data as ExportFile;
 }
 

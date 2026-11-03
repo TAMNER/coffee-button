@@ -130,4 +130,15 @@ describe("settings: malformed import", () => {
 
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
+
+  it("a version 1 file whose presses is not an array is rejected naming 'presses' and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { version: 1, items: [], presses: "lots", settlements: [], settings: { paydayDay: 25 }, goals: [] };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow(
+      "This file is not a Coffee Button export (presses must be a list)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
 });
