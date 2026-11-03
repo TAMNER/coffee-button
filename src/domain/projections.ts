@@ -24,3 +24,8 @@ export function paceToYearEnd(presses: Press[], now: Date): number {
   const daysInYear = dayNumber(new Date(year + 1, 0, 1)) - dayNumber(jan1);
   return Math.round((yearToDate / daysElapsed) * daysInYear);
 }
+
+/** Annual compounding: principal * (1 + rate)^years, rounded to pence. */
+export function compound(principalPence: number, rate: number, years: number): number {
+  return Math.round(principalPence * (1 + rate) ** years);
+}
