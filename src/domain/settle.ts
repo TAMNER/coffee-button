@@ -154,14 +154,18 @@ export class InvestFlow {
     const pending = this.pending;
     if (pending === null) return null;
     this.pending = null;
+    // Cleared before settling: if the app dies in between, the money shows as
+    // owed again (safe) rather than being asked about and settled twice.
+    await this.savePending(null);
     const settlement = await settle(this.deps.store, pending.amountPence, new Date(pending.startedAt));
     await this.deps.onSettled?.(settlement);
     return settlement;
   }
 
   /** "Not yet": drops the pending amount; it stays owed. */
-  notYet(): void {
+  async notYet(): Promise<void> {
     this.pending = null;
+    await this.savePending(null);
   }
 
   async invest(amountPence: number): Promise<void> {

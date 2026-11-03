@@ -77,7 +77,7 @@ describe("InvestFlow", () => {
     await flow.invest(1250);
     opener.returnToApp();
 
-    flow.notYet();
+    await flow.notYet();
 
     expect(await flow.yes()).toBeNull();
     expect(await store.settlements.list()).toEqual([]);
@@ -114,5 +114,21 @@ describe("InvestFlow across an app restart (iOS kills the PWA while InvestEngine
 
     expect(prompts).toEqual(["Did you invest £12.50?"]);
     expect(settlement).toMatchObject({ amountPence: 1250, at: new Date(2026, 10, 26, 9, 0).getTime() });
+  });
+
+  it("after Yes, and after Not yet, a relaunched flow asks nothing", async () => {
+    const asked: string[] = [];
+    for (const answer of ["yes", "notYet"] as const) {
+      const { store, clock, clipboard, opener, flow } = setup();
+      await flow.invest(1250);
+      opener.returnToApp();
+      await (answer === "yes" ? flow.yes() : flow.notYet());
+
+      const relaunched = new InvestFlow({ store, clock, clipboard, opener });
+      relaunched.onPrompt((text) => asked.push(`${answer}: ${text}`));
+      await relaunched.resume();
+    }
+
+    expect(asked).toEqual([]);
   });
 });

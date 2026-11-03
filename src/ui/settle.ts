@@ -62,7 +62,7 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
     closePrompt();
   });
   notYetButton.addEventListener("click", () => {
-    flow.notYet();
+    void flow.notYet();
     closePrompt();
   });
 
