@@ -9,4 +9,8 @@ describe("formatPounds", () => {
   it("formats 1205 pence as £12.05, keeping the leading zero in pence", () => {
     expect(formatPounds(1205)).toBe("£12.05");
   });
+
+  it("formats zero as £0.00", () => {
+    expect(formatPounds(0)).toBe("£0.00");
+  });
 });
