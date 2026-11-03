@@ -17,4 +17,15 @@ describe("generateIcs", () => {
     expect(lines).toContain("RRULE:FREQ=MONTHLY;BYMONTHDAY=26");
     expect(lines).toContain("DTSTART;TZID=Europe/London:20261126T090000");
   });
+
+  it("is identical for identical input, with a UID tied to the app URL so re-adding updates rather than duplicates", () => {
+    const options = { payday: 25, appUrl, now: new Date(2026, 10, 3, 10, 0), tz: "Europe/London" };
+    const first = generateIcs(options);
+    const uid = (ics: string) => ics.split("\r\n").find((l) => l.startsWith("UID:"));
+
+    expect(generateIcs({ ...options })).toBe(first);
+    expect(uid(first)).toMatch(/^UID:\S+$/);
+    expect(uid(generateIcs({ ...options, payday: 20, now: new Date(2027, 0, 9, 8, 0) }))).toBe(uid(first));
+    expect(uid(generateIcs({ ...options, appUrl: "https://elsewhere.example/" }))).not.toBe(uid(first));
+  });
 });

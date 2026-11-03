@@ -15,6 +15,23 @@ export interface IcsOptions {
 
 const pad = (n: number, width = 2) => String(n).padStart(width, "0");
 
+/** FNV-1a 32-bit, hex. Stable across runs, so the same app URL always gives the same UID. */
+function hash(text: string): string {
+  let h = 0x811c9dc5;
+  for (const byte of new TextEncoder().encode(text)) {
+    h ^= byte;
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, "0");
+}
+
+function utcStamp(d: Date): string {
+  return (
+    `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}` +
+    `T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`
+  );
+}
+
 export function generateIcs({ payday, appUrl, now, tz }: IcsOptions): string {
   const settleDay = payday + 1;
   const start = new Date(now.getFullYear(), now.getMonth(), settleDay);
@@ -24,6 +41,8 @@ export function generateIcs({ payday, appUrl, now, tz }: IcsOptions): string {
     "VERSION:2.0",
     "PRODID:-//Coffee Button//Reminder//EN",
     "BEGIN:VEVENT",
+    `UID:monthly-reminder-${hash(appUrl)}@coffee-button`,
+    `DTSTAMP:${utcStamp(now)}`,
     `DTSTART;TZID=${tz}:${dtstart}`,
     `RRULE:FREQ=MONTHLY;BYMONTHDAY=${settleDay}`,
     "SUMMARY:Coffee Button: invest",
