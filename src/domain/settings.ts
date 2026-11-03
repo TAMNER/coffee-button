@@ -1,4 +1,4 @@
-import type { Collection, Goal,Item, Press, Settings, Settlement, Store } from "./store";
+import { DEFAULT_ITEM, type Collection, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
 
 export async function addItem(
   store: Store,
@@ -92,6 +92,9 @@ function parseExport(json: string): ExportFile {
     rows.forEach((row: unknown, i) => {
       if (!isRow(row, fields)) throw new Error(`${NOT_EXPORT} (${key} entry ${i + 1} is not valid)`);
     });
+  }
+  if (!(file.items as Item[]).some((item) => item.id === DEFAULT_ITEM.id)) {
+    throw new Error(`${NOT_EXPORT} (it has no Coffee item)`);
   }
   const settings = file.settings as Partial<Settings> | undefined;
   if (!validatePayday(Number(settings?.paydayDay))) {

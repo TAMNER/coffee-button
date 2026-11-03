@@ -176,4 +176,15 @@ describe("settings: malformed import", () => {
 
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
+
+  it("a file whose items leave out Coffee is rejected, because the cup presses Coffee, and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const noCoffee = { ...FIXTURE, items: [{ id: "beer", name: "Beer", icon: "pint", pricePence: 600 }] };
+
+    await expect(importData(store, JSON.stringify(noCoffee))).rejects.toThrow(
+      "This file is not a Coffee Button export (it has no Coffee item)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
 });
