@@ -1,3 +1,4 @@
+import { listItems } from "./items";
 import { activeItemId } from "./settings";
 import type { Item, Press, Store } from "./store";
 
@@ -46,7 +47,8 @@ export class Ledger {
     return this.store.presses.list();
   }
 
+  /** Every item in cycling order (Coffee, Beer, then the rest). */
   items(): Promise<Item[]> {
-    return this.store.items.list();
+    return listItems(this.store);
   }
 }

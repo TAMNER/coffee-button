@@ -120,6 +120,7 @@ body {
   overflow: visible; /* the cheer's starburst fans out past the disc */
 }
 .cup-button {
+  position: relative; /* the outgoing vessel is laid over the incoming one mid-slide */
   border: 0;
   padding: 0;
   background: none;
@@ -131,6 +132,13 @@ body {
    a native pan (which would end in pointercancel). See attachNavigation. */
 #app[data-screen="cup"] {
   touch-action: none;
+}
+/* The vessel being swiped away (src/ui/cup.ts, slideVessel). */
+.cup-button .cup-leaving {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
 }
 .cup-button:active .cup {
   transform: scale(0.96);
