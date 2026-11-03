@@ -217,7 +217,7 @@ function mountSettings(el: HTMLElement, ctx: AppContext): () => void {
   panel.innerHTML = `
     <header class="settings-header">
       <h1>Settings</h1>
-      <button type="button" data-role="done">Done</button>
+      <button type="button" class="settings-close" data-role="done">Done</button>
     </header>`;
   panel.querySelector("[data-role=done]")!.addEventListener("click", () => ctx.show(HOME_SCREEN));
   for (const { title, mount } of settingsSections()) {
