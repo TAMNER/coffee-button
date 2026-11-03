@@ -5,6 +5,12 @@ URL serving a production build (`npm run build`). Tick each box only when the
 expected result happens. Anything that fails gets a fix ticket in
 `.scratch/coffee-button/issues/` before ticket 11 closes.
 
+> Before you start: iCloud Private Relay must be off on the phone (Settings,
+> your name, iCloud, Private Relay), or at least "Limit IP Address Tracking"
+> off for this Wi-Fi. Private Relay resolves Safari's DNS through Apple, so the
+> Tailscale MagicDNS name never resolves and the page spins forever. Found
+> 2026-11-03. The raw IP is no use: the certificate is for the name only.
+
 Before starting: ring/silent switch off silent, volume up, and
 Settings > Sounds & Haptics > System Haptics on.
 
