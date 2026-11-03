@@ -41,6 +41,6 @@ export async function settle(
  * and on any day while money owed from an earlier month is still unsettled.
  * `owedSince` is the oldest unsettled press (see owedSince()).
  */
-export function isSettleWindow(now: Date, payday: number, _owedSince: Date | null, _owedPence: number): boolean {
-  return now.getDate() > payday;
+export function isSettleWindow(now: Date, payday: number, _owedSince: Date | null, owedPence: number): boolean {
+  return owedPence > 0 && now.getDate() > payday;
 }
