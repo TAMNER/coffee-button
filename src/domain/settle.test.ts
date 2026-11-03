@@ -63,4 +63,8 @@ describe("isSettleWindow (payday 25)", () => {
   it("is closed on 28 Nov when nothing is owed", () => {
     expect(isSettleWindow(new Date(2026, 10, 28, 12, 0), 25, null, 0)).toBe(false);
   });
+
+  it("is closed at 23:59 on payday 25 Nov when everything owed is from November", () => {
+    expect(isSettleWindow(new Date(2026, 10, 25, 23, 59), 25, new Date(2026, 10, 2, 9, 0), 1250)).toBe(false);
+  });
 });
