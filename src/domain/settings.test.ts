@@ -161,4 +161,19 @@ describe("settings: malformed import", () => {
 
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
+
+  it("a file whose settlement has no amount or whose press has a text price is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const noAmount = { ...FIXTURE, settlements: [{ id: "s1", at: 1790100000000 }] };
+    const textPrice = { ...FIXTURE, presses: [{ id: "p1", itemId: "coffee", pricePence: "350", at: 1790000000000 }] };
+
+    await expect(importData(store, JSON.stringify(noAmount))).rejects.toThrow(
+      "This file is not a Coffee Button export (settlements entry 1 is not valid)",
+    );
+    await expect(importData(store, JSON.stringify(textPrice))).rejects.toThrow(
+      "This file is not a Coffee Button export (presses entry 1 is not valid)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
 });

@@ -56,6 +56,22 @@ export async function exportData(store: Store): Promise<string> {
 
 type Row = Record<string, unknown>;
 
+/** The fields every row must carry, and their types. */
+const ROW_FIELDS: Record<"items" | "presses" | "settlements" | "goals", Record<string, "string" | "number">> = {
+  items: { id: "string", name: "string", icon: "string", pricePence: "number" },
+  presses: { id: "string", itemId: "string", pricePence: "number", at: "number" },
+  settlements: { id: "string", amountPence: "number", at: "number" },
+  goals: { id: "string", name: "string", pricePence: "number" },
+};
+
+function isRow(row: unknown, fields: Record<string, "string" | "number">): boolean {
+  if (typeof row !== "object" || row === null) return false;
+  return Object.entries(fields).every(([name, type]) => {
+    const value = (row as Row)[name];
+    return type === "number" ? typeof value === "number" && Number.isFinite(value) : typeof value === "string";
+  });
+}
+
 const NOT_EXPORT = "This file is not a Coffee Button export";
 
 /** Parses and checks the whole file before anything is written. */
@@ -70,11 +86,11 @@ function parseExport(json: string): ExportFile {
   if (file?.version !== EXPORT_VERSION) {
     throw new Error(`${NOT_EXPORT} (unsupported version ${String(file?.version)}; expected ${EXPORT_VERSION})`);
   }
-  for (const key of ["items", "presses", "settlements", "goals"]) {
+  for (const [key, fields] of Object.entries(ROW_FIELDS)) {
     const rows = file[key];
     if (!Array.isArray(rows)) throw new Error(`${NOT_EXPORT} (${key} must be a list)`);
     rows.forEach((row: unknown, i) => {
-      if (typeof (row as Row | null)?.id !== "string") throw new Error(`${NOT_EXPORT} (${key} entry ${i + 1} is not valid)`);
+      if (!isRow(row, fields)) throw new Error(`${NOT_EXPORT} (${key} entry ${i + 1} is not valid)`);
     });
   }
   const settings = file.settings as Partial<Settings> | undefined;
