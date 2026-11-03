@@ -15,4 +15,14 @@ describe("item cycling", () => {
     expect(prevItem([coffee, beer, tea], "beer")).toBe("coffee");
     expect(prevItem([coffee, beer, tea], "coffee")).toBe("tea");
   });
+
+  it("with one item both directions return it", () => {
+    expect(nextItem([coffee], "coffee")).toBe("coffee");
+    expect(prevItem([coffee], "coffee")).toBe("coffee");
+  });
+
+  it("with an unknown active id both directions return the first item", () => {
+    expect(nextItem([coffee, beer, tea], "gone")).toBe("coffee");
+    expect(prevItem([coffee, beer, tea], "gone")).toBe("coffee");
+  });
 });
