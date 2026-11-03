@@ -114,10 +114,11 @@ export async function setPayday(store: Store, day: number): Promise<void> {
   await store.putSettings({ ...(await store.getSettings()), paydayDay: day });
 }
 
-/** The item a tap on the cup records: the stored choice, else the first item in cycling order. */
+/** The item a tap on the cup records: the stored choice while it exists, else the first item in cycling order. */
 export async function activeItemId(store: Store): Promise<string> {
   const chosen = (await store.getSettings()).activeItemId;
-  return chosen ?? (await listItems(store))[0].id;
+  const items = await listItems(store);
+  return items.find((item) => item.id === chosen)?.id ?? items[0].id;
 }
 
 export async function setActiveItem(store: Store, id: string): Promise<void> {

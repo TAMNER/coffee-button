@@ -52,6 +52,14 @@ describe("settings: active item", () => {
     expect(await activeItemId(store)).toBe("beer");
     expect(await store.getSettings()).toEqual({ paydayDay: 25, activeItemId: "beer" });
   });
+
+  it("falls back to Coffee when the remembered item no longer exists", async () => {
+    const store = new MemoryStore();
+    await setActiveItem(store, "beer");
+    await store.items.delete("beer");
+
+    expect(await activeItemId(store)).toBe("coffee");
+  });
 });
 
 describe("settings: payday", () => {
