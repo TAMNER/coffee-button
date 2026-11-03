@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { FakeClipboard } from "../adapters/clipboard";
 import { FakeClock } from "../adapters/clock";
 import { FakeUrlOpener } from "../adapters/open-url";
-import { InvestFlow } from "../domain/settle";
 import type { SettleCeremonyPlan } from "../domain/settle-ceremony";
 import { MemoryStore, type Settlement } from "../domain/store";
 import { createBus } from "./app";
+import { createInvestFlow } from "./settle";
 import { wireSettleCeremony } from "./settle-ceremony";
 
 describe("wireSettleCeremony", () => {
@@ -19,14 +19,12 @@ describe("wireSettleCeremony", () => {
       },
     });
 
-    // The Yes handler in src/ui/settle.ts does exactly this: InvestFlow persists, then onSettled emits.
-    const flow = new InvestFlow({
-      store,
-      clock: new FakeClock(new Date(2026, 10, 26, 9, 0)),
-      clipboard: new FakeClipboard(),
-      opener: new FakeUrlOpener(),
-      onSettled: (settlement) => bus.emit("settle", { settlement }),
-    });
+    // The same factory the Invest button uses (src/ui/settle.ts).
+    const flow = createInvestFlow(
+      { store, bus, clock: new FakeClock(new Date(2026, 10, 26, 9, 0)) },
+      new FakeClipboard(),
+      new FakeUrlOpener(),
+    );
     await flow.invest(1250);
     const settlement = await flow.yes();
     await new Promise((resolve) => setTimeout(resolve, 0));

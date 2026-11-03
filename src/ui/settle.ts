@@ -1,12 +1,27 @@
 // "Invest £X" under the total, and the "Did you invest £X?" question on return.
 // Thin DOM glue: the behaviour lives in src/domain/settle.ts.
-import { browserClipboard } from "../adapters/clipboard";
+import { browserClipboard, type Clipboard } from "../adapters/clipboard";
 import { deviceHaptics } from "../adapters/haptics";
-import { browserUrlOpener } from "../adapters/open-url";
+import { browserUrlOpener, type UrlOpener } from "../adapters/open-url";
 import { formatPounds } from "../domain/money";
 import { InvestFlow, isSettleWindow, owed, owedSince } from "../domain/settle";
 import type { AppContext } from "./app";
 import { registerBelowTotal } from "./cup";
+
+/** The app's InvestFlow: a Yes emits 'settle' on the bus once the settlement is stored. */
+export function createInvestFlow(
+  ctx: Pick<AppContext, "store" | "clock" | "bus">,
+  clipboard: Clipboard = browserClipboard,
+  opener: UrlOpener = browserUrlOpener,
+): InvestFlow {
+  return new InvestFlow({
+    store: ctx.store,
+    clock: ctx.clock,
+    clipboard,
+    opener,
+    onSettled: (settlement) => ctx.bus.emit("settle", { settlement }),
+  });
+}
 
 function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
   el.className = "invest";
@@ -23,13 +38,7 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
   const yesButton = el.querySelector<HTMLButtonElement>("[data-role=invest-yes]")!;
   const notYetButton = el.querySelector<HTMLButtonElement>("[data-role=invest-not-yet]")!;
 
-  const flow = new InvestFlow({
-    store: ctx.store,
-    clock: ctx.clock,
-    clipboard: browserClipboard,
-    opener: browserUrlOpener,
-    onSettled: (settlement) => ctx.bus.emit("settle", { settlement }),
-  });
+  const flow = createInvestFlow(ctx);
 
   let owedPence = 0;
   const refresh = async () => {
