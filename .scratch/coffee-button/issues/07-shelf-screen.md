@@ -4,10 +4,18 @@
 
 **Blocked by:** 03 Press and ledger.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Pace projection uses presses this calendar year extrapolated to 31 December; unit tested
-- [ ] Compounding uses fixed 5% annual over 10 years; unit tested
-- [ ] Items light when lifetime total >= price; progress shown otherwise
-- [ ] Up to three personal goals, add and remove, persisted
-- [ ] Default item list of about ten items with editable prices
+- [x] Pace projection uses presses this calendar year extrapolated to 31 December; unit tested (`paceToYearEnd`, £120 by 31 March -> £486.67)
+- [x] Compounding uses fixed 5% annual over 10 years; unit tested (`compound`, £100 -> £162.89, £240 -> £390.93)
+- [x] Items light when lifetime total >= price; progress shown otherwise (`shelfState` unit tested; lit/greyed with thin progress bars checked in a headless happy-dom smoke run, not yet on device)
+- [x] Up to three personal goals, add and remove, persisted (`addGoal`/`removeGoal` through the Store; fourth rejected)
+- [x] Default item list of about ten items with editable prices (ten defaults; prices stored in `Settings.shelfPrices`, edited in a "Shelf prices" settings section, which appears once ticket 05's settings screen is merged)
+
+## Notes for later tickets
+
+- Navigation is delegated from `src/ui/shelf.ts` (no edit to `cup.ts`): a plain tap on `[data-role=total]` (held under 500 ms, so ticket 05's 600 ms long press still wins) or a swipe up on the cup screen opens `shelf`; swipe down or the Back arrow returns.
+- Overdue line: `src/ui/shelf.ts` has a placeholder `overdueLine` returning null. Ticket 06 replaces it with the real one (signature `(now: Date) => string | null | Promise<string | null>`); `shelfView` carries it into the view state.
+- `Settings` gained an optional `shelfPrices` field (additive; old data reads as defaults).
+- The shelf refreshes on the `settle` bus event so ticket 08's lifetime tick-up is visible.
+- Shapes are geometric placeholders keyed by item id, for ticket 10 to replace.
