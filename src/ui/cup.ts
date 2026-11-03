@@ -1,3 +1,4 @@
+import { deviceHaptics } from "../adapters/haptics";
 import { formatPounds } from "../domain/money";
 import { DEFAULT_ITEM } from "../domain/store";
 import { registerScreen, type AppContext, type Mount } from "./app";
@@ -45,6 +46,8 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
   };
 
   cup.addEventListener("click", async () => {
+    // First, before any await: iOS only ticks the switch haptic inside the tap's gesture.
+    deviceHaptics().tap();
     const press = await ctx.ledger.addPress(DEFAULT_ITEM.id, ctx.clock.now());
     ctx.bus.emit("press", { press });
     monthPence += press.pricePence;

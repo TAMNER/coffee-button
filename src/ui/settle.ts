@@ -1,6 +1,7 @@
 // "Invest £X" under the total, and the "Did you invest £X?" question on return.
 // Thin DOM glue: the behaviour lives in src/domain/settle.ts.
 import { browserClipboard } from "../adapters/clipboard";
+import { deviceHaptics } from "../adapters/haptics";
 import { browserUrlOpener } from "../adapters/open-url";
 import { formatPounds } from "../domain/money";
 import { InvestFlow, isSettleWindow, owed, owedSince } from "../domain/settle";
@@ -53,6 +54,9 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
     void refresh();
   };
   yesButton.addEventListener("click", async () => {
+    // Inside the gesture, before any await, or iOS drops the haptic (the settle
+    // ceremony runs later, after the settlement is persisted).
+    deviceHaptics().tap();
     prompt.hidden = true;
     await flow.yes();
     closePrompt();

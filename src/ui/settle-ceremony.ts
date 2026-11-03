@@ -1,4 +1,3 @@
-import { SwitchHaptics } from "../adapters/haptics";
 import { formatPounds } from "../domain/money";
 import { settleCeremonyPlan, tickerFrames, type SettleCeremonyPlan } from "../domain/settle-ceremony";
 import type { Store } from "../domain/store";
@@ -152,11 +151,9 @@ async function tickLifetime(fromPence: number, toPence: number): Promise<void> {
 let plays = 0;
 
 onStart((ctx) => {
-  const haptics = new SwitchHaptics(document);
   wireSettleCeremony(ctx.bus, ctx.store, {
     async play(plan) {
       try {
-        haptics.tap();
         await cascade(plan.coins, Date.now() + ++plays);
         ctx.show(SHELF_SCREEN);
         await tickLifetime(plan.fromPence, plan.toPence);

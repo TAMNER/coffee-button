@@ -1,11 +1,14 @@
 import { WebAudioCoin, type Audio } from "../adapters/audio";
-import { SwitchHaptics, type Haptics } from "../adapters/haptics";
 import { ceremonyTimeline, type CeremonyStep } from "../domain/ceremony-timeline";
 import { onStart, type Bus } from "./app";
 
+/**
+ * No haptics here: iOS only ticks the switch haptic inside the user's gesture,
+ * and the ceremony runs after the press is persisted (an IndexedDB await later).
+ * The cup's click handler taps it synchronously instead (src/ui/cup.ts).
+ */
 export interface CeremonyAdapters {
   audio: Audio;
-  haptics: Haptics;
 }
 
 /** Draws one step of one play; resolves when that step has finished. */
@@ -20,7 +23,6 @@ export class Ceremony {
   constructor(private stage: Stage) {}
 
   async play(adapters: CeremonyAdapters): Promise<void> {
-    quietly(() => adapters.haptics.tap());
     for (const step of ceremonyTimeline()) {
       await this.stage.step(step);
       if (step.name === "coin") quietly(() => adapters.audio.playCoin());
@@ -217,10 +219,9 @@ let plays = 0;
 onStart((ctx) => {
   const audio = new WebAudioCoin();
   audio.unlockOnFirstGesture(document);
-  const haptics = new SwitchHaptics(document);
   wireCeremony(
     ctx.bus,
     { play: (adapters) => new Ceremony(svgStage(Date.now() + ++plays)).play(adapters) },
-    { audio, haptics },
+    { audio },
   );
 });
