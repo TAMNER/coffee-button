@@ -22,4 +22,12 @@ describe("InvestFlow", () => {
 
     expect(clipboard.written).toEqual(["12.50"]);
   });
+
+  it("opens https://investengine.com/ and nothing else when that open works", async () => {
+    const { opener, flow } = setup();
+
+    await flow.invest(1250);
+
+    expect(opener.opened).toEqual(["https://investengine.com/"]);
+  });
 });

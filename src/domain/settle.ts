@@ -76,6 +76,9 @@ function isOverdue(now: Date, owedSince: Date | null): boolean {
   return owedSince !== null && owedSince < monthStart;
 }
 
+/** Universal link: opens the InvestEngine app when installed, the website otherwise. */
+export const INVESTENGINE_URL = "https://investengine.com/";
+
 export interface InvestDeps {
   store: Store;
   clock: Clock;
@@ -88,6 +91,10 @@ export class InvestFlow {
   constructor(private deps: InvestDeps) {}
 
   async invest(amountPence: number): Promise<void> {
-    await this.deps.clipboard.writeText(formatPounds(amountPence).slice(1));
+    // Both start before any await: Safari only allows them inside the tap's user activation.
+    const copied = this.deps.clipboard.writeText(formatPounds(amountPence).slice(1));
+    const opened = this.deps.opener.open(INVESTENGINE_URL);
+    await copied;
+    await opened;
   }
 }
