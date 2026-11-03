@@ -171,7 +171,15 @@ async function mountShelfPrices(el: HTMLElement, ctx: AppContext): Promise<void>
   }
 }
 
-/** Plain tap on the total or swipe up on the cup screen opens the shelf; swipe down closes it. */
+/**
+ * Plain tap on the total or swipe up on the cup screen opens the shelf; swipe
+ * down closes it. iOS turns a vertical drag into a native pan and sends
+ * pointercancel instead of pointerup, so the end of a swipe is read from
+ * touchend too (which still fires during a pan), and the cup screen sets
+ * touch-action: none (style.css) so its drag is not a pan at all. On the
+ * shelf, swipe down only counts from the top of the list; the Back arrow is
+ * the main way back.
+ */
 function attachNavigation(ctx: AppContext): void {
   const screen = () => document.getElementById("app")?.dataset.screen;
   let downAt = 0;
@@ -179,24 +187,36 @@ function attachNavigation(ctx: AppContext): void {
   let startY = 0;
   let swiped = false;
 
-  document.addEventListener("pointerdown", (e) => {
-    downAt = e.timeStamp;
-    startX = e.clientX;
-    startY = e.clientY;
+  const start = (x: number, y: number, at: number) => {
+    downAt = at;
+    startX = x;
+    startY = y;
     swiped = false;
-  });
-  document.addEventListener("pointerup", (e) => {
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
+  };
+  const end = (x: number, y: number) => {
+    const dx = x - startX;
+    const dy = y - startY;
     if (Math.abs(dy) < SWIPE_PX || Math.abs(dx) > Math.abs(dy)) return;
     if (dy < 0 && screen() === HOME_SCREEN) {
       swiped = true;
       ctx.show(SHELF_SCREEN);
-    } else if (dy > 0 && screen() === SHELF_SCREEN) {
+    } else if (dy > 0 && screen() === SHELF_SCREEN && (document.scrollingElement?.scrollTop ?? 0) <= 0) {
       swiped = true;
       ctx.show(HOME_SCREEN);
     }
-  });
+  };
+  // Both families feed the same start/end; after a swipe the screen has changed,
+  // so the second of a pointerup/touchend pair matches nothing.
+  document.addEventListener("pointerdown", (e) => start(e.clientX, e.clientY, e.timeStamp));
+  document.addEventListener("pointerup", (e) => end(e.clientX, e.clientY));
+  document.addEventListener("touchstart", (e) => {
+    const t = e.changedTouches[0];
+    if (t) start(t.clientX, t.clientY, e.timeStamp);
+  }, { passive: true });
+  document.addEventListener("touchend", (e) => {
+    const t = e.changedTouches[0];
+    if (t) end(t.clientX, t.clientY);
+  }, { passive: true });
   // Capture phase: a swipe that started on the cup must not also count as a press.
   document.addEventListener(
     "click",

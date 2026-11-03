@@ -3,6 +3,10 @@
   --ink: #4a2e1c;
   color-scheme: light;
 }
+html {
+  /* No double-tap zoom anywhere (iOS ignores user-scalable=no in the viewport). */
+  touch-action: manipulation;
+}
 html,
 body {
   margin: 0;
@@ -34,11 +38,19 @@ body {
   background: none;
   cursor: pointer;
   touch-action: manipulation;
+  -webkit-touch-callout: none; /* no image callout on a long press of the SVG */
+}
+/* The cup screen does not scroll: a vertical drag is a swipe to the shelf, not
+   a native pan (which would end in pointercancel). See attachNavigation. */
+#app[data-screen="cup"] {
+  touch-action: none;
 }
 .cup-button:active .cup {
   transform: scale(0.96);
 }
 .total {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
@@ -61,6 +73,7 @@ body {
   display: none;
 }
 .toast button {
+  touch-action: manipulation;
   border: 0;
   border-radius: 999px;
   padding: 0.4rem 0.9rem;

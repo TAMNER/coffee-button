@@ -30,6 +30,7 @@ const MOVE_TOLERANCE_PX = 10;
 /** Long press on the total opens settings. Delegated, so it survives cup re-renders. */
 function attachLongPress(ctx: AppContext): void {
   let timer: number | undefined;
+  let swallowClick = false;
   let startX = 0;
   let startY = 0;
   const cancel = () => {
@@ -37,6 +38,7 @@ function attachLongPress(ctx: AppContext): void {
     timer = undefined;
   };
   document.addEventListener("pointerdown", (e) => {
+    swallowClick = false;
     const target = e.target as Element | null;
     if (!target?.closest("[data-role=total]")) return;
     startX = e.clientX;
@@ -44,6 +46,7 @@ function attachLongPress(ctx: AppContext): void {
     cancel();
     timer = window.setTimeout(() => {
       timer = undefined;
+      swallowClick = true;
       ctx.show("settings");
     }, LONG_PRESS_MS);
   });
@@ -52,6 +55,19 @@ function attachLongPress(ctx: AppContext): void {
     if (Math.hypot(e.clientX - startX, e.clientY - startY) > MOVE_TOLERANCE_PX) cancel();
   });
   document.addEventListener("pointerup", cancel);
+  // On iOS the click from the same finger lift lands on whatever Settings
+  // control is now under it; swallow that one click (capture phase). A new
+  // touch clears the flag, so a later real tap is never eaten.
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!swallowClick) return;
+      swallowClick = false;
+      e.stopPropagation();
+      e.preventDefault();
+    },
+    true,
+  );
   document.addEventListener("pointercancel", cancel);
   document.addEventListener("contextmenu", (e) => {
     if ((e.target as Element | null)?.closest("[data-role=total]")) e.preventDefault();
