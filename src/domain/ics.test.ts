@@ -53,4 +53,18 @@ describe("generateIcs", () => {
     const unfolded = ics.replace(/\r\n /g, "").split("\r\n");
     expect(unfolded).toContain(`URL:${longUrl}`);
   });
+
+  it("defines Europe/London in a VTIMEZONE: GMT, and BST from the last Sunday in March to the last Sunday in October", () => {
+    const ics = generateIcs({ payday: 25, appUrl, now: new Date(2026, 10, 3, 10, 0), tz: "Europe/London" });
+    const tz = ics.slice(ics.indexOf("BEGIN:VTIMEZONE"), ics.indexOf("END:VTIMEZONE"));
+
+    expect(ics.indexOf("BEGIN:VTIMEZONE")).toBeLessThan(ics.indexOf("BEGIN:VEVENT"));
+    expect(tz).toContain("TZID:Europe/London\r\n");
+    expect(tz).toContain("BEGIN:DAYLIGHT\r\n");
+    expect(tz).toContain("TZOFFSETFROM:+0000\r\nTZOFFSETTO:+0100\r\n");
+    expect(tz).toContain("RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU\r\n");
+    expect(tz).toContain("BEGIN:STANDARD\r\n");
+    expect(tz).toContain("TZOFFSETFROM:+0100\r\nTZOFFSETTO:+0000\r\n");
+    expect(tz).toContain("RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\r\n");
+  });
 });

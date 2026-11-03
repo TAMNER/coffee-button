@@ -52,6 +52,27 @@ function fold(line: string): string {
   return parts.join("\r\n");
 }
 
+/** UK clocks: BST from 01:00 GMT on the last Sunday in March, GMT from 02:00 BST on the last Sunday in October. */
+const EUROPE_LONDON = [
+  "BEGIN:VTIMEZONE",
+  "TZID:Europe/London",
+  "BEGIN:DAYLIGHT",
+  "TZNAME:BST",
+  "TZOFFSETFROM:+0000",
+  "TZOFFSETTO:+0100",
+  "DTSTART:19700329T010000",
+  "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU",
+  "END:DAYLIGHT",
+  "BEGIN:STANDARD",
+  "TZNAME:GMT",
+  "TZOFFSETFROM:+0100",
+  "TZOFFSETTO:+0000",
+  "DTSTART:19701025T020000",
+  "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU",
+  "END:STANDARD",
+  "END:VTIMEZONE",
+];
+
 export function generateIcs({ payday, appUrl, now, tz }: IcsOptions): string {
   // The 29th is missing from most Februaries, so payday 28 settles on the 1st.
   const settleDay = payday >= 28 ? 1 : payday + 1;
@@ -62,6 +83,7 @@ export function generateIcs({ payday, appUrl, now, tz }: IcsOptions): string {
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//Coffee Button//Reminder//EN",
+    ...EUROPE_LONDON,
     "BEGIN:VEVENT",
     `UID:monthly-reminder-${hash(appUrl)}@coffee-button`,
     `DTSTAMP:${utcStamp(now)}`,
