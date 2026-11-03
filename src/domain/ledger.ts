@@ -1,4 +1,4 @@
-import type { Press, Store } from "./store";
+import type { Item, Press, Store } from "./store";
 
 export class Ledger {
   constructor(
@@ -34,5 +34,13 @@ export class Ledger {
   async lifetime(): Promise<number> {
     const presses = await this.store.presses.list();
     return presses.reduce((sum, p) => sum + p.pricePence, 0);
+  }
+
+  presses(): Promise<Press[]> {
+    return this.store.presses.list();
+  }
+
+  items(): Promise<Item[]> {
+    return this.store.items.list();
   }
 }
