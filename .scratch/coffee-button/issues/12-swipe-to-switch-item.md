@@ -6,9 +6,9 @@
 
 **Status:** ready-for-agent
 
-- [ ] nextItem/prevItem cycle through items in order and wrap; unit tested
-- [ ] Beer (600 pence, icon "beer") is seeded for new stores and added once to existing stores that lack it; unit tested, never duplicated
-- [ ] Active item id persisted in settings; defaults to Coffee; survives reload; unit tested
-- [ ] Press records the active item's current price; unit tested
-- [ ] Horizontal swipe switches with a slide transition; vertical swipe still opens the shelf
+- [x] nextItem/prevItem cycle through items in order and wrap; unit tested
+- [x] Beer (600 pence, icon "beer") is seeded for new stores and added once to existing stores that lack it; unit tested, never duplicated
+- [x] Active item id persisted in settings; defaults to Coffee; survives reload; unit tested
+- [x] Press records the active item's current price; unit tested
+- [x] Horizontal swipe switches with a slide transition; vertical swipe still opens the shelf
 - [ ] Pint glass artwork and beer-coloured pour in the ceremony
