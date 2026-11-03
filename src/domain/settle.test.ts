@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { owed, settle } from "./settle";
+import { owed, owedSince, settle } from "./settle";
 import { MemoryStore } from "./store";
 
 const press = (id: string, pricePence: number, at: Date) => ({ id, itemId: "coffee", pricePence, at: at.getTime() });
@@ -40,5 +40,17 @@ describe("settle", () => {
       { id: settlement.id, amountPence: 1250, at: new Date(2026, 10, 26, 9, 0).getTime() },
     ]);
     expect(await owed(store, new Date(2026, 10, 26, 9, 1))).toBe(0);
+  });
+});
+
+describe("owedSince", () => {
+  it("is the oldest press after the last settlement: settled 26 Oct, presses 30 Oct and 2 Nov, so 30 Oct", async () => {
+    const store = new MemoryStore();
+    await store.presses.put(press("a", 350, new Date(2026, 9, 20, 9, 0)));
+    await store.presses.put(press("d", 600, new Date(2026, 10, 2, 18, 0)));
+    await store.presses.put(press("c", 350, new Date(2026, 9, 30, 9, 0)));
+    await store.settlements.put({ id: "s", amountPence: 350, at: new Date(2026, 9, 26, 8, 0).getTime() });
+
+    expect(await owedSince(store, new Date(2026, 10, 3, 12, 0))).toEqual(new Date(2026, 9, 30, 9, 0));
   });
 });
