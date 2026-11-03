@@ -13,4 +13,15 @@ export class Ledger {
     await this.store.presses.put(press);
     return press;
   }
+
+  /** Sum of presses in the same local calendar month and year as `now`. */
+  async monthToDate(now: Date): Promise<number> {
+    const presses = await this.store.presses.list();
+    return presses
+      .filter((p) => {
+        const at = new Date(p.at);
+        return at.getFullYear() === now.getFullYear() && at.getMonth() === now.getMonth();
+      })
+      .reduce((sum, p) => sum + p.pricePence, 0);
+  }
 }
