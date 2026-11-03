@@ -1,3 +1,6 @@
+import type { Clipboard } from "../adapters/clipboard";
+import type { Clock } from "../adapters/clock";
+import type { UrlOpener } from "../adapters/open-url";
 import { formatPounds } from "./money";
 import type { Press, Settlement, Store } from "./store";
 
@@ -71,4 +74,20 @@ const MONTHS = [
 function isOverdue(now: Date, owedSince: Date | null): boolean {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   return owedSince !== null && owedSince < monthStart;
+}
+
+export interface InvestDeps {
+  store: Store;
+  clock: Clock;
+  clipboard: Clipboard;
+  opener: UrlOpener;
+}
+
+/** Invest £X → copy, open InvestEngine, ask on return, settle on yes. */
+export class InvestFlow {
+  constructor(private deps: InvestDeps) {}
+
+  async invest(amountPence: number): Promise<void> {
+    await this.deps.clipboard.writeText(formatPounds(amountPence).slice(1));
+  }
 }
