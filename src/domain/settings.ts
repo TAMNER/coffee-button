@@ -1,3 +1,4 @@
+import { listItems } from "./items";
 import { DEFAULT_ITEM, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
 
 export async function addItem(
@@ -111,4 +112,9 @@ export async function importData(store: Store, json: string): Promise<void> {
 export async function setPayday(store: Store, day: number): Promise<void> {
   if (!validatePayday(day)) throw new Error(`Payday must be a whole day from 1 to 28, got ${day}`);
   await store.putSettings({ ...(await store.getSettings()), paydayDay: day });
+}
+
+/** The item a tap on the cup records: the stored choice, else the first item in cycling order. */
+export async function activeItemId(store: Store): Promise<string> {
+  return (await listItems(store))[0].id;
 }

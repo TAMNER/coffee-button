@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addItem, exportData, importData, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
+import { activeItemId, addItem, exportData, importData, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -34,6 +34,14 @@ describe("settings: items", () => {
     expect(await store.presses.list()).toEqual([
       { id: "press-1", itemId: "coffee", pricePence: 350, at: new Date(2026, 10, 3, 9, 0).getTime() },
     ]);
+  });
+});
+
+describe("settings: active item", () => {
+  it("defaults to the first item, Coffee", async () => {
+    const store = new MemoryStore();
+
+    expect(await activeItemId(store)).toBe("coffee");
   });
 });
 
