@@ -1,0 +1,35 @@
+:root {
+  --cream: #f6ead7;
+  --ink: #4a2e1c;
+  color-scheme: light;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.screen {
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.cup {
+  width: min(60vw, 280px);
+  height: auto;
+}
+.name {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}

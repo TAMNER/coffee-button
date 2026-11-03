@@ -9,7 +9,6 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: false,
-      includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       manifest: {
         name: "Coffee Button",
         short_name: "Coffee",
