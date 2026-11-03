@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { addGoal, removeGoal, setShelfPrice, shelfItems, shelfState } from "./shelf";
+import { Ledger } from "./ledger";
+import { addGoal, removeGoal, setShelfPrice, shelfItems, shelfState, shelfView } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -71,5 +72,32 @@ describe("goals", () => {
     await addGoal(store, "Kayak", 70000);
 
     expect((await store.goals.list()).map((g) => g.name).sort()).toEqual(["Guitar", "Kayak", "Tent"]);
+  });
+});
+
+describe("shelfView", () => {
+  it("on 31 March with £120 this year and £120 last year: pace £486.67, lifetime £240 compounds to £390.93, the injected overdue line is carried", async () => {
+    const store = new MemoryStore();
+    const put = (id: string, pricePence: number, at: Date) =>
+      store.presses.put({ id, itemId: "coffee", pricePence, at: at.getTime() });
+    await put("a", 12000, new Date(2025, 5, 1, 9));
+    await put("b", 6000, new Date(2026, 0, 10, 9));
+    await put("c", 6000, new Date(2026, 2, 31, 8));
+    await addGoal(store, "Guitar", 45000);
+
+    const view = await shelfView({
+      store,
+      ledger: new Ledger(store),
+      now: new Date(2026, 2, 31, 12),
+      overdueLine: async () => "£12.00 owed since October",
+    });
+
+    expect(view.pacePence).toBe(48667);
+    expect(view.lifetimePence).toBe(24000);
+    expect(view.compoundedPence).toBe(39093);
+    expect(view.overdueLine).toBe("£12.00 owed since October");
+    expect(view.items).toHaveLength(10);
+    expect(view.items.find((i) => i.id === "weekend-away")).toMatchObject({ lit: false, progress: 0.8 });
+    expect(view.goals).toEqual([expect.objectContaining({ name: "Guitar", pricePence: 45000, lit: false })]);
   });
 });
