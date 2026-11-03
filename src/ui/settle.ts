@@ -66,8 +66,13 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
     closePrompt();
   });
 
+  // iOS often kills the Home Screen app while InvestEngine is open (and the
+  // service worker may reload it), so the unanswered question lives in the store
+  // and is asked again on mount and on every return.
   const onVisible = () => {
-    if (document.visibilityState === "visible") void refresh();
+    if (document.visibilityState !== "visible") return;
+    void refresh();
+    if (prompt.hidden) void flow.resume();
   };
   document.addEventListener("visibilitychange", onVisible);
   const unsubscribe = [
@@ -76,6 +81,7 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
   ];
 
   void refresh();
+  void flow.resume();
   return () => {
     stopPrompt();
     document.removeEventListener("visibilitychange", onVisible);
