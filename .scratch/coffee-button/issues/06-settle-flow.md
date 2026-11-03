@@ -4,11 +4,17 @@
 
 **Blocked by:** 03 Press and ledger.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Owed balance equals presses since last settlement; unit tested across month boundaries
-- [ ] Invest button appears only from payday + 1 while owed balance is non-zero
-- [ ] Clipboard gets the amount formatted as pounds and pence
-- [ ] InvestEngine opens; fallback to App Store page if the link fails
-- [ ] Settlement records amount and date; confirmation prompt appears on return
-- [ ] Rollover line text correct for an unsettled prior month
+- [x] Owed balance equals presses since last settlement; unit tested across month boundaries
+- [x] Invest button appears only from payday + 1 while owed balance is non-zero
+- [x] Clipboard gets the amount formatted as pounds and pence
+- [x] InvestEngine opens; fallback to App Store page if the link fails
+- [x] Settlement records amount and date; confirmation prompt appears on return
+- [x] Rollover line text correct for an unsettled prior month
+
+Notes:
+- Tested in src/domain/settle.test.ts and src/domain/invest.test.ts. The UI (src/ui/settle.ts) is not unit tested and has not been checked in a browser or on the iPhone. The real window.open failure check and the clipboard write inside the tap still need checking on the device (ticket 11).
+- isSettleWindow and overdueLine take `owedSince` (the oldest unsettled press, from owedSince()) rather than the last settlement date. A settlement date alone cannot tell October money from November money. With it, a 26 Oct settlement followed only by November presses would wrongly show "Invest" on 1 Nov. Money counts as overdue when it dates from before the current calendar month. overdueLine therefore takes (now, owedSince, owedPence), with no payday argument.
+- The weekly cadence of the reminder line is left to the shelf screen (ticket 07), which shows it. overdueLine only produces the text.
+- cup.ts gained a below-total slot (registerBelowTotal) for the Invest button.
