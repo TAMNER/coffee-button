@@ -64,6 +64,10 @@ function parseExport(json: string): ExportFile {
   } catch {
     throw new Error(`${NOT_EXPORT} (not JSON)`);
   }
+  const file = data as Record<string, unknown>;
+  if (file?.version !== EXPORT_VERSION) {
+    throw new Error(`${NOT_EXPORT} (unsupported version ${String(file?.version)}; expected ${EXPORT_VERSION})`);
+  }
   return data as ExportFile;
 }
 

@@ -119,4 +119,15 @@ describe("settings: malformed import", () => {
 
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
+
+  it("a file with version 2 is rejected naming the version and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const empty = { version: 2, items: [], presses: [], settlements: [], settings: { paydayDay: 25 }, goals: [] };
+
+    await expect(importData(store, JSON.stringify(empty))).rejects.toThrow(
+      "This file is not a Coffee Button export (unsupported version 2; expected 1)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
 });
