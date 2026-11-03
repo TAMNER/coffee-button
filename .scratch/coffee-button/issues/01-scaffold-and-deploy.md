@@ -4,10 +4,21 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** blocked (code done; deploy needs `sudo tailscale set --operator=openclaw`, then device check)
 
-- [ ] `npm test` runs Vitest with at least one passing test
-- [ ] `npm run build` produces a dist folder with manifest and service worker
+- [x] `npm test` runs Vitest with at least one passing test
+- [x] `npm run build` produces a dist folder with manifest and service worker
 - [ ] Home Screen install on iOS shows a full-screen app with the Coffee Button name and icon placeholder
 - [ ] App launches offline after first visit
 - [ ] One deploy script builds and points `tailscale serve` at the built folder; script is idempotent
+
+## Notes (agent, 2026-11-03)
+
+- Verified: `npm test` (3 passing, `formatPounds`), `npm run build` emits
+  `dist/manifest.webmanifest` and `dist/sw.js` precaching all 7 built files.
+- Not verifiable here: iOS Home Screen install and offline launch need the
+  iPhone, after the deploy works.
+- `scripts/deploy.sh` exists and builds, but `tailscale serve` was refused:
+  `sending serve config: Access denied: serve config denied`. Run
+  `sudo tailscale set --operator=openclaw` once, then re-run the script.
+  HTTPS certs are enabled (black-box.<tailnet>.ts.net).
