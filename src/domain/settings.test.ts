@@ -98,4 +98,15 @@ describe("settings: export and import", () => {
     expect(await store.goals.list()).toEqual(FIXTURE.goals);
     expect(await store.getSettings()).toEqual({ paydayDay: 20 });
   });
+
+  it("importData replaces what was there: a stale press and an extra item are gone afterwards", async () => {
+    const store = new MemoryStore();
+    await store.items.put({ id: "tea", name: "Tea", icon: "mug", pricePence: 200 });
+    await store.presses.put({ id: "stale", itemId: "tea", pricePence: 200, at: 1780000000000 });
+
+    await importData(store, JSON.stringify(FIXTURE));
+
+    expect((await store.items.list()).map((i) => i.id)).toEqual(["coffee", "beer"]);
+    expect((await store.presses.list()).map((p) => p.id)).toEqual(["p1", "p2"]);
+  });
 });
