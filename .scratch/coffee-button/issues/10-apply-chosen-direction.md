@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 Visual directions mockup; 04 Press ceremony; 07 Shelf screen; the author's choice of direction.
 
-**Status:** blocked
+**Status:** blocked: awaiting author's choice from mockups/directions.html
 
 - [ ] Cup, coin, liquid, confetti palette match the chosen direction
 - [ ] All shelf items have drawn SVG artwork in the chosen style

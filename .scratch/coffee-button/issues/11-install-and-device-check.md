@@ -6,5 +6,5 @@
 
 **Status:** blocked
 
-- [ ] Checklist written and committed
+- [x] Checklist written and committed
 - [ ] Every item passes on the device or has a fix ticket
