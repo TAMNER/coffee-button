@@ -14,6 +14,8 @@
   --on-dark: #fff9ef;
   --coffee: #6b3a22;
   --foam: #f3ddbb;
+  --beer: #e0a128;
+  --beer-foam: #fff3d6;
   --dark: #1d2a6e;
   --off: #e3ada0;
   --off-hi: #ecc4b9;
@@ -35,6 +37,8 @@
     --on-dark: #fff9ef;
     --coffee: #8a4e2c;
     --foam: #f3ddbb;
+    --beer: #f0b43a;
+    --beer-foam: #fff3d6;
     --dark: #0f1440;
     --off: #2f3772;
     --off-hi: #3b4483;
@@ -55,6 +59,8 @@
   --on-dark: #fff9ef;
   --coffee: #8a4e2c;
   --foam: #f3ddbb;
+  --beer: #f0b43a;
+  --beer-foam: #fff3d6;
   --dark: #0f1440;
   --off: #2f3772;
   --off-hi: #3b4483;
@@ -101,6 +107,8 @@ body {
 .cp-cream { fill: var(--cream); }
 .cp-coffee { fill: var(--coffee); }
 .cp-foam { fill: var(--foam); }
+.cp-beer { fill: var(--beer); }
+.cp-beer-foam { fill: var(--beer-foam); }
 .cp-on-dark { fill: var(--on-dark); }
 /* A hard offset shadow: a copy of the shapes, every one filled flat. */
 .cp-shadow,
