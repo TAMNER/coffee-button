@@ -184,7 +184,12 @@ export class InvestFlow {
       this.ask(amountPence);
     });
     // Both start before any await: Safari only allows them inside the tap's user activation.
-    const copied = this.deps.clipboard.writeText(formatPounds(amountPence).slice(1));
+    // A refused copy (iOS NotAllowedError) must not abort the trip: the amount
+    // is on the Invest button and in the question, so the user can type it.
+    const copied = this.deps.clipboard.writeText(formatPounds(amountPence).slice(1)).then(
+      () => true,
+      () => false,
+    );
     const opened = this.deps.opener.open(INVESTENGINE_URL);
     await this.savePending(this.pending);
     await copied;

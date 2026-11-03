@@ -100,6 +100,24 @@ describe("InvestFlow", () => {
   });
 });
 
+describe("InvestFlow when the clipboard write is refused", () => {
+  it("still resolves, still falls back to the App Store, and still asks on return", async () => {
+    const { clipboard, opener, flow } = setup(["https://investengine.com/"]);
+    clipboard.fail = true;
+    const prompts: string[] = [];
+    flow.onPrompt((text) => prompts.push(text));
+
+    await expect(flow.invest(1250)).resolves.toBeUndefined();
+    opener.returnToApp();
+
+    expect(opener.opened).toEqual([
+      "https://investengine.com/",
+      "https://apps.apple.com/gb/app/investengine/id1485669937",
+    ]);
+    expect(prompts).toEqual(["Did you invest £12.50?"]);
+  });
+});
+
 describe("InvestFlow across an app restart (iOS kills the PWA while InvestEngine is open)", () => {
   it('a fresh flow on the same store asks "Did you invest £12.50?" on boot, and Yes settles £12.50 at the Invest tap\'s time', async () => {
     const { store, clock, clipboard, opener, flow } = setup();
