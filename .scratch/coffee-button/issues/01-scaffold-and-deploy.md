@@ -4,13 +4,13 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** blocked (code done; deploy needs `sudo tailscale set --operator=openclaw`, then device check)
+**Status:** deployed at https://black-box.<tailnet>.ts.net/ (systemd user service on 127.0.0.1:8794 behind tailscale serve); iOS install and offline boxes await the device check (ticket 11)
 
 - [x] `npm test` runs Vitest with at least one passing test
 - [x] `npm run build` produces a dist folder with manifest and service worker
 - [ ] Home Screen install on iOS shows a full-screen app with the Coffee Button name and icon placeholder
 - [ ] App launches offline after first visit
-- [ ] One deploy script builds and points `tailscale serve` at the built folder; script is idempotent
+- [x] One deploy script builds and points `tailscale serve` at the built folder; script is idempotent
 
 ## Notes (agent, 2026-11-03)
 
