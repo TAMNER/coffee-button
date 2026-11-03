@@ -42,4 +42,16 @@ describe("Ledger", () => {
 
     expect((await store.presses.list()).map((p) => p.id)).toEqual([first.id]);
   });
+
+  it("lifetime sums every press across months and years: 350 + 350 + 600 = 1300", async () => {
+    const store = new MemoryStore();
+    await store.items.put({ id: "coffee", name: "Coffee", icon: "cup", pricePence: 350 });
+    await store.items.put({ id: "beer", name: "Beer", icon: "pint", pricePence: 600 });
+    const ledger = new Ledger(store);
+    await ledger.addPress("coffee", new Date(2025, 0, 15, 9, 0));
+    await ledger.addPress("coffee", new Date(2026, 9, 31, 23, 59));
+    await ledger.addPress("beer", new Date(2026, 10, 3, 18, 0));
+
+    expect(await ledger.lifetime()).toBe(1300);
+  });
 });

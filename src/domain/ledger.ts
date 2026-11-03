@@ -29,4 +29,10 @@ export class Ledger {
   async undo(pressId: string): Promise<void> {
     await this.store.presses.delete(pressId);
   }
+
+  /** Sum of every press ever recorded. */
+  async lifetime(): Promise<number> {
+    const presses = await this.store.presses.list();
+    return presses.reduce((sum, p) => sum + p.pricePence, 0);
+  }
 }
