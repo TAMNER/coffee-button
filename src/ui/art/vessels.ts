@@ -5,6 +5,7 @@
  * from tests.
  */
 import { BASE, CUP_VIEWBOX, cupSvg, LIQUID_DROP, RIM } from "../cup-art";
+import * as pint from "../pint-art";
 
 export interface Point {
   readonly x: number;
@@ -44,9 +45,14 @@ export const COFFEE_VESSEL: VesselArt = {
   liquidClass: "cp-coffee",
 };
 
-// TODO(ticket 12 merge): replace this alias with the pint glass from
-// src/ui/pint-art.ts (liquidClass "cp-beer", --beer and --beer-foam tokens).
-export const BEER_VESSEL: VesselArt = COFFEE_VESSEL;
+export const BEER_VESSEL: VesselArt = {
+  viewBox: pint.CUP_VIEWBOX,
+  svg: pint.cupSvg,
+  rim: pint.RIM,
+  base: pint.BASE,
+  liquidDrop: pint.LIQUID_DROP,
+  liquidClass: "cp-beer",
+};
 
 const VESSELS: Record<string, VesselArt> = {
   coffee: COFFEE_VESSEL,
