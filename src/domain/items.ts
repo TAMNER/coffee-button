@@ -30,9 +30,16 @@ export async function listItems(store: Store): Promise<Item[]> {
   return (await store.items.list()).sort((a, b) => rank(a) - rank(b));
 }
 
-/** Adds any default item an existing install lacks (installs from before Beer was a default). */
+/**
+ * Adds any default item an existing install lacks (installs from before Beer
+ * was a default). An item with the same id, or one the user added under the
+ * same name, counts as present, so it never adds a second Beer.
+ */
 export async function ensureDefaultItems(store: Store): Promise<void> {
+  const items = await store.items.list();
+  const has = (d: Item) =>
+    items.some((item) => item.id === d.id || item.name.trim().toLowerCase() === d.name.toLowerCase());
   for (const item of DEFAULT_ITEMS) {
-    if (!(await store.items.get(item.id))) await store.items.put(item);
+    if (!has(item)) await store.items.put(item);
   }
 }

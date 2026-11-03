@@ -40,4 +40,30 @@ describe("ensureDefaultItems", () => {
       { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
     ]);
   });
+
+  it("is a no-op when Beer exists: run twice, Beer repriced to 650 stays the one Beer", async () => {
+    const store = new MemoryStore();
+    await store.items.put({ id: "beer", name: "Beer", icon: "beer", pricePence: 650 });
+
+    await ensureDefaultItems(store);
+    await ensureDefaultItems(store);
+
+    expect(await listItems(store)).toEqual([
+      { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
+      { id: "beer", name: "Beer", icon: "beer", pricePence: 650 },
+    ]);
+  });
+
+  it("is a no-op when the user already added their own Beer under another id", async () => {
+    const store = new MemoryStore();
+    await store.items.delete("beer");
+    await store.items.put({ id: "beer-1", name: "beer", icon: "pint", pricePence: 550 });
+
+    await ensureDefaultItems(store);
+
+    expect(await listItems(store)).toEqual([
+      { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
+      { id: "beer-1", name: "beer", icon: "pint", pricePence: 550 },
+    ]);
+  });
 });

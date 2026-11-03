@@ -1,6 +1,7 @@
 import "./style.css";
 import { registerSW } from "virtual:pwa-register";
 import { systemClock } from "./adapters/clock";
+import { ensureDefaultItems } from "./domain/items";
 import { Ledger } from "./domain/ledger";
 import { LedgerMover } from "./domain/money-mover";
 import { MemoryStore, type Store } from "./domain/store";
@@ -46,6 +47,9 @@ async function boot(): Promise<void> {
     store = new MemoryStore();
     showBanner("Not saving on this device: storage is unavailable. Presses are lost when the app closes.");
   }
+
+  // Installs from before Beer was a default get it once; a failure only means no Beer yet.
+  await ensureDefaultItems(store).catch((err) => console.error("Could not add default items", err));
 
   startApp(document.getElementById("app")!, {
     store,
