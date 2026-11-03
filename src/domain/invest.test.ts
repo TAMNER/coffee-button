@@ -30,4 +30,15 @@ describe("InvestFlow", () => {
 
     expect(opener.opened).toEqual(["https://investengine.com/"]);
   });
+
+  it("falls back to the App Store page when opening investengine.com fails", async () => {
+    const { opener, flow } = setup(["https://investengine.com/"]);
+
+    await flow.invest(1250);
+
+    expect(opener.opened).toEqual([
+      "https://investengine.com/",
+      "https://apps.apple.com/gb/app/investengine/id1485669937",
+    ]);
+  });
 });

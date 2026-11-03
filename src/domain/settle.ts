@@ -78,6 +78,8 @@ function isOverdue(now: Date, owedSince: Date | null): boolean {
 
 /** Universal link: opens the InvestEngine app when installed, the website otherwise. */
 export const INVESTENGINE_URL = "https://investengine.com/";
+/** Fallback when the universal link cannot be opened. */
+export const APP_STORE_URL = "https://apps.apple.com/gb/app/investengine/id1485669937";
 
 export interface InvestDeps {
   store: Store;
@@ -95,6 +97,6 @@ export class InvestFlow {
     const copied = this.deps.clipboard.writeText(formatPounds(amountPence).slice(1));
     const opened = this.deps.opener.open(INVESTENGINE_URL);
     await copied;
-    await opened;
+    if (!(await opened)) await this.deps.opener.open(APP_STORE_URL);
   }
 }
