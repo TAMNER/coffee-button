@@ -1,16 +1,8 @@
 import { deviceAudio, type Audio } from "../adapters/audio";
 import { ceremonyTimeline, type CeremonyStep } from "../domain/ceremony-timeline";
 import { onStart, type Bus } from "./app";
-import {
-  BASE,
-  COIN_MARKUP,
-  confettiMarkup,
-  CUP_VIEWBOX,
-  CUP_VIEWBOX_ATTR,
-  LIQUID_DROP,
-  RIM,
-  STARBURST,
-} from "./cup-art";
+import { COFFEE_VESSEL, vesselFor, type VesselArt } from "./art/vessels";
+import { COIN_MARKUP, confettiMarkup, STARBURST } from "./cup-art";
 
 /**
  * No haptics here: iOS only ticks the switch haptic inside the user's gesture,
@@ -110,21 +102,25 @@ export function animate(el: Element, keyframes: Keyframe[], options: KeyframeAni
  * mockup's phone frame), overflowing it, with pointer-events off so the cup
  * stays tappable. One per play, so overlapping plays never share elements.
  */
-export function overlayOver(cupSvg: Element): SVGSVGElement {
+export function overlayOver(cupSvg: Element, viewBox: VesselArt["viewBox"] = COFFEE_VESSEL.viewBox): SVGSVGElement {
   const box = cupSvg.getBoundingClientRect();
-  const overlay = svgEl("svg", { viewBox: CUP_VIEWBOX_ATTR, "aria-hidden": "true" });
+  const viewBoxAttr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`;
+  const overlay = svgEl("svg", { viewBox: viewBoxAttr, "aria-hidden": "true" });
   overlay.style.cssText = `position:fixed;left:${box.left}px;top:${box.top}px;width:${box.width}px;height:${box.height}px;overflow:visible;pointer-events:none;z-index:10;`;
   return overlay;
 }
 
 /** Overlay units per CSS pixel, and the overlay y of the top of the viewport. */
-export function overlayMetrics(cupSvg: Element): { unitsPerPx: number; screenTop: number; screenBottom: number } {
+export function overlayMetrics(
+  cupSvg: Element,
+  viewBox: VesselArt["viewBox"] = COFFEE_VESSEL.viewBox,
+): { unitsPerPx: number; screenTop: number; screenBottom: number } {
   const box = cupSvg.getBoundingClientRect();
-  const unitsPerPx = CUP_VIEWBOX.height / Math.max(box.height, 1);
+  const unitsPerPx = viewBox.height / Math.max(box.height, 1);
   return {
     unitsPerPx,
-    screenTop: CUP_VIEWBOX.y - box.top * unitsPerPx,
-    screenBottom: CUP_VIEWBOX.y + (window.innerHeight - box.top) * unitsPerPx,
+    screenTop: viewBox.y - box.top * unitsPerPx,
+    screenBottom: viewBox.y + (window.innerHeight - box.top) * unitsPerPx,
   };
 }
 
@@ -151,6 +147,7 @@ function pinOrigin(el: SVGElement | HTMLElement, x: number, y: number): void {
 
 interface Scene {
   cleanup(): void;
+  vessel: VesselArt;
   cupFigure: SVGGElement | null;
   liquid: SVGGElement | null;
   stream: SVGRectElement;
@@ -197,26 +194,34 @@ function flipTotal(): () => void {
   return () => ghost.remove();
 }
 
+/** The vessel on screen now: the cup button names it (src/ui/cup.ts), so a beer press pours beer. */
+function vesselOnScreen(): VesselArt {
+  const icon = document.querySelector<HTMLElement>("[data-role=cup]")?.dataset.vessel;
+  return icon ? vesselFor(icon) : COFFEE_VESSEL;
+}
+
 function buildScene(seed: number): Scene | null {
   const cup = document.querySelector("[data-role=cup] svg");
   if (!cup) return null;
-  const overlay = overlayOver(cup);
-  const { screenTop } = overlayMetrics(cup);
+  const vessel = vesselOnScreen();
+  const { viewBox, rim, base, liquidClass } = vessel;
+  const overlay = overlayOver(cup, viewBox);
+  const { screenTop } = overlayMetrics(cup, viewBox);
   const cupFigure = cup.querySelector<SVGGElement>(".cup-figure");
   const liquid = cup.querySelector<SVGGElement>(".cup-liquid");
-  if (cupFigure) pinOrigin(cupFigure, BASE.x, BASE.y);
+  if (cupFigure) pinOrigin(cupFigure, base.x, base.y);
 
   // The stream runs from the top of the screen down behind the cup, clipped
   // just under the rim so it never shows below the saucer as it drains away.
   const clipId = `pour-clip-${seed}-${Math.random().toString(36).slice(2)}`;
   const clip = svgEl("clipPath", { id: clipId });
   const clipTop = screenTop - 4000;
-  clip.append(svgEl("rect", { x: -1000, y: clipTop, width: 3000, height: 330 - clipTop }));
+  clip.append(svgEl("rect", { x: -1000, y: clipTop, width: 3000, height: rim.y + 12 - clipTop }));
   const defs = svgEl("defs", {});
   defs.append(clip);
-  const streamTop = Math.min(screenTop, CUP_VIEWBOX.y) - 20;
-  const streamTravel = 380 - streamTop;
-  const stream = svgEl("rect", { class: "cp-coffee", x: 187, y: streamTop, width: 16, height: streamTravel });
+  const streamTop = Math.min(screenTop, viewBox.y) - 20;
+  const streamTravel = rim.y + 62 - streamTop;
+  const stream = svgEl("rect", { class: liquidClass, x: rim.x - 8, y: streamTop, width: 16, height: streamTravel });
   stream.style.transform = `translateY(${-streamTravel}px)`;
   const clipped = svgEl("g", { "clip-path": `url(#${clipId})` });
   clipped.append(stream);
@@ -231,13 +236,13 @@ function buildScene(seed: number): Scene | null {
   cup.insertBefore(burst, cup.querySelector("defs")?.nextSibling ?? cup.firstChild);
 
   const splashes = [
-    { el: svgEl("rect", { class: "cp-coffee", x: 176, y: 322, width: 9, height: 9 }), side: -1 },
-    { el: svgEl("rect", { class: "cp-coffee", x: 206, y: 322, width: 8, height: 8 }), side: 1 },
+    { el: svgEl("rect", { class: liquidClass, x: rim.x - 19, y: rim.y + 4, width: 9, height: 9 }), side: -1 },
+    { el: svgEl("rect", { class: liquidClass, x: rim.x + 11, y: rim.y + 4, width: 8, height: 8 }), side: 1 },
   ];
   for (const { el } of splashes) el.style.opacity = "0";
 
   const coin = coinEl();
-  const coinFrom = Math.min(screenTop, CUP_VIEWBOX.y) - 30;
+  const coinFrom = Math.min(screenTop, viewBox.y) - 30;
   coin.style.opacity = "0";
 
   const random = mulberry32(seed);
@@ -266,6 +271,7 @@ function buildScene(seed: number): Scene | null {
       pour.remove();
       removeGhost();
     },
+    vessel,
     cupFigure,
     liquid,
     stream,
@@ -280,6 +286,7 @@ function buildScene(seed: number): Scene | null {
 
 function drawStep(scene: Scene, step: CeremonyStep): void {
   const ms = step.durationMs;
+  const { rim: RIM, liquidDrop: LIQUID_DROP } = scene.vessel;
   const rim = `translate(${RIM.x}px, ${RIM.y - 6}px)`;
   switch (step.name) {
     case "pour": {
