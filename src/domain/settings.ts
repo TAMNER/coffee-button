@@ -71,6 +71,10 @@ function parseExport(json: string): ExportFile {
   for (const key of ["items", "presses", "settlements", "goals"]) {
     if (!Array.isArray(file[key])) throw new Error(`${NOT_EXPORT} (${key} must be a list)`);
   }
+  const settings = file.settings as Partial<Settings> | undefined;
+  if (!validatePayday(Number(settings?.paydayDay))) {
+    throw new Error(`${NOT_EXPORT} (payday must be 1 to 28)`);
+  }
   return data as ExportFile;
 }
 

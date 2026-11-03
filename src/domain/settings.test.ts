@@ -141,4 +141,15 @@ describe("settings: malformed import", () => {
 
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
+
+  it("a version 1 file with payday 31 is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { version: 1, items: [], presses: [], settlements: [], settings: { paydayDay: 31 }, goals: [] };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow(
+      "This file is not a Coffee Button export (payday must be 1 to 28)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
 });
