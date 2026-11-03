@@ -152,4 +152,13 @@ describe("settings: malformed import", () => {
 
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
+
+  it("a well-formed file whose presses list holds null is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { ...FIXTURE, items: [{ id: "x", name: "X", icon: "cup", pricePence: 100 }], presses: [null] };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow("This file is not a Coffee Button export");
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
 });

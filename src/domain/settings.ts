@@ -54,6 +54,8 @@ export async function exportData(store: Store): Promise<string> {
   return JSON.stringify(data, null, 2);
 }
 
+type Row = Record<string, unknown>;
+
 const NOT_EXPORT = "This file is not a Coffee Button export";
 
 /** Parses and checks the whole file before anything is written. */
@@ -69,7 +71,11 @@ function parseExport(json: string): ExportFile {
     throw new Error(`${NOT_EXPORT} (unsupported version ${String(file?.version)}; expected ${EXPORT_VERSION})`);
   }
   for (const key of ["items", "presses", "settlements", "goals"]) {
-    if (!Array.isArray(file[key])) throw new Error(`${NOT_EXPORT} (${key} must be a list)`);
+    const rows = file[key];
+    if (!Array.isArray(rows)) throw new Error(`${NOT_EXPORT} (${key} must be a list)`);
+    rows.forEach((row: unknown, i) => {
+      if (typeof (row as Row | null)?.id !== "string") throw new Error(`${NOT_EXPORT} (${key} entry ${i + 1} is not valid)`);
+    });
   }
   const settings = file.settings as Partial<Settings> | undefined;
   if (!validatePayday(Number(settings?.paydayDay))) {
