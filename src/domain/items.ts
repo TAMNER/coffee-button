@@ -29,3 +29,10 @@ export async function listItems(store: Store): Promise<Item[]> {
   };
   return (await store.items.list()).sort((a, b) => rank(a) - rank(b));
 }
+
+/** Adds any default item an existing install lacks (installs from before Beer was a default). */
+export async function ensureDefaultItems(store: Store): Promise<void> {
+  for (const item of DEFAULT_ITEMS) {
+    if (!(await store.items.get(item.id))) await store.items.put(item);
+  }
+}

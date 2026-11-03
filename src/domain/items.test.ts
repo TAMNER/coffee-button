@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { nextItem, prevItem } from "./items";
+import { ensureDefaultItems, listItems, nextItem, prevItem } from "./items";
+import { MemoryStore } from "./store";
 
 const coffee = { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 };
 const beer = { id: "beer", name: "Beer", icon: "beer", pricePence: 600 };
@@ -24,5 +25,19 @@ describe("item cycling", () => {
   it("with an unknown active id both directions return the first item", () => {
     expect(nextItem([coffee, beer, tea], "gone")).toBe("coffee");
     expect(prevItem([coffee, beer, tea], "gone")).toBe("coffee");
+  });
+});
+
+describe("ensureDefaultItems", () => {
+  it("adds Beer at 600 to a store that has only Coffee", async () => {
+    const store = new MemoryStore();
+    await store.items.delete("beer");
+
+    await ensureDefaultItems(store);
+
+    expect(await listItems(store)).toEqual([
+      { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
+      { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+    ]);
   });
 });
