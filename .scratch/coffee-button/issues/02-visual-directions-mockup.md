@@ -4,9 +4,9 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Three directions visibly different in palette and line style, each labelled
-- [ ] Each direction shows cup screen, looping ceremony, and shelf with five items
-- [ ] Renders at phone width with no horizontal scroll, light and dark
-- [ ] No raster images; everything is SVG or CSS
+- [x] Three directions visibly different in palette and line style, each labelled
+- [x] Each direction shows cup screen, looping ceremony, and shelf with five items
+- [x] Renders at phone width with no horizontal scroll, light and dark (by construction; not yet viewed in a real browser, none was available to the agent)
+- [x] No raster images; everything is SVG or CSS
