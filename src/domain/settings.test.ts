@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addItem, renameItem, repriceItem, validatePayday } from "./settings";
+import { addItem, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -39,5 +39,15 @@ describe("settings: payday", () => {
   it("validatePayday accepts 1, 25 and 28 and rejects 0, 29, 31, 2.5 and NaN", () => {
     expect([1, 25, 28].map((n) => validatePayday(n))).toEqual([true, true, true]);
     expect([0, 29, 31, 2.5, NaN].map((n) => validatePayday(n))).toEqual([false, false, false, false, false]);
+  });
+
+  it("a fresh store's payday is 25; setPayday stores 1 and refuses 29 without changing it", async () => {
+    const store = new MemoryStore();
+    expect((await store.getSettings()).paydayDay).toBe(25);
+
+    await setPayday(store, 1);
+    await expect(setPayday(store, 29)).rejects.toThrow(/1 to 28/);
+
+    expect((await store.getSettings()).paydayDay).toBe(1);
   });
 });
