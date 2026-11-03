@@ -79,15 +79,17 @@ export function generateIcs({ payday, appUrl, now, tz }: IcsOptions): string {
   const month = now.getDate() > settleDay ? now.getMonth() + 1 : now.getMonth();
   const start = new Date(now.getFullYear(), month, settleDay);
   const dtstart = `${start.getFullYear()}${pad(start.getMonth() + 1)}${pad(start.getDate())}T090000`;
+  // Only London has a VTIMEZONE here; elsewhere 09:00 floating local time is valid and right.
+  const london = tz === "Europe/London";
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//Coffee Button//Reminder//EN",
-    ...EUROPE_LONDON,
+    ...(london ? EUROPE_LONDON : []),
     "BEGIN:VEVENT",
     `UID:monthly-reminder-${hash(appUrl)}@coffee-button`,
     `DTSTAMP:${utcStamp(now)}`,
-    `DTSTART;TZID=${tz}:${dtstart}`,
+    london ? `DTSTART;TZID=Europe/London:${dtstart}` : `DTSTART:${dtstart}`,
     `RRULE:FREQ=MONTHLY;BYMONTHDAY=${settleDay}`,
     "SUMMARY:Coffee Button: invest",
     `DESCRIPTION:Settle day. Open ${appUrl} and invest what you saved.`,

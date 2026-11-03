@@ -67,4 +67,12 @@ describe("generateIcs", () => {
     expect(tz).toContain("TZOFFSETFROM:+0100\r\nTZOFFSETTO:+0000\r\n");
     expect(tz).toContain("RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\r\n");
   });
+
+  it("outside London uses 09:00 floating local time and no VTIMEZONE: New York, payday 25 -> DTSTART:20261126T090000", () => {
+    const ics = generateIcs({ payday: 25, appUrl, now: new Date(2026, 10, 3, 10, 0), tz: "America/New_York" });
+
+    expect(ics.split("\r\n")).toContain("DTSTART:20261126T090000");
+    expect(ics).not.toContain("TZID");
+    expect(ics).not.toContain("VTIMEZONE");
+  });
 });
