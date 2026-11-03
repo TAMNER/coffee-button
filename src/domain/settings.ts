@@ -54,6 +54,15 @@ export async function exportData(store: Store): Promise<string> {
   return JSON.stringify(data, null, 2);
 }
 
+export async function importData(store: Store, json: string): Promise<void> {
+  const data = JSON.parse(json) as ExportFile;
+  for (const item of data.items) await store.items.put(item);
+  for (const press of data.presses) await store.presses.put(press);
+  for (const settlement of data.settlements) await store.settlements.put(settlement);
+  for (const goal of data.goals) await store.goals.put(goal);
+  await store.putSettings(data.settings);
+}
+
 export async function setPayday(store: Store, day: number): Promise<void> {
   if (!validatePayday(day)) throw new Error(`Payday must be a whole day from 1 to 28, got ${day}`);
   await store.putSettings({ ...(await store.getSettings()), paydayDay: day });

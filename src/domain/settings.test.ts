@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addItem, exportData,renameItem, repriceItem, setPayday, validatePayday } from "./settings";
+import { addItem, exportData, importData, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -85,5 +85,17 @@ describe("settings: export and import", () => {
     const json = await exportData(store);
 
     expect(JSON.parse(json)).toEqual(FIXTURE);
+  });
+
+  it("importData of the fixture into a fresh store restores it exactly", async () => {
+    const store = new MemoryStore();
+
+    await importData(store, JSON.stringify(FIXTURE));
+
+    expect(await store.items.list()).toEqual(FIXTURE.items);
+    expect(await store.presses.list()).toEqual(FIXTURE.presses);
+    expect(await store.settlements.list()).toEqual(FIXTURE.settlements);
+    expect(await store.goals.list()).toEqual(FIXTURE.goals);
+    expect(await store.getSettings()).toEqual({ paydayDay: 20 });
   });
 });
