@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addGoal, setShelfPrice, shelfItems, shelfState } from "./shelf";
+import { addGoal, removeGoal, setShelfPrice, shelfItems, shelfState } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -59,5 +59,17 @@ describe("goals", () => {
       ["Sofa", 80000],
       ["Tent", 20000],
     ]);
+  });
+
+  it("removing a goal deletes it and frees a slot for another", async () => {
+    const store = new MemoryStore();
+    await addGoal(store, "Guitar", 45000);
+    const sofa = await addGoal(store, "Sofa", 80000);
+    await addGoal(store, "Tent", 20000);
+
+    await removeGoal(store, sofa.id);
+    await addGoal(store, "Kayak", 70000);
+
+    expect((await store.goals.list()).map((g) => g.name).sort()).toEqual(["Guitar", "Kayak", "Tent"]);
   });
 });

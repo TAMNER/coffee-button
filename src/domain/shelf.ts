@@ -61,6 +61,10 @@ export async function addGoal(
   return goal;
 }
 
+export function removeGoal(store: Store, id: string): Promise<void> {
+  return store.goals.delete(id);
+}
+
 export async function setShelfPrice(store: Store, id: string, pricePence: number): Promise<void> {
   const settings = await store.getSettings();
   await store.putSettings({ ...settings, shelfPrices: { ...settings.shelfPrices, [id]: pricePence } });
