@@ -1,5 +1,6 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
+import { exportData, importData } from "../domain/settings";
 import { MemoryStore, type Store } from "../domain/store";
 import { IndexedDbStore } from "./idb";
 
@@ -80,15 +81,65 @@ describe.each(backends)("Store contract: $name", (backend) => {
     expect((await store.getSettings()).paydayDay).toBe(25);
   });
 
+  it("puts, gets, lists and deletes settlements and goals", async () => {
+    const store = await backend.open(freshName());
+    const s1 = { id: "s1", amountPence: 1250, at: Date.UTC(2026, 9, 26, 9, 0) };
+    const s2 = { id: "s2", amountPence: 2400, at: Date.UTC(2026, 10, 26, 9, 0) };
+    const tent = { id: "g1", name: "Tent", pricePence: 20000 };
+    await store.settlements.put(s1);
+    await store.settlements.put(s2);
+    await store.settlements.delete("s1");
+    await store.goals.put(tent);
+
+    expect(await store.settlements.get("s2")).toEqual(s2);
+    expect(await store.settlements.list()).toEqual([s2]);
+    expect(await store.goals.list()).toEqual([tent]);
+  });
+
+  it("settings default to payday 25 when nothing is stored, and putSettings round-trips every field", async () => {
+    const store = await backend.open(freshName());
+    expect(await store.getSettings()).toEqual({ paydayDay: 25 });
+
+    const settings = {
+      paydayDay: 20,
+      shelfPrices: { laptop: 120000 },
+      overdueShownAt: Date.UTC(2026, 10, 3, 12, 0),
+      pendingInvest: { amountPence: 1250, startedAt: Date.UTC(2026, 10, 26, 9, 0) },
+    };
+    await store.putSettings(settings);
+
+    expect(await store.getSettings()).toEqual(settings);
+  });
+
+  it("an export imported into a second fresh store gives back the same export", async () => {
+    const source = await backend.open(freshName());
+    await source.items.put(beer);
+    await source.presses.put(pressA);
+    await source.settlements.put({ id: "s1", amountPence: 600, at: Date.UTC(2026, 10, 26, 9, 0) });
+    await source.goals.put({ id: "g1", name: "Tent", pricePence: 20000 });
+    await source.putSettings({ paydayDay: 20 });
+    const json = await exportData(source);
+
+    const target = await backend.open(freshName());
+    await importData(target, json);
+
+    expect(await exportData(target)).toBe(json);
+  });
+
   it.runIf(backend.persistent)("a new store instance on the same database name sees earlier writes", async () => {
     const dbName = freshName();
     const first = await backend.open(dbName);
     await first.items.put(beer);
     await first.presses.put(pressA);
 
+    await first.settlements.put({ id: "s1", amountPence: 600, at: pressB.at });
+    await first.putSettings({ paydayDay: 20 });
+
     const second = await backend.open(dbName);
     expect(await second.items.get("beer")).toEqual(beer);
     expect(await second.presses.list()).toEqual([pressA]);
+    expect(await second.settlements.list()).toEqual([{ id: "s1", amountPence: 600, at: pressB.at }]);
+    expect(await second.getSettings()).toEqual({ paydayDay: 20 });
   });
 });
 
