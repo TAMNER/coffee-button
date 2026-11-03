@@ -1,3 +1,5 @@
+import type { Settlement, Store } from "./store";
+
 /** The settle ceremony's numbers (DESIGN.md: coins cascade out of the cup, lifetime total ticks up). */
 
 /** Most coins drawn in one cascade, for performance on the phone. */
@@ -19,4 +21,25 @@ export function tickerFrames(fromPence: number, toPence: number, steps: number):
   }
   frames.push(toPence);
   return frames;
+}
+
+export interface SettleCeremonyPlan {
+  /** Coins cascading out of the cup. */
+  coins: number;
+  /** Lifetime invested (every settlement) before and after this one. */
+  fromPence: number;
+  toPence: number;
+}
+
+/** What the ceremony shows for a settlement that is already in the store. */
+export async function settleCeremonyPlan(store: Store, settlement: Settlement): Promise<SettleCeremonyPlan> {
+  const earlier = (await store.settlements.list()).filter(
+    (s) => s.id !== settlement.id && s.at <= settlement.at,
+  );
+  const previousAt = earlier.length ? Math.max(...earlier.map((s) => s.at)) : null;
+  const pressesSettled = (await store.presses.list()).filter(
+    (p) => p.at <= settlement.at && (previousAt === null || p.at > previousAt),
+  ).length;
+  const fromPence = earlier.reduce((sum, s) => sum + s.amountPence, 0);
+  return { coins: cascadeCount(pressesSettled), fromPence, toPence: fromPence + settlement.amountPence };
 }
