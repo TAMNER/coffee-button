@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
+import { setActiveItem } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("Ledger", () => {
@@ -53,5 +54,15 @@ describe("Ledger", () => {
     await ledger.addPress("beer", new Date(2026, 10, 3, 18, 0));
 
     expect(await ledger.lifetime()).toBe(1300);
+  });
+
+  it("a press with no item records the active item at its price: switch to Beer, press, 600", async () => {
+    const store = new MemoryStore();
+    const ledger = new Ledger(store, () => "press-1");
+    await setActiveItem(store, "beer");
+
+    const press = await ledger.addPress(new Date(2026, 10, 3, 18, 0));
+
+    expect(press).toEqual({ id: "press-1", itemId: "beer", pricePence: 600, at: new Date(2026, 10, 3, 18, 0).getTime() });
   });
 });

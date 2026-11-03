@@ -1,3 +1,4 @@
+import { activeItemId } from "./settings";
 import type { Item, Press, Store } from "./store";
 
 export class Ledger {
@@ -6,7 +7,12 @@ export class Ledger {
     private newId: () => string = () => crypto.randomUUID(),
   ) {}
 
-  async addPress(itemId: string, at: Date): Promise<Press> {
+  /** Records a press of the active item (settings), or of `itemId` when given, at that item's current price. */
+  addPress(at: Date): Promise<Press>;
+  addPress(itemId: string, at: Date): Promise<Press>;
+  async addPress(itemOrAt: string | Date, maybeAt?: Date): Promise<Press> {
+    const at = itemOrAt instanceof Date ? itemOrAt : (maybeAt as Date);
+    const itemId = itemOrAt instanceof Date ? await activeItemId(this.store) : itemOrAt;
     const item = await this.store.items.get(itemId);
     if (!item) throw new Error(`Unknown item: ${itemId}`);
     const press: Press = { id: this.newId(), itemId, pricePence: item.pricePence, at: at.getTime() };
