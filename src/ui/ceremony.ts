@@ -1,6 +1,16 @@
 import { deviceAudio, type Audio } from "../adapters/audio";
 import { ceremonyTimeline, type CeremonyStep } from "../domain/ceremony-timeline";
 import { onStart, type Bus } from "./app";
+import {
+  BASE,
+  COIN_MARKUP,
+  confettiMarkup,
+  CUP_VIEWBOX,
+  CUP_VIEWBOX_ATTR,
+  LIQUID_DROP,
+  RIM,
+  STARBURST,
+} from "./cup-art";
 
 /**
  * No haptics here: iOS only ticks the switch haptic inside the user's gesture,
@@ -55,14 +65,12 @@ function quietly(fn: () => void): void {
 }
 
 // ---------------------------------------------------------------------------
-// DOM stage: placeholder SVG shapes animated with the Web Animations API.
+// DOM stage: the Cut Paper press ceremony (mockups/directions.html, direction B,
+// "Press ceremony" frame), drawn with the Web Animations API.
 // Thin and not unit tested; the timeline and Ceremony above are.
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-/** Same path as the cup body in cup.ts, in the same 120x120 viewBox. */
-const CUP_BODY = "M24 40 h60 v30 a30 30 0 0 1 -60 0 z";
-const CONFETTI_COUNT = 24;
-export const CONFETTI_COLOURS = ["#e9b949", "#e07a5f", "#81b29a", "#f2cc8f", "#3d85c6", "#f6ead7"];
+const CONFETTI_COUNT = 20;
 
 /** Small deterministic PRNG so each play's confetti comes from its own seed. */
 export function mulberry32(seed: number): () => number {
@@ -97,102 +105,239 @@ export function animate(el: Element, keyframes: Keyframe[], options: KeyframeAni
   }
 }
 
+/**
+ * An SVG laid exactly over the cup's SVG, in the same coordinates (the
+ * mockup's phone frame), overflowing it, with pointer-events off so the cup
+ * stays tappable. One per play, so overlapping plays never share elements.
+ */
+export function overlayOver(cupSvg: Element): SVGSVGElement {
+  const box = cupSvg.getBoundingClientRect();
+  const overlay = svgEl("svg", { viewBox: CUP_VIEWBOX_ATTR, "aria-hidden": "true" });
+  overlay.style.cssText = `position:fixed;left:${box.left}px;top:${box.top}px;width:${box.width}px;height:${box.height}px;overflow:visible;pointer-events:none;z-index:10;`;
+  return overlay;
+}
+
+/** Overlay units per CSS pixel, and the overlay y of the top of the viewport. */
+export function overlayMetrics(cupSvg: Element): { unitsPerPx: number; screenTop: number; screenBottom: number } {
+  const box = cupSvg.getBoundingClientRect();
+  const unitsPerPx = CUP_VIEWBOX.height / Math.max(box.height, 1);
+  return {
+    unitsPerPx,
+    screenTop: CUP_VIEWBOX.y - box.top * unitsPerPx,
+    screenBottom: CUP_VIEWBOX.y + (window.innerHeight - box.top) * unitsPerPx,
+  };
+}
+
+/** The mustard £ coin, centred on the origin; position it with a CSS transform. */
+export function coinEl(): SVGGElement {
+  const coin = svgEl("g", {});
+  coin.innerHTML = COIN_MARKUP;
+  return coin;
+}
+
+/** Confetti piece i, centred on the origin; position it with a CSS transform. */
+export function confettiEl(i: number): SVGGElement {
+  const { className, markup } = confettiMarkup(i);
+  const piece = svgEl("g", { class: className });
+  piece.innerHTML = markup;
+  return piece;
+}
+
+/** Transforms on shapes inside the cup's SVG are in its user units, about a fixed point. */
+function pinOrigin(el: SVGElement | HTMLElement, x: number, y: number): void {
+  el.style.transformBox = "view-box";
+  el.style.transformOrigin = `${x}px ${y}px`;
+}
+
 interface Scene {
-  overlay: SVGSVGElement;
-  cup: Element;
+  cleanup(): void;
+  cupFigure: SVGGElement | null;
+  liquid: SVGGElement | null;
   stream: SVGRectElement;
-  liquid: SVGRectElement;
-  coin: SVGCircleElement;
-  confetti: SVGRectElement[];
+  streamTravel: number;
+  coin: SVGGElement;
+  coinFrom: number;
+  splashes: { el: SVGRectElement; side: number }[];
+  burst: SVGPathElement;
+  confetti: { el: SVGGElement; dx: number; dy: number; fall: number; drift: number; spin: number }[];
 }
 
 /**
- * One overlay per play, laid exactly over the cup with pointer-events off,
- * so the cup stays tappable and overlapping plays never share elements.
+ * The month total flips from its old value to the new one as the coin lands.
+ * The cup re-renders the total straight after the press event (which is what
+ * starts this play), so the old value is read now and shown in a copy laid
+ * over the real one, which stays hidden until the flip.
  */
+function flipTotal(): () => void {
+  const amount = document.querySelector<HTMLElement>("[data-role=total-amount]");
+  if (!amount) return () => {};
+  const steps = ceremonyTimeline();
+  const flipAt = steps[0].durationMs + steps[1].durationMs + 40;
+  const half = 110;
+  const box = amount.getBoundingClientRect();
+  const ghost = amount.cloneNode(true) as HTMLElement;
+  ghost.removeAttribute("data-role");
+  ghost.setAttribute("aria-hidden", "true");
+  ghost.style.cssText = `position:fixed;left:${box.left}px;top:${box.top}px;width:${box.width}px;height:${box.height}px;margin:0;text-align:center;white-space:nowrap;pointer-events:none;z-index:10;`;
+  amount.parentElement?.append(ghost);
+  const end = flipAt + 2 * half;
+  const at = (ms: number) => ms / end;
+  animate(ghost, [
+    { transform: "scaleY(1)", opacity: 1 },
+    { transform: "scaleY(1)", opacity: 1, offset: at(flipAt) },
+    { transform: "scaleY(0)", opacity: 1, offset: at(flipAt + half), easing: "ease-in" },
+    { transform: "scaleY(0)", opacity: 0 },
+  ], { duration: end });
+  animate(amount, [
+    { transform: "scaleY(0)", opacity: 0 },
+    { transform: "scaleY(0)", opacity: 0, offset: at(flipAt + half) },
+    { transform: "scaleY(0)", opacity: 1, offset: at(flipAt + half) + 0.001, easing: "cubic-bezier(.2,1.6,.5,1)" },
+    { transform: "scaleY(1)", opacity: 1 },
+  ], { duration: end, fill: "none" });
+  return () => ghost.remove();
+}
+
 function buildScene(seed: number): Scene | null {
   const cup = document.querySelector("[data-role=cup] svg");
   if (!cup) return null;
-  const box = cup.getBoundingClientRect();
-  const overlay = svgEl("svg", { viewBox: "0 0 120 120", "aria-hidden": "true" });
-  overlay.style.cssText = `position:fixed;left:${box.left}px;top:${box.top}px;width:${box.width}px;height:${box.height}px;overflow:visible;pointer-events:none;z-index:10;`;
+  const overlay = overlayOver(cup);
+  const { screenTop } = overlayMetrics(cup);
+  const cupFigure = cup.querySelector<SVGGElement>(".cup-figure");
+  const liquid = cup.querySelector<SVGGElement>(".cup-liquid");
+  if (cupFigure) pinOrigin(cupFigure, BASE.x, BASE.y);
 
-  const clipId = `cup-clip-${seed}-${Math.random().toString(36).slice(2)}`;
+  // The stream runs from the top of the screen down behind the cup, clipped
+  // just under the rim so it never shows below the saucer as it drains away.
+  const clipId = `pour-clip-${seed}-${Math.random().toString(36).slice(2)}`;
   const clip = svgEl("clipPath", { id: clipId });
-  clip.append(svgEl("path", { d: CUP_BODY }));
+  const clipTop = screenTop - 4000;
+  clip.append(svgEl("rect", { x: -1000, y: clipTop, width: 3000, height: 330 - clipTop }));
   const defs = svgEl("defs", {});
   defs.append(clip);
+  const streamTop = Math.min(screenTop, CUP_VIEWBOX.y) - 20;
+  const streamTravel = 380 - streamTop;
+  const stream = svgEl("rect", { class: "cp-coffee", x: 187, y: streamTop, width: 16, height: streamTravel });
+  stream.style.transform = `translateY(${-streamTravel}px)`;
+  const clipped = svgEl("g", { "clip-path": `url(#${clipId})` });
+  clipped.append(stream);
+  const pour = svgEl("g", {});
+  pour.append(defs, clipped);
+  // In front of the disc, behind the cup.
+  cup.insertBefore(pour, cupFigure);
 
-  const stream = svgEl("rect", { x: 50, y: -40, width: 8, height: 120, rx: 4, fill: "#c8925a" });
-  stream.style.transformBox = "fill-box";
-  stream.style.transformOrigin = "top";
-  stream.style.transform = "scaleY(0)";
+  // Behind the disc, so its 32 points fan out round the mustard circle.
+  const burst = svgEl("path", { class: "cp-mustard", d: STARBURST });
+  burst.style.opacity = "0";
+  cup.insertBefore(burst, cup.querySelector("defs")?.nextSibling ?? cup.firstChild);
 
-  const liquidGroup = svgEl("g", { "clip-path": `url(#${clipId})` });
-  const liquid = svgEl("rect", { x: 20, y: 40, width: 70, height: 70, fill: "#c8925a" });
-  liquid.style.transform = "translateY(64px)";
-  liquidGroup.append(liquid);
+  const splashes = [
+    { el: svgEl("rect", { class: "cp-coffee", x: 176, y: 322, width: 9, height: 9 }), side: -1 },
+    { el: svgEl("rect", { class: "cp-coffee", x: 206, y: 322, width: 8, height: 8 }), side: 1 },
+  ];
+  for (const { el } of splashes) el.style.opacity = "0";
 
-  const coin = svgEl("circle", { cx: 54, cy: 0, r: 8, fill: "#e9b949", stroke: "#b8860b", "stroke-width": 2 });
-  coin.style.transformBox = "fill-box";
-  coin.style.transformOrigin = "center";
+  const coin = coinEl();
+  const coinFrom = Math.min(screenTop, CUP_VIEWBOX.y) - 30;
   coin.style.opacity = "0";
 
   const random = mulberry32(seed);
-  const confetti: SVGRectElement[] = [];
+  const confetti: Scene["confetti"] = [];
   for (let i = 0; i < CONFETTI_COUNT; i++) {
-    const piece = svgEl("rect", {
-      x: 52,
-      y: 38,
-      width: 4 + random() * 3,
-      height: 7 + random() * 4,
-      fill: CONFETTI_COLOURS[i % CONFETTI_COLOURS.length],
+    const el = confettiEl(i);
+    el.style.opacity = "0";
+    const dx = ((i + random()) / CONFETTI_COUNT - 0.5) * 300;
+    confetti.push({
+      el,
+      dx,
+      dy: -10 - random() * 150,
+      fall: 70 + random() * 30,
+      drift: dx * 0.08 + (random() - 0.5) * 8,
+      spin: (random() < 0.5 ? -1 : 1) * (60 + random() * 210),
     });
-    piece.style.transformBox = "fill-box";
-    piece.style.transformOrigin = "center";
-    piece.style.opacity = "0";
-    piece.dataset.dx = String((random() - 0.5) * 160);
-    piece.dataset.dy = String(-30 - random() * 70);
-    piece.dataset.fall = String(30 + random() * 50);
-    piece.dataset.spin = String((random() - 0.5) * 1080);
-    confetti.push(piece);
   }
 
-  overlay.append(defs, liquidGroup, stream, coin, ...confetti);
+  overlay.append(...splashes.map((s) => s.el), coin, ...confetti.map((c) => c.el));
   document.body.append(overlay);
-  return { overlay, cup, stream, liquid, coin, confetti };
+  const removeGhost = flipTotal();
+  return {
+    cleanup() {
+      overlay.remove();
+      burst.remove();
+      pour.remove();
+      removeGhost();
+    },
+    cupFigure,
+    liquid,
+    stream,
+    streamTravel,
+    coin,
+    coinFrom,
+    splashes,
+    burst,
+    confetti,
+  };
 }
 
 function drawStep(scene: Scene, step: CeremonyStep): void {
   const ms = step.durationMs;
+  const rim = `translate(${RIM.x}px, ${RIM.y - 6}px)`;
   switch (step.name) {
-    case "pour":
+    case "pour": {
+      const t = scene.streamTravel;
       animate(scene.stream, [
-        { transform: "scaleY(0)", opacity: 1 },
-        { transform: "scaleY(1)", opacity: 1, offset: 0.2 },
-        { transform: "scaleY(1)", opacity: 1, offset: 0.8 },
-        { transform: "scaleY(1)", opacity: 0 },
-      ], { duration: ms });
-      animate(scene.liquid, [{ transform: "translateY(64px)" }, { transform: "translateY(18px)" }], { duration: ms, delay: ms * 0.15, easing: "ease-out" });
-      break;
-    case "coin":
-      animate(scene.coin, [
-        { transform: "translateY(-50px) scale(1)", opacity: 1 },
-        { transform: "translateY(62px) scale(1)", opacity: 1, offset: 0.75, easing: "ease-out" },
-        { transform: "translateY(66px) scale(0.4)", opacity: 0 },
-      ], { duration: ms, easing: "cubic-bezier(.5,0,1,1)" });
-      break;
-    case "cheer":
-      animate(scene.cup, [{ transform: "scale(1)" }, { transform: "scale(1.08)", offset: 0.25 }, { transform: "scale(1)", offset: 0.6 }], { duration: ms, easing: "ease-out", fill: "none" });
-      for (const piece of scene.confetti) {
-        const { dx, dy, fall, spin } = piece.dataset;
-        animate(piece, [
-          { transform: "translate(0px, 0px) rotate(0deg)", opacity: 1 },
-          { transform: `translate(${Number(dx) * 0.8}px, ${dy}px) rotate(${Number(spin) / 2}deg)`, opacity: 1, offset: 0.45 },
-          { transform: `translate(${dx}px, ${Number(dy) + Number(fall)}px) rotate(${spin}deg)`, opacity: 0 },
-        ], { duration: ms, easing: "cubic-bezier(.2,.7,.4,1)" });
+        { transform: `translateY(${-t}px)` },
+        { transform: "translateY(0px)", offset: 0.2 },
+        { transform: "translateY(0px)", offset: 0.78 },
+        { transform: `translateY(${t}px)` },
+      ], { duration: ms, easing: "ease-in-out" });
+      if (scene.liquid) {
+        animate(scene.liquid, [
+          { transform: `translateY(${LIQUID_DROP}px)` },
+          { transform: `translateY(${LIQUID_DROP}px)`, offset: 0.15 },
+          { transform: "translateY(0px)" },
+        ], { duration: ms, easing: "ease-out", fill: "none" });
       }
-      animate(scene.liquid, [{ opacity: 1 }, { opacity: 0 }], { duration: ms * 0.5, delay: ms * 0.5 });
+      break;
+    }
+    case "coin": {
+      const land = 0.75;
+      animate(scene.coin, [
+        { transform: `translate(${RIM.x}px, ${scene.coinFrom}px)`, opacity: 1, easing: "cubic-bezier(.55,0,1,.45)" },
+        { transform: `translate(${RIM.x}px, ${RIM.y}px)`, opacity: 1, offset: land },
+        { transform: `translate(${RIM.x}px, ${RIM.y + 26}px) scale(.6)`, opacity: 0 },
+      ], { duration: ms });
+      for (const { el, side } of scene.splashes) {
+        animate(el, [
+          { transform: "translate(0px, 0px)", opacity: 0 },
+          { transform: `translate(${side * 14}px, -34px)`, opacity: 1, offset: 0.43 },
+          { transform: `translate(${side * 22}px, -4px)`, opacity: 0 },
+        ], { duration: 420, delay: ms * land, easing: "ease-out" });
+      }
+      if (scene.cupFigure) {
+        animate(scene.cupFigure, [
+          { transform: "scale(1)" },
+          { transform: "scale(1.06, .93)", offset: 0.24 },
+          { transform: "scale(.97, 1.04)", offset: 0.59 },
+          { transform: "scale(1)" },
+        ], { duration: 510, delay: ms * land, easing: "ease-in-out", fill: "none" });
+      }
+      break;
+    }
+    case "cheer":
+      animate(scene.burst, [
+        { transform: `${rim} scale(.2)`, opacity: 0 },
+        { transform: `${rim} scale(.55)`, opacity: 1, offset: 0.17 },
+        { transform: `${rim} scale(1)`, opacity: 1, offset: 0.58 },
+        { transform: `${rim} scale(1.12)`, opacity: 0 },
+      ], { duration: ms, easing: "ease-out" });
+      for (const c of scene.confetti) {
+        animate(c.el, [
+          { transform: `${rim} scale(0)`, opacity: 0 },
+          { transform: `${rim} scale(1)`, opacity: 1, offset: 0.04, easing: "cubic-bezier(.1,.8,.3,1)" },
+          { transform: `translate(${RIM.x + c.dx}px, ${RIM.y - 6 + c.dy}px) rotate(${c.spin / 2}deg)`, opacity: 1, offset: 0.45, easing: "ease-in" },
+          { transform: `translate(${RIM.x + c.dx + c.drift}px, ${RIM.y - 6 + c.dy + c.fall}px) rotate(${c.spin}deg)`, opacity: 0 },
+        ], { duration: ms });
+      }
       break;
   }
 }
@@ -206,10 +351,11 @@ export function svgStage(seed: number): Stage {
         if (scene === undefined) scene = buildScene(seed);
         if (scene) drawStep(scene, step);
       } catch {
+        scene?.cleanup();
         scene = null;
       }
       await wait(step.durationMs);
-      if (step.name === "cheer") scene?.overlay.remove();
+      if (step.name === "cheer") scene?.cleanup();
     },
   };
 }

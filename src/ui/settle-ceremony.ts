@@ -2,7 +2,8 @@ import { formatPounds } from "../domain/money";
 import { settleCeremonyPlan, tickerFrames, type SettleCeremonyPlan } from "../domain/settle-ceremony";
 import type { Store } from "../domain/store";
 import { onStart, type Bus } from "./app";
-import { animate, CONFETTI_COLOURS, mulberry32, svgEl, wait } from "./ceremony";
+import { animate, coinEl, confettiEl, mulberry32, overlayMetrics, overlayOver, wait } from "./ceremony";
+import { CUP_VIEWBOX, RIM } from "./cup-art";
 import { SHELF_SCREEN } from "./shelf";
 
 /**
@@ -21,7 +22,7 @@ export function wireSettleCeremony(
 }
 
 // ---------------------------------------------------------------------------
-// DOM: placeholder SVG coins cascading out of the tipped cup, then the shelf
+// DOM: Cut Paper coins cascading out of the tipped cup, then the shelf
 // screen with the lifetime invested ticking up. Thin and not unit tested; the
 // plan (src/domain/settle-ceremony.ts) and the wiring above are.
 
@@ -39,32 +40,37 @@ interface Piece {
   options: KeyframeAnimationOptions;
 }
 
-/** Coins burst up out of the cup and fall off the screen; confetti as in the press ceremony. */
+/**
+ * The cup tips over and the month's coins burst out of it and fall off the
+ * screen, with confetti as in the press ceremony. Same Cut Paper coin and
+ * palette; coordinates are the cup SVG's (the mockup's phone frame).
+ */
 async function cascade(coins: number, seed: number): Promise<void> {
   const cup = document.querySelector("[data-role=cup] svg");
   if (!cup) return;
-  const box = cup.getBoundingClientRect();
-  const overlay = svgEl("svg", { viewBox: "0 0 120 120", "aria-hidden": "true" });
-  overlay.style.cssText = `position:fixed;left:${box.left}px;top:${box.top}px;width:${box.width}px;height:${box.height}px;overflow:visible;pointer-events:none;z-index:10;`;
+  const overlay = overlayOver(cup);
+  const { unitsPerPx, screenBottom } = overlayMetrics(cup);
   const random = mulberry32(seed);
-  // Far enough below the cup to leave the screen, in viewBox units.
-  const offscreen = ((window.innerHeight - box.top) / Math.max(box.height, 1)) * 120 + 20;
+  // Mouth of the tipped cup, and far enough below to leave the screen.
+  const from = { x: 150, y: 470 };
+  const offscreen = screenBottom - from.y + 40;
+  // Spread the coins over the screen's width rather than the disc's.
+  const spread = Math.max(window.innerWidth * unitsPerPx, CUP_VIEWBOX.width);
 
   const pieces: Piece[] = [];
   for (let i = 0; i < coins; i++) {
-    const coin = svgEl("circle", { cx: 54, cy: 50, r: 7, fill: "#e9b949", stroke: "#b8860b", "stroke-width": 2 });
-    coin.style.transformBox = "fill-box";
-    coin.style.transformOrigin = "center";
+    const coin = coinEl();
     coin.style.opacity = "0";
-    const dx = (random() - 0.5) * 220;
-    const up = -40 - random() * 60;
+    const dx = (random() - 0.5) * spread;
+    const up = -110 - random() * 160;
     const flip = (random() - 0.5) * 2;
+    const at = (x: number, y: number) => `translate(${from.x + x}px, ${from.y + y}px)`;
     pieces.push({
       el: coin,
       keyframes: [
-        { transform: "translate(0px, 0px) scaleX(1)", opacity: 1 },
-        { transform: `translate(${dx * 0.5}px, ${up}px) scaleX(${flip})`, opacity: 1, offset: 0.35, easing: "ease-in" },
-        { transform: `translate(${dx}px, ${offscreen}px) scaleX(1)`, opacity: 1 },
+        { transform: `${at(0, 0)} scale(.6, .6)`, opacity: 1 },
+        { transform: `${at(dx * 0.5, up)} scale(${flip}, 1)`, opacity: 1, offset: 0.35, easing: "ease-in" },
+        { transform: `${at(dx, offscreen)} scale(1, 1)`, opacity: 1 },
       ],
       options: {
         duration: COIN_MS,
@@ -74,25 +80,18 @@ async function cascade(coins: number, seed: number): Promise<void> {
     });
   }
   for (let i = 0; i < CONFETTI_COUNT; i++) {
-    const piece = svgEl("rect", {
-      x: 52,
-      y: 38,
-      width: 4 + random() * 3,
-      height: 7 + random() * 4,
-      fill: CONFETTI_COLOURS[i % CONFETTI_COLOURS.length],
-    });
-    piece.style.transformBox = "fill-box";
-    piece.style.transformOrigin = "center";
+    const piece = confettiEl(i);
     piece.style.opacity = "0";
-    const dx = (random() - 0.5) * 200;
-    const dy = -40 - random() * 90;
+    const dx = (random() - 0.5) * spread;
+    const dy = -110 - random() * 240;
     const spin = (random() - 0.5) * 1440;
+    const at = (x: number, y: number) => `translate(${RIM.x + x}px, ${RIM.y + y}px)`;
     pieces.push({
       el: piece,
       keyframes: [
-        { transform: "translate(0px, 0px) rotate(0deg)", opacity: 1 },
-        { transform: `translate(${dx * 0.8}px, ${dy}px) rotate(${spin / 2}deg)`, opacity: 1, offset: 0.45 },
-        { transform: `translate(${dx}px, ${dy + 60}px) rotate(${spin}deg)`, opacity: 0 },
+        { transform: `${at(0, 0)} rotate(0deg) scale(0)`, opacity: 1 },
+        { transform: `${at(dx * 0.8, dy)} rotate(${spin / 2}deg) scale(1)`, opacity: 1, offset: 0.45 },
+        { transform: `${at(dx, dy + 160)} rotate(${spin}deg) scale(1)`, opacity: 0 },
       ],
       options: { duration: 1100, delay: 150, easing: "cubic-bezier(.2,.7,.4,1)" },
     });
@@ -100,16 +99,22 @@ async function cascade(coins: number, seed: number): Promise<void> {
 
   overlay.append(...pieces.map((p) => p.el));
   document.body.append(overlay);
-  animate(
-    cup,
-    [
-      { transform: "rotate(0deg)" },
-      { transform: "rotate(-150deg)", offset: 0.25 },
-      { transform: "rotate(-150deg)", offset: 0.75 },
-      { transform: "rotate(0deg)" },
-    ],
-    { duration: CASCADE_MS, easing: "ease-in-out", fill: "none" },
-  );
+  // Tip the cup itself (not the disc behind it) about its middle.
+  const figure = cup.querySelector<SVGGElement>(".cup-figure");
+  if (figure) {
+    figure.style.transformBox = "view-box";
+    figure.style.transformOrigin = "195px 407px";
+    animate(
+      figure,
+      [
+        { transform: "rotate(0deg)" },
+        { transform: "rotate(-150deg)", offset: 0.25 },
+        { transform: "rotate(-150deg)", offset: 0.75 },
+        { transform: "rotate(0deg)" },
+      ],
+      { duration: CASCADE_MS, easing: "ease-in-out", fill: "none" },
+    );
+  }
   for (const p of pieces) animate(p.el, p.keyframes, p.options);
   await wait(CASCADE_MS);
   overlay.remove();
@@ -119,15 +124,12 @@ async function cascade(coins: number, seed: number): Promise<void> {
 async function tickLifetime(fromPence: number, toPence: number): Promise<void> {
   const card = document.createElement("div");
   card.setAttribute("role", "status");
-  card.style.cssText =
-    "position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 16px);transform:translateX(-50%);" +
-    "padding:12px 20px;border-radius:16px;background:var(--ink);color:var(--cream);" +
-    "text-align:center;pointer-events:none;z-index:10;font-variant-numeric:tabular-nums;";
+  card.className = "settle-card";
   const label = document.createElement("div");
   label.textContent = "Invested so far";
-  label.style.cssText = "font-size:0.85rem;opacity:0.8;";
+  label.className = "settle-card-label";
   const amount = document.createElement("div");
-  amount.style.cssText = "font-size:2rem;font-weight:700;";
+  amount.className = "settle-card-amount";
   card.append(label, amount);
   document.body.append(card);
 
