@@ -8,6 +8,7 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: "autoUpdate",
+      includeManifestIcons: false,
       injectRegister: false,
       manifest: {
         name: "Coffee Button",
@@ -24,7 +25,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,svg,png,webmanifest}"],
+        globPatterns: ["**/*.{js,css,html,svg,png}"],
       },
     }),
   ],
