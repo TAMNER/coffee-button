@@ -34,4 +34,11 @@ describe("generateIcs", () => {
 
     expect(ics.split("\r\n")).toContain("DTSTART;TZID=Europe/London:20261226T090000");
   });
+
+  it("payday 28 settles on the 1st of the next month, never the 29th, so February is not skipped", () => {
+    const lines = generateIcs({ payday: 28, appUrl, now: new Date(2026, 10, 3, 10, 0), tz: "Europe/London" }).split("\r\n");
+
+    expect(lines).toContain("RRULE:FREQ=MONTHLY;BYMONTHDAY=1");
+    expect(lines).toContain("DTSTART;TZID=Europe/London:20261201T090000");
+  });
 });
