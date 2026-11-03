@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isSettleWindow, owed, owedSince, settle } from "./settle";
+import { isSettleWindow, overdueLine, owed, owedSince, settle } from "./settle";
 import { MemoryStore } from "./store";
 
 const press = (id: string, pricePence: number, at: Date) => ({ id, itemId: "coffee", pricePence, at: at.getTime() });
@@ -70,5 +70,11 @@ describe("isSettleWindow (payday 25)", () => {
 
   it("stays open on 3 Nov when £12.50 owed from 20 Oct rolled over unsettled", () => {
     expect(isSettleWindow(new Date(2026, 10, 3, 12, 0), 25, new Date(2026, 9, 20, 9, 0), 1250)).toBe(true);
+  });
+});
+
+describe("overdueLine", () => {
+  it("is null on 28 Nov when everything owed is from November", () => {
+    expect(overdueLine(new Date(2026, 10, 28, 12, 0), new Date(2026, 10, 2, 9, 0), 1250)).toBeNull();
   });
 });

@@ -45,6 +45,12 @@ export function isSettleWindow(now: Date, payday: number, owedSince: Date | null
   return owedPence > 0 && (now.getDate() > payday || isOverdue(now, owedSince));
 }
 
+/** The shelf's reminder, e.g. "£12.50 owed since October", or null when nothing is overdue. */
+export function overdueLine(now: Date, owedSince: Date | null, owedPence: number): string | null {
+  if (owedPence <= 0 || !isOverdue(now, owedSince)) return null;
+  return "";
+}
+
 /** Owed money dates from before this calendar month, so last month's window passed unsettled. */
 function isOverdue(now: Date, owedSince: Date | null): boolean {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
