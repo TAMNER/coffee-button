@@ -11,3 +11,17 @@ export async function addItem(
   await store.items.put(item);
   return item;
 }
+
+async function updateItem(store: Store, id: string, change: Partial<Omit<Item, "id">>): Promise<void> {
+  const item = await store.items.get(id);
+  if (!item) throw new Error(`Unknown item: ${id}`);
+  await store.items.put({ ...item, ...change });
+}
+
+export function renameItem(store: Store, id: string, name: string): Promise<void> {
+  return updateItem(store, id, { name });
+}
+
+export function repriceItem(store: Store, id: string, pricePence: number): Promise<void> {
+  return updateItem(store, id, { pricePence });
+}

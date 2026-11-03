@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { addItem } from "./settings";
+import { Ledger } from "./ledger";
+import { addItem, renameItem, repriceItem } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -12,6 +13,24 @@ describe("settings: items", () => {
     expect(items).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
       { id: "beer-1", name: "Beer", icon: "pint", pricePence: 600 },
+    ]);
+  });
+
+  it("repricing Coffee to 380 and renaming Beer to Pint change only those items; an earlier Coffee press stays at 350", async () => {
+    const store = new MemoryStore();
+    await addItem(store, "Beer", 600, "pint", () => "beer-1");
+    const ledger = new Ledger(store, () => "press-1");
+    await ledger.addPress("coffee", new Date(2026, 10, 3, 9, 0));
+
+    await repriceItem(store, "coffee", 380);
+    await renameItem(store, "beer-1", "Pint");
+
+    expect(await store.items.list()).toEqual([
+      { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 380 },
+      { id: "beer-1", name: "Pint", icon: "pint", pricePence: 600 },
+    ]);
+    expect(await store.presses.list()).toEqual([
+      { id: "press-1", itemId: "coffee", pricePence: 350, at: new Date(2026, 10, 3, 9, 0).getTime() },
     ]);
   });
 });
