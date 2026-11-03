@@ -1,4 +1,4 @@
-import type { Store } from "./store";
+import type { Goal, Store } from "./store";
 
 /** Something on the shelf: a default big-ticket item or a personal goal. */
 export interface ShelfItem {
@@ -42,6 +42,23 @@ export const DEFAULT_SHELF_ITEMS: readonly ShelfItem[] = [
 export async function shelfItems(store: Store): Promise<ShelfItem[]> {
   const prices = (await store.getSettings()).shelfPrices ?? {};
   return DEFAULT_SHELF_ITEMS.map((item) => ({ ...item, pricePence: prices[item.id] ?? item.pricePence }));
+}
+
+export const MAX_GOALS = 3;
+
+/** Adds a personal goal; throws once there are already three. */
+export async function addGoal(
+  store: Store,
+  name: string,
+  pricePence: number,
+  newId: () => string = () => crypto.randomUUID(),
+): Promise<Goal> {
+  if ((await store.goals.list()).length >= MAX_GOALS) {
+    throw new Error(`At most ${MAX_GOALS} goals`);
+  }
+  const goal: Goal = { id: newId(), name, pricePence };
+  await store.goals.put(goal);
+  return goal;
 }
 
 export async function setShelfPrice(store: Store, id: string, pricePence: number): Promise<void> {

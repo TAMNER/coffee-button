@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { setShelfPrice, shelfItems, shelfState } from "./shelf";
+import { addGoal, setShelfPrice, shelfItems, shelfState } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -42,5 +42,22 @@ describe("shelfItems", () => {
     expect(items.find((i) => i.id === "laptop")?.pricePence).toBe(120000);
     expect(items.find((i) => i.id === "bike")?.pricePence).toBe(60000);
     expect((await store.getSettings()).paydayDay).toBe(25);
+  });
+});
+
+describe("goals", () => {
+  it("up to three goals are kept in the store; a fourth is rejected and not stored", async () => {
+    const store = new MemoryStore();
+    await addGoal(store, "Guitar", 45000);
+    await addGoal(store, "Sofa", 80000);
+    await addGoal(store, "Tent", 20000);
+
+    await expect(addGoal(store, "Kayak", 70000)).rejects.toThrow();
+    const goals = await store.goals.list();
+    expect(goals.map((g) => [g.name, g.pricePence]).sort()).toEqual([
+      ["Guitar", 45000],
+      ["Sofa", 80000],
+      ["Tent", 20000],
+    ]);
   });
 });
