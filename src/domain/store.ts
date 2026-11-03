@@ -30,6 +30,8 @@ export interface Goal {
 export interface Settings {
   /** Day of month the author is paid; settle day is the day after. */
   paydayDay: number;
+  /** Shelf item id to user-edited price; absent ids use the default price. */
+  shelfPrices?: Record<string, number>;
 }
 
 export const DEFAULT_SETTINGS: Settings = { paydayDay: 25 };

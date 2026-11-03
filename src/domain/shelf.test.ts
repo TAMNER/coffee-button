@@ -1,0 +1,103 @@
+import { describe, expect, it } from "vitest";
+import { Ledger } from "./ledger";
+import { addGoal, removeGoal, setShelfPrice, shelfItems, shelfState, shelfView } from "./shelf";
+import { MemoryStore } from "./store";
+
+describe("shelfState", () => {
+  it("with £500 lifetime the £400 espresso machine is lit and the £1000 laptop is half way", () => {
+    const items = [
+      { id: "espresso", name: "Espresso machine", pricePence: 40000 },
+      { id: "laptop", name: "Laptop", pricePence: 100000 },
+      { id: "exact", name: "Exactly reached", pricePence: 50000 },
+    ];
+    expect(shelfState(items, 50000)).toEqual([
+      { id: "espresso", name: "Espresso machine", pricePence: 40000, lit: true, progress: 1 },
+      { id: "laptop", name: "Laptop", pricePence: 100000, lit: false, progress: 0.5 },
+      { id: "exact", name: "Exactly reached", pricePence: 50000, lit: true, progress: 1 },
+    ]);
+  });
+});
+
+describe("shelfItems", () => {
+  it("a fresh store has the ten default items at their rough prices in pounds", async () => {
+    const items = await shelfItems(new MemoryStore());
+    expect(items.map((i) => [i.name, i.pricePence])).toEqual([
+      ["Laptop", 100000],
+      ["Ski week", 150000],
+      ["Long-haul flight", 80000],
+      ["Used car", 500000],
+      ["Espresso machine", 40000],
+      ["Bike", 60000],
+      ["Weekend away", 30000],
+      ["Phone", 90000],
+      ["Camera", 70000],
+      ["Festival ticket", 35000],
+    ]);
+  });
+
+  it("repricing the laptop to £1200 is kept in settings and leaves payday and other items alone", async () => {
+    const store = new MemoryStore();
+    await setShelfPrice(store, "laptop", 120000);
+
+    const items = await shelfItems(store);
+    expect(items.find((i) => i.id === "laptop")?.pricePence).toBe(120000);
+    expect(items.find((i) => i.id === "bike")?.pricePence).toBe(60000);
+    expect((await store.getSettings()).paydayDay).toBe(25);
+  });
+});
+
+describe("goals", () => {
+  it("up to three goals are kept in the store; a fourth is rejected and not stored", async () => {
+    const store = new MemoryStore();
+    await addGoal(store, "Guitar", 45000);
+    await addGoal(store, "Sofa", 80000);
+    await addGoal(store, "Tent", 20000);
+
+    await expect(addGoal(store, "Kayak", 70000)).rejects.toThrow();
+    const goals = await store.goals.list();
+    expect(goals.map((g) => [g.name, g.pricePence]).sort()).toEqual([
+      ["Guitar", 45000],
+      ["Sofa", 80000],
+      ["Tent", 20000],
+    ]);
+  });
+
+  it("removing a goal deletes it and frees a slot for another", async () => {
+    const store = new MemoryStore();
+    await addGoal(store, "Guitar", 45000);
+    const sofa = await addGoal(store, "Sofa", 80000);
+    await addGoal(store, "Tent", 20000);
+
+    await removeGoal(store, sofa.id);
+    await addGoal(store, "Kayak", 70000);
+
+    expect((await store.goals.list()).map((g) => g.name).sort()).toEqual(["Guitar", "Kayak", "Tent"]);
+  });
+});
+
+describe("shelfView", () => {
+  it("on 31 March with £120 this year and £120 last year: pace £486.67, lifetime £240 compounds to £390.93, the injected overdue line is carried", async () => {
+    const store = new MemoryStore();
+    const put = (id: string, pricePence: number, at: Date) =>
+      store.presses.put({ id, itemId: "coffee", pricePence, at: at.getTime() });
+    await put("a", 12000, new Date(2025, 5, 1, 9));
+    await put("b", 6000, new Date(2026, 0, 10, 9));
+    await put("c", 6000, new Date(2026, 2, 31, 8));
+    await addGoal(store, "Guitar", 45000);
+
+    const view = await shelfView({
+      store,
+      ledger: new Ledger(store),
+      now: new Date(2026, 2, 31, 12),
+      overdueLine: async () => "£12.00 owed since October",
+    });
+
+    expect(view.pacePence).toBe(48667);
+    expect(view.lifetimePence).toBe(24000);
+    expect(view.compoundedPence).toBe(39093);
+    expect(view.overdueLine).toBe("£12.00 owed since October");
+    expect(view.items).toHaveLength(10);
+    expect(view.items.find((i) => i.id === "weekend-away")).toMatchObject({ lit: false, progress: 0.8 });
+    expect(view.goals).toEqual([expect.objectContaining({ name: "Guitar", pricePence: 45000, lit: false })]);
+  });
+});

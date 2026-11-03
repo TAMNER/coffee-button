@@ -3,3 +3,4 @@
 import "./cup";
 import "./settings";
 import "./settle";
+import "./shelf";
