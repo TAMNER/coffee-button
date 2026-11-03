@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { activeItemId, addItem, exportData, importData, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
+import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -42,6 +42,15 @@ describe("settings: active item", () => {
     const store = new MemoryStore();
 
     expect(await activeItemId(store)).toBe("coffee");
+  });
+
+  it("setActiveItem('beer') is remembered and leaves payday 25 alone", async () => {
+    const store = new MemoryStore();
+
+    await setActiveItem(store, "beer");
+
+    expect(await activeItemId(store)).toBe("beer");
+    expect(await store.getSettings()).toEqual({ paydayDay: 25, activeItemId: "beer" });
   });
 });
 

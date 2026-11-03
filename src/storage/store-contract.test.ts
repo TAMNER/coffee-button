@@ -107,6 +107,7 @@ describe.each(backends)("Store contract: $name", (backend) => {
       shelfPrices: { laptop: 120000 },
       overdueShownAt: Date.UTC(2026, 10, 3, 12, 0),
       pendingInvest: { amountPence: 1250, startedAt: Date.UTC(2026, 10, 26, 9, 0) },
+      activeItemId: "beer",
     };
     await store.putSettings(settings);
 

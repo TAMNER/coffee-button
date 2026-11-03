@@ -34,6 +34,8 @@ export interface Settings {
   shelfPrices?: Record<string, number>;
   /** Epoch ms the shelf last showed the owed-since reminder; it shows at most weekly. */
   overdueShownAt?: number;
+  /** The item a tap on the cup records; absent means the first item (Coffee). */
+  activeItemId?: string;
   /** An Invest tap not yet answered, kept so the question survives the app being killed. */
   pendingInvest?: PendingInvest;
 }
