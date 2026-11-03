@@ -16,4 +16,13 @@ describe("owed", () => {
 
     expect(await owed(store, new Date(2026, 10, 3, 12, 0))).toBe(950);
   });
+
+  it("is every press when nothing has been settled: Oct 20 350 + Oct 30 350 + Nov 2 600 = 1300", async () => {
+    const store = new MemoryStore();
+    await store.presses.put(press("a", 350, new Date(2026, 9, 20, 9, 0)));
+    await store.presses.put(press("b", 350, new Date(2026, 9, 30, 9, 0)));
+    await store.presses.put(press("c", 600, new Date(2026, 10, 2, 18, 0)));
+
+    expect(await owed(store, new Date(2026, 10, 3, 12, 0))).toBe(1300);
+  });
 });
