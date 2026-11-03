@@ -90,9 +90,24 @@ export interface InvestDeps {
 
 /** Invest £X → copy, open InvestEngine, ask on return, settle on yes. */
 export class InvestFlow {
+  private promptListeners = new Set<(text: string) => void>();
+  private stopWaiting: (() => void) | null = null;
+
   constructor(private deps: InvestDeps) {}
 
+  /** `fn` receives the confirmation question when the user returns from InvestEngine. */
+  onPrompt(fn: (text: string) => void): () => void {
+    this.promptListeners.add(fn);
+    return () => this.promptListeners.delete(fn);
+  }
+
   async invest(amountPence: number): Promise<void> {
+    this.stopWaiting?.();
+    this.stopWaiting = this.deps.opener.onReturn(() => {
+      this.stopWaiting?.();
+      this.stopWaiting = null;
+      for (const fn of this.promptListeners) fn(`Did you invest ${formatPounds(amountPence)}?`);
+    });
     // Both start before any await: Safari only allows them inside the tap's user activation.
     const copied = this.deps.clipboard.writeText(formatPounds(amountPence).slice(1));
     const opened = this.deps.opener.open(INVESTENGINE_URL);

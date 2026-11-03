@@ -41,4 +41,16 @@ describe("InvestFlow", () => {
       "https://apps.apple.com/gb/app/investengine/id1485669937",
     ]);
   });
+
+  it('asks "Did you invest £12.50?" once the user comes back to the app', async () => {
+    const { opener, flow } = setup();
+    const prompts: string[] = [];
+    flow.onPrompt((text) => prompts.push(text));
+
+    await flow.invest(1250);
+    expect(prompts).toEqual([]);
+    opener.returnToApp();
+
+    expect(prompts).toEqual(["Did you invest £12.50?"]);
+  });
 });
