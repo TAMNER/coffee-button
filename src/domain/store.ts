@@ -72,7 +72,11 @@ class MemoryCollection<T extends { id: string }> implements Collection<T> {
   private rows = new Map<string, T>();
 
   constructor(seed: T[] = []) {
-    for (const row of seed) this.rows.set(row.id, structuredClone(row));
+    for (const row of seed) {
+      // Same rule as IndexedDB's keyPath: every row needs a string id.
+      if (typeof row?.id !== "string") throw new Error("Every row needs a string id");
+      this.rows.set(row.id, structuredClone(row));
+    }
   }
 
   async get(id: string): Promise<T | undefined> {

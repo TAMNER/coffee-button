@@ -1,4 +1,4 @@
-import { DEFAULT_ITEM, type Collection, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
+import { DEFAULT_ITEM, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
 
 export async function addItem(
   store: Store,
@@ -104,17 +104,8 @@ function parseExport(json: string): ExportFile {
 }
 
 export async function importData(store: Store, json: string): Promise<void> {
-  const data = parseExport(json);
-  await replaceAll(store.items, data.items);
-  await replaceAll(store.presses, data.presses);
-  await replaceAll(store.settlements, data.settlements);
-  await replaceAll(store.goals, data.goals);
-  await store.putSettings(data.settings);
-}
-
-async function replaceAll<T extends { id: string }>(collection: Collection<T>, rows: T[]): Promise<void> {
-  for (const old of await collection.list()) await collection.delete(old.id);
-  for (const row of rows) await collection.put(row);
+  const { items, presses, settlements, goals, settings } = parseExport(json);
+  await store.replaceAll({ items, presses, settlements, goals, settings });
 }
 
 export async function setPayday(store: Store, day: number): Promise<void> {

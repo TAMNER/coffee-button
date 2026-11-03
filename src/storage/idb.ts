@@ -88,21 +88,26 @@ export class IndexedDbStore implements Store {
   /** One readwrite transaction over every object store: any failure aborts it all. */
   async replaceAll(snapshot: Snapshot): Promise<void> {
     const tx = this.db.transaction(["items", "presses", "settlements", "goals", "settings"], "readwrite");
-    const writes: Promise<unknown>[] = [];
-    for (const name of ["items", "presses", "settlements", "goals"] as const) {
-      const os = tx.objectStore(name);
-      writes.push(os.clear());
-      for (const row of snapshot[name]) writes.push(os.put(row as never));
-    }
-    writes.push(tx.objectStore("settings").put(snapshot.settings, SETTINGS_KEY));
+    // A row with no key makes put() throw synchronously, before any promise exists,
+    // so everything sits inside the try and the catch aborts the transaction.
     try {
-      await Promise.all([...writes, tx.done]);
+      // tx.done rejects if any request fails; each request's own promise is
+      // marked handled so an aborted request is not an unhandled rejection.
+      const quiet = (p: Promise<unknown>) => void p.catch(() => {});
+      for (const name of ["items", "presses", "settlements", "goals"] as const) {
+        const os = tx.objectStore(name);
+        quiet(os.clear());
+        for (const row of snapshot[name]) quiet(os.put(row as never));
+      }
+      quiet(tx.objectStore("settings").put(snapshot.settings, SETTINGS_KEY));
+      await tx.done;
     } catch (err) {
       try {
         tx.abort();
       } catch {
         // already aborted
       }
+      await tx.done.catch(() => {});
       throw err;
     }
   }

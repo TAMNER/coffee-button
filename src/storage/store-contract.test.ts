@@ -64,6 +64,22 @@ describe.each(backends)("Store contract: $name", (backend) => {
     expect(await store.getSettings()).toEqual({ paydayDay: 20 });
   });
 
+  it("replaceAll with a press that has no id fails and leaves every collection as it was", async () => {
+    const store = await backend.open(freshName());
+    await store.items.put(beer);
+    await store.presses.put(pressA);
+    const itemsBefore = await store.items.list();
+    const badPress = { itemId: "beer", pricePence: 600, at: pressB.at } as unknown as typeof pressB;
+
+    await expect(
+      store.replaceAll({ items: [], presses: [badPress], settlements: [], goals: [], settings: { paydayDay: 20 } }),
+    ).rejects.toThrow();
+
+    expect(await store.items.list()).toEqual(itemsBefore);
+    expect(await store.presses.list()).toEqual([pressA]);
+    expect((await store.getSettings()).paydayDay).toBe(25);
+  });
+
   it.runIf(backend.persistent)("a new store instance on the same database name sees earlier writes", async () => {
     const dbName = freshName();
     const first = await backend.open(dbName);
