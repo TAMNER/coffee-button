@@ -24,4 +24,9 @@ export class Ledger {
       })
       .reduce((sum, p) => sum + p.pricePence, 0);
   }
+
+  /** Removes the press with this id; a no-op if it is already gone. */
+  async undo(pressId: string): Promise<void> {
+    await this.store.presses.delete(pressId);
+  }
 }

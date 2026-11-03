@@ -29,4 +29,17 @@ describe("Ledger", () => {
 
     expect(await ledger.monthToDate(new Date(2026, 10, 3, 12, 0))).toBe(950);
   });
+
+  it("undo removes exactly that press, and undoing it a second time changes nothing", async () => {
+    const store = new MemoryStore();
+    await store.items.put({ id: "coffee", name: "Coffee", icon: "cup", pricePence: 350 });
+    const ledger = new Ledger(store);
+    const first = await ledger.addPress("coffee", new Date(2026, 10, 3, 9, 0));
+    const second = await ledger.addPress("coffee", new Date(2026, 10, 3, 10, 0));
+
+    await ledger.undo(second.id);
+    await ledger.undo(second.id);
+
+    expect((await store.presses.list()).map((p) => p.id)).toEqual([first.id]);
+  });
 });
