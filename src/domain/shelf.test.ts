@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shelfItems, shelfState } from "./shelf";
+import { setShelfPrice, shelfItems, shelfState } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -32,5 +32,15 @@ describe("shelfItems", () => {
       ["Camera", 70000],
       ["Festival ticket", 35000],
     ]);
+  });
+
+  it("repricing the laptop to £1200 is kept in settings and leaves payday and other items alone", async () => {
+    const store = new MemoryStore();
+    await setShelfPrice(store, "laptop", 120000);
+
+    const items = await shelfItems(store);
+    expect(items.find((i) => i.id === "laptop")?.pricePence).toBe(120000);
+    expect(items.find((i) => i.id === "bike")?.pricePence).toBe(60000);
+    expect((await store.getSettings()).paydayDay).toBe(25);
   });
 });

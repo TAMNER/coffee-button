@@ -39,6 +39,12 @@ export const DEFAULT_SHELF_ITEMS: readonly ShelfItem[] = [
 ];
 
 /** The default shelf items with any prices the user has edited. */
-export async function shelfItems(_store: Store): Promise<ShelfItem[]> {
-  return DEFAULT_SHELF_ITEMS.map((item) => ({ ...item }));
+export async function shelfItems(store: Store): Promise<ShelfItem[]> {
+  const prices = (await store.getSettings()).shelfPrices ?? {};
+  return DEFAULT_SHELF_ITEMS.map((item) => ({ ...item, pricePence: prices[item.id] ?? item.pricePence }));
+}
+
+export async function setShelfPrice(store: Store, id: string, pricePence: number): Promise<void> {
+  const settings = await store.getSettings();
+  await store.putSettings({ ...settings, shelfPrices: { ...settings.shelfPrices, [id]: pricePence } });
 }
