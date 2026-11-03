@@ -18,32 +18,13 @@ import {
 } from "../domain/shelf";
 import { weeklyOverdueLine } from "../domain/settle";
 import { HOME_SCREEN, onStart, registerScreen, registerSettingsSection, type AppContext } from "./app";
+import { goalArt, itemArt } from "./art/items";
 import "./shelf.css";
 
 export const SHELF_SCREEN = "shelf";
 const TAP_MAX_MS = 500;
 const SWIPE_PX = 60;
-
-
-/** Simple geometric stand-ins; ticket 10 replaces them with the chosen artwork. */
-const SHAPES: Record<string, string> = {
-  laptop: `<rect x="10" y="14" width="28" height="18" rx="2"/><rect x="6" y="32" width="36" height="4" rx="1"/>`,
-  "ski-week": `<path d="M8 38 L24 10 L40 38 Z"/><path d="M18 22 L24 12 L30 22 Z" fill="#fff"/>`,
-  "long-haul-flight": `<path d="M6 26 L42 22 L42 26 L6 30 Z"/><path d="M20 26 L28 12 L32 12 L28 26 Z"/><path d="M20 28 L28 40 L32 40 L28 28 Z"/>`,
-  "used-car": `<rect x="6" y="22" width="36" height="10" rx="3"/><path d="M14 22 L18 14 H32 L36 22 Z"/><circle cx="14" cy="34" r="4"/><circle cx="34" cy="34" r="4"/>`,
-  "espresso-machine": `<rect x="12" y="8" width="24" height="10" rx="2"/><rect x="14" y="18" width="20" height="20"/><rect x="20" y="28" width="8" height="6" fill="#fff"/>`,
-  bike: `<circle cx="13" cy="30" r="8" fill="none" stroke-width="3"/><circle cx="35" cy="30" r="8" fill="none" stroke-width="3"/><path d="M13 30 L22 18 L35 30 M22 18 H30" fill="none" stroke-width="3"/>`,
-  "weekend-away": `<rect x="10" y="16" width="28" height="22" rx="3"/><rect x="18" y="10" width="12" height="6" fill="none" stroke-width="3"/>`,
-  phone: `<rect x="16" y="6" width="16" height="36" rx="3"/><rect x="18" y="10" width="12" height="26" fill="#fff"/>`,
-  camera: `<rect x="8" y="16" width="32" height="22" rx="3"/><rect x="16" y="11" width="10" height="5"/><circle cx="24" cy="27" r="7" fill="#fff"/>`,
-  "festival-ticket": `<path d="M6 16 H42 V22 A4 4 0 0 0 42 30 V36 H6 V30 A4 4 0 0 0 6 22 Z"/>`,
-};
-const GOAL_SHAPE = `<path d="M24 6 L29 19 L43 19 L32 28 L36 42 L24 34 L12 42 L16 28 L5 19 L19 19 Z"/>`;
-
-function itemSvg(id: string): string {
-  const shape = SHAPES[id] ?? GOAL_SHAPE;
-  return `<svg class="shelf-icon" viewBox="0 0 48 48" aria-hidden="true" fill="currentColor" stroke="currentColor">${shape}</svg>`;
-}
+const PER_ROW = 3;
 
 /** "3.80" or "£3.80" to 380; null when it is not a positive amount. */
 function parsePence(text: string): number | null {
@@ -58,29 +39,47 @@ function escapeHtml(text: string): string {
 }
 
 function entryHtml(entry: ShelfEntry, isGoal: boolean): string {
-  const caption = entry.lit ? "you could now buy this" : `${Math.floor(entry.progress * 100)}%`;
+  const percent = Math.floor(entry.progress * 100);
+  const status = entry.lit
+    ? `<span class="shelf-badge"><span>You could now</span> <span>buy this</span></span>`
+    : `<span class="shelf-bar" role="img" aria-label="${percent}% of the way">` +
+      `<span style="width:${(entry.progress * 100).toFixed(1)}%"></span></span>`;
   return `
-    <li class="shelf-item ${entry.lit ? "is-lit" : ""}">
-      ${itemSvg(isGoal ? "" : entry.id)}
+    <li class="shelf-item ${entry.lit ? "is-lit" : "art-off"}">
+      <span class="shelf-art" aria-hidden="true">${isGoal ? goalArt() : itemArt(entry.id)}</span>
       <span class="shelf-name">${escapeHtml(entry.name)}</span>
       <span class="shelf-price">${formatPounds(entry.pricePence)}</span>
-      <span class="shelf-bar"><span style="width:${(entry.progress * 100).toFixed(1)}%"></span></span>
-      <span class="shelf-caption">${caption}</span>
+      ${status}
       ${isGoal ? `<button type="button" class="shelf-remove" data-goal="${entry.id}" aria-label="Remove ${escapeHtml(entry.name)}">×</button>` : ""}
     </li>`;
+}
+
+/** Entries three to a shelf; each row stands on its own tomato plank. */
+function shelvesHtml(entries: string[]): string {
+  let html = "";
+  for (let i = 0; i < entries.length; i += PER_ROW) {
+    html += `<ul class="shelf-row">${entries.slice(i, i + PER_ROW).join("")}</ul>`;
+  }
+  return html;
 }
 
 function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
   el.innerHTML = `
     <section class="shelf-screen">
-      <button type="button" class="shelf-back" data-role="back" aria-label="Back to the cup">↓</button>
-      <p class="shelf-line" data-role="pace"></p>
-      <p class="shelf-line" data-role="compound"></p>
-      <p class="shelf-line shelf-overdue" data-role="overdue" hidden></p>
-      <ul class="shelf" data-role="shelf"></ul>
+      <button type="button" class="shelf-back" data-role="back" aria-label="Back to the cup">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8 H20 L12 18Z"/></svg>
+      </button>
+      <p class="shelf-pace">
+        <span class="shelf-pace-lead">At this rate you'll have</span>
+        <span class="shelf-pace-figure" data-role="pace"></span>
+        <span class="shelf-pace-tail">by December</span>
+      </p>
+      <p class="shelf-card" data-role="compound"></p>
+      <p class="shelf-overdue" data-role="overdue" hidden></p>
+      <div class="shelf" data-role="shelf"></div>
       <form class="goal-form" data-role="goal-form">
-        <input name="name" placeholder="Goal" maxlength="40" required />
-        <input name="price" placeholder="£" inputmode="decimal" required />
+        <input name="name" placeholder="Goal" aria-label="Goal name" maxlength="40" required />
+        <input name="price" placeholder="£" aria-label="Goal price" inputmode="decimal" required />
         <button type="submit">Add</button>
       </form>
     </section>`;
@@ -98,14 +97,19 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
   const refresh = async () => {
     const view = await shelfView({ store: ctx.store, ledger: ctx.ledger, now: ctx.clock.now(), overdueLine });
     if (!alive) return;
-    pace.textContent = `At this rate you'll have ${formatPounds(view.pacePence)} by December.`;
+    const paceText = formatPounds(view.pacePence);
+    pace.textContent = paceText;
+    // 76px holds "£999.99" at 390px; longer figures step down so they stay on one line.
+    pace.dataset.len = paceText.length > 9 ? "xl" : paceText.length > 7 ? "l" : "";
     compounded.textContent =
       `${formatPounds(view.lifetimePence)} at ${COMPOUND_RATE * 100}% for ${COMPOUND_YEARS} years ` +
       `is ${formatPounds(view.compoundedPence)}.`;
     overdue.hidden = view.overdueLine === null;
     overdue.textContent = view.overdueLine ?? "";
-    shelf.innerHTML =
-      view.goals.map((g) => entryHtml(g, true)).join("") + view.items.map((i) => entryHtml(i, false)).join("");
+    shelf.innerHTML = shelvesHtml([
+      ...view.goals.map((g) => entryHtml(g, true)),
+      ...view.items.map((i) => entryHtml(i, false)),
+    ]);
     form.hidden = view.goals.length >= MAX_GOALS;
   };
 

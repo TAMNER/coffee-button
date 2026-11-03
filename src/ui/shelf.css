@@ -1,121 +1,278 @@
+/*
+ * Shelf screen in the Cut Paper direction (mockups/directions.html, section
+ * "paper", shelf frame). Tokens are defined in style.css; the fallbacks here
+ * are the light values so the screen still reads if a token is missing.
+ */
+#app[data-screen="shelf"] {
+  justify-content: flex-start;
+  background: var(--paper, #f6cdc1);
+}
 .shelf-screen {
+  --sh-display: var(--font-display, Futura, "Century Gothic", "Avenir Next", "Trebuchet MS", sans-serif);
+  position: relative;
   box-sizing: border-box;
   width: 100%;
+  max-width: 32rem;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 0 16px 1.5rem;
+  align-items: stretch;
+  gap: 18px;
+  padding: 0 16px 72px;
+  color: var(--ink, #1d2a6e);
+  font-family: var(--sh-display);
+  font-variant-numeric: tabular-nums;
 }
+/* The torn second-colour strip along the foot of the mockup frame. */
+.shelf-screen::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44px;
+  background: var(--paper-2, #efb9aa);
+  clip-path: polygon(0 64%, 18% 0, 36% 59%, 59% 0, 82% 50%, 100% 5%, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
 .shelf-back {
   align-self: center;
-  margin-top: 0.5rem;
+  margin-top: 8px;
+  width: 44px;
+  height: 36px;
+  padding: 0;
   border: 0;
   background: none;
-  color: inherit;
-  font-size: 1.4rem;
-  opacity: 0.5;
+  cursor: pointer;
 }
-.shelf-line {
+.shelf-back svg {
+  width: 28px;
+  height: 28px;
+  fill: var(--cobalt, #2443b0);
+  filter: drop-shadow(3px 3px 0 var(--shadow, #8e2f25));
+}
+
+/* Pace line: "At this rate you'll have / £312 / by December". */
+.shelf-pace {
   margin: 0;
-  max-width: 32rem;
-  text-align: center;
-  font-size: 1.1rem;
-  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-weight: 800;
+  line-height: 1.05;
+}
+.shelf-pace-lead {
+  font-size: 18px;
+  padding-left: 4px;
+}
+.shelf-pace-figure {
+  font-size: 76px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.shelf-pace-figure[data-len="l"] {
+  font-size: 60px;
+}
+.shelf-pace-figure[data-len="xl"] {
+  font-size: 46px;
+}
+.shelf-pace-tail {
+  font-size: 26px;
+  padding-left: 4px;
+}
+
+/* Compounding line on a cobalt card with a hard shadow. */
+.shelf-card {
+  align-self: flex-start;
+  box-sizing: border-box;
+  max-width: 286px;
+  margin: 0 6px 6px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  background: var(--cobalt, #2443b0);
+  box-shadow: 6px 6px 0 var(--shadow, #8e2f25);
+  color: var(--on-dark, #fff9ef);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+/* Overdue reminder: a mustard slip, stuck down like the card. */
+.shelf-overdue {
+  align-self: flex-start;
+  margin: 0 5px 5px 0;
+  padding: 8px 12px;
+  border-radius: 3px;
+  background: var(--mustard, #f5b335);
+  box-shadow: 5px 5px 0 var(--mustard-deep, #d48e12);
+  color: var(--dark, #1d2a6e);
+  font-size: 15px;
+  font-weight: 800;
 }
 .shelf-overdue[hidden] {
   display: none;
 }
+
+/* Shelves: three items to a row, standing on a tomato plank. */
 .shelf {
+  --art-h: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin-top: 16px;
+}
+.shelf-row {
+  position: relative;
   list-style: none;
-  margin: 0.5rem 0 0;
+  margin: 0;
   padding: 0;
-  width: 100%;
-  max-width: 32rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
-  gap: 0.75rem;
+  display: flex;
+  justify-content: center;
+}
+.shelf-row::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: var(--art-h);
+  height: 14px;
+  background: var(--tomato, #e5533c);
+  box-shadow: 6px 6px 0 var(--shadow, #8e2f25);
 }
 .shelf-item {
   position: relative;
+  flex: 0 0 calc(100% / 3);
+  min-width: 0;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
-  padding: 0.6rem 0.4rem;
+  gap: 4px;
+  padding: 0 2px;
   text-align: center;
-  color: #b3a594;
+  font-weight: 800;
 }
-.shelf-item.is-lit {
-  color: var(--ink);
+.shelf-art {
+  position: relative; /* above the plank */
+  display: block;
+  width: 94px;
+  height: var(--art-h);
+  margin-bottom: 30px; /* the plank and its shadow */
 }
-.shelf-icon {
-  width: 3rem;
-  height: 3rem;
-  stroke-width: 0;
-}
-.shelf-item .shelf-icon [stroke-width] {
-  stroke-width: 3;
+.shelf-art .art {
+  width: 100%;
+  height: 100%;
 }
 .shelf-name {
-  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
-.shelf-price,
-.shelf-caption {
-  font-size: 0.8rem;
-  font-variant-numeric: tabular-nums;
+.shelf-price {
+  font-size: 15px;
+}
+.art-off .shelf-price {
+  opacity: 0.7;
+}
+.shelf-badge {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 112px;
+  margin-top: 4px;
+  padding: 5px 4px;
+  border-radius: 3px;
+  background: var(--cobalt, #2443b0);
+  color: var(--on-dark, #fff9ef);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.shelf-badge > span {
+  display: block;
 }
 .shelf-bar {
-  width: 80%;
-  height: 3px;
-  border-radius: 2px;
-  background: #e2d4c0;
-  overflow: hidden;
+  display: block;
+  width: 84px;
+  max-width: 100%;
+  height: 10px;
+  margin-top: 6px;
+  background: var(--off-shadow, #cc9283);
 }
 .shelf-bar > span {
   display: block;
   height: 100%;
-  background: var(--ink);
+  background: var(--tomato, #e5533c);
 }
 .shelf-remove {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -6px;
+  right: 2px;
+  z-index: 1;
+  width: 26px;
+  height: 26px;
+  padding: 0;
   border: 0;
-  background: none;
-  color: inherit;
-  font-size: 1rem;
+  border-radius: 50%;
+  background: var(--tomato, #e5533c);
+  box-shadow: 3px 3px 0 var(--shadow, #8e2f25);
+  color: var(--on-dark, #fff9ef);
+  font: 800 16px/26px var(--sh-display);
+  cursor: pointer;
 }
+
+/* Add-a-goal form: cream slips and a mustard button, all with hard shadows. */
 .goal-form {
   display: flex;
-  gap: 0.4rem;
-  width: 100%;
-  max-width: 32rem;
+  gap: 10px;
+  margin-top: 12px;
 }
 .goal-form[hidden] {
   display: none;
 }
+.goal-form input,
+.goal-form button {
+  font: 800 16px var(--sh-display);
+  border: 0;
+  border-radius: 3px;
+  padding: 10px 12px;
+}
 .goal-form input {
   min-width: 0;
   flex: 1;
-  font: inherit;
-  padding: 0.4rem;
-  border: 1px solid #d9c3a5;
-  border-radius: 6px;
-  background: transparent;
-  color: inherit;
+  background: var(--cream, #fff9ef);
+  box-shadow: 4px 4px 0 var(--shadow, #8e2f25);
+  color: var(--dark, #1d2a6e);
+}
+.goal-form input::placeholder {
+  color: var(--dark, #1d2a6e);
+  opacity: 0.5;
+}
+.goal-form input:focus-visible {
+  outline: 3px solid var(--cobalt, #2443b0);
+  outline-offset: 1px;
 }
 .goal-form input[name="price"] {
   flex: 0 0 5rem;
 }
 .goal-form button {
-  font: inherit;
-  border: 0;
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
-  background: var(--ink);
-  color: var(--cream);
+  background: var(--mustard, #f5b335);
+  box-shadow: 4px 4px 0 var(--mustard-deep, #d48e12);
+  color: var(--dark, #1d2a6e);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
+.goal-form button:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+/* Shelf prices section inside settings. */
 .shelf-prices {
   list-style: none;
   padding: 0;
