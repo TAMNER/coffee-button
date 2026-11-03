@@ -1,18 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { LedgerMover } from "./money-mover";
-import { MemoryStore } from "./store";
+import { LedgerMover, type MoneyMover } from "./money-mover";
+
+/**
+ * The MoneyMover contract every implementation must pass. The ledger is the
+ * only V1 implementation; a Starling Space mover (DESIGN.md, deferred) would be
+ * added to this list.
+ */
+const movers: { name: string; make(): MoneyMover }[] = [{ name: "LedgerMover", make: () => new LedgerMover() }];
+
+describe.each(movers)("MoneyMover contract: $name", ({ make }) => {
+  it("resolves (never rejects) to { ok: true } or { ok: false, error } for a £3.50 press", async () => {
+    const result = await make().move(350, { pressId: "p1" });
+
+    const shapeOk = result.ok === true ? Object.keys(result).length === 1 : typeof result.error === "string" && result.error.length > 0;
+    expect(shapeOk).toBe(true);
+  });
+});
 
 describe("LedgerMover", () => {
-  it("resolves ok for a £3.50 press and leaves the store untouched, because the ledger already holds the press", async () => {
-    const store = new MemoryStore();
-    const press = { id: "p1", itemId: "coffee", pricePence: 350, at: Date.UTC(2026, 10, 3, 9, 0) };
-    await store.presses.put(press);
-    const itemsBefore = await store.items.list();
-
-    const result = await new LedgerMover().move(350, { pressId: "p1" });
-
-    expect(result).toEqual({ ok: true });
-    expect(await store.presses.list()).toEqual([press]);
-    expect(await store.items.list()).toEqual(itemsBefore);
+  it("reports ok: the press is already in the ledger, so there is nothing to move", async () => {
+    expect(await new LedgerMover().move(350, { pressId: "p1" })).toEqual({ ok: true });
   });
 });

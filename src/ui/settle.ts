@@ -42,7 +42,9 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
   };
 
   // Synchronous in the click handler so Safari keeps the tap's user activation.
-  investButton.addEventListener("click", () => void flow.invest(owedPence));
+  investButton.addEventListener("click", () => {
+    flow.invest(owedPence).catch((err) => console.error("invest failed", err));
+  });
 
   const stopPrompt = flow.onPrompt((text) => {
     question.textContent = text;
