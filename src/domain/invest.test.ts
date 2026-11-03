@@ -68,4 +68,19 @@ describe("InvestFlow", () => {
     expect(await store.settlements.list()).toEqual([expected]);
     expect(storedWhenReported).toEqual([expected]);
   });
+
+  it("Not yet records nothing, reports nothing, and a later Yes has nothing to settle", async () => {
+    const reported: Settlement[] = [];
+    const { store, opener, flow } = setup([], (s) => {
+      reported.push(s);
+    });
+    await flow.invest(1250);
+    opener.returnToApp();
+
+    flow.notYet();
+
+    expect(await flow.yes()).toBeNull();
+    expect(await store.settlements.list()).toEqual([]);
+    expect(reported).toEqual([]);
+  });
 });

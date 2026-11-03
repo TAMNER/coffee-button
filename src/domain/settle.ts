@@ -114,6 +114,11 @@ export class InvestFlow {
     return settlement;
   }
 
+  /** "Not yet": drops the pending amount; it stays owed. */
+  notYet(): void {
+    this.pendingPence = null;
+  }
+
   async invest(amountPence: number): Promise<void> {
     this.pendingPence = amountPence;
     this.stopWaiting?.();
