@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isSettleWindow, overdueLine, owed, owedSince, settle } from "./settle";
+import { isSettleWindow, overdueLine, owed, owedSince, settle, weeklyOverdueLine } from "./settle";
 import { MemoryStore } from "./store";
 
 const press = (id: string, pricePence: number, at: Date) => ({ id, itemId: "coffee", pricePence, at: at.getTime() });
@@ -80,5 +80,14 @@ describe("overdueLine", () => {
 
   it('reads "£12.50 owed since October" on 3 Nov when October went unsettled', () => {
     expect(overdueLine(new Date(2026, 10, 3, 12, 0), new Date(2026, 9, 20, 9, 0), 1250)).toBe("£12.50 owed since October");
+  });
+});
+
+describe("weeklyOverdueLine (the shelf's reminder)", () => {
+  it('on 3 Nov with £12.50 pressed on 20 Oct and never settled, reads "£12.50 owed since October"', async () => {
+    const store = new MemoryStore();
+    await store.presses.put(press("a", 1250, new Date(2026, 9, 20, 9, 0)));
+
+    expect(await weeklyOverdueLine(store, new Date(2026, 10, 3, 12, 0))).toBe("£12.50 owed since October");
   });
 });

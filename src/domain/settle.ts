@@ -55,6 +55,11 @@ export function overdueLine(now: Date, owedSince: Date | null, owedPence: number
   return `${formatPounds(owedPence)} owed since ${MONTHS[owedSince.getMonth()]}`;
 }
 
+/** The shelf's reminder line for `now`, read from the store. */
+export async function weeklyOverdueLine(store: Store, now: Date): Promise<string | null> {
+  return overdueLine(now, await owedSince(store, now), await owed(store, now));
+}
+
 const MONTHS = [
   "January",
   "February",

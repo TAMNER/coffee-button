@@ -15,8 +15,8 @@ import {
   shelfItems,
   shelfView,
   type ShelfEntry,
-  type ShelfViewDeps,
 } from "../domain/shelf";
+import { weeklyOverdueLine } from "../domain/settle";
 import { HOME_SCREEN, onStart, registerScreen, registerSettingsSection, type AppContext } from "./app";
 import "./shelf.css";
 
@@ -24,8 +24,6 @@ export const SHELF_SCREEN = "shelf";
 const TAP_MAX_MS = 500;
 const SWIPE_PX = 60;
 
-/** Placeholder until ticket 06 provides the real overdue line. */
-const overdueLine: ShelfViewDeps["overdueLine"] = () => null;
 
 /** Simple geometric stand-ins; ticket 10 replaces them with the chosen artwork. */
 const SHAPES: Record<string, string> = {
@@ -93,6 +91,7 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
   const form = el.querySelector<HTMLFormElement>("[data-role=goal-form]")!;
 
   let alive = true;
+  const overdueLine = (now: Date) => weeklyOverdueLine(ctx.store, now);
   const refresh = async () => {
     const view = await shelfView({ store: ctx.store, ledger: ctx.ledger, now: ctx.clock.now(), overdueLine });
     if (!alive) return;
