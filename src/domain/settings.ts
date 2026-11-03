@@ -101,6 +101,9 @@ function parseExport(json: string): ExportFile {
   if (!validatePayday(Number(settings?.paydayDay))) {
     throw new Error(`${NOT_EXPORT} (payday must be 1 to 28)`);
   }
+  if (settings?.activeItemId !== undefined && typeof settings.activeItemId !== "string") {
+    throw new Error(`${NOT_EXPORT} (active item must be an item id)`);
+  }
   return data as ExportFile;
 }
 

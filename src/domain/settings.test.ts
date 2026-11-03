@@ -226,4 +226,15 @@ describe("settings: malformed import", () => {
     expect(JSON.parse(json).settings).toEqual({ paydayDay: 20, activeItemId: "beer" });
     expect(await activeItemId(target)).toBe("beer");
   });
+
+  it("a file whose active item is not text is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { ...FIXTURE, settings: { paydayDay: 20, activeItemId: 7 } };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow(
+      "This file is not a Coffee Button export (active item must be an item id)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
 });
