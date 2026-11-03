@@ -35,6 +35,12 @@ describe("generateIcs", () => {
     expect(ics.split("\r\n")).toContain("DTSTART;TZID=Europe/London:20261226T090000");
   });
 
+  it("on the settle day itself (26 Nov 2026, 10:00) the series starts that day, 26 Nov 09:00, already past", () => {
+    const ics = generateIcs({ payday: 25, appUrl, now: new Date(2026, 10, 26, 10, 0), tz: "Europe/London" });
+
+    expect(ics.split("\r\n")).toContain("DTSTART;TZID=Europe/London:20261126T090000");
+  });
+
   it("payday 28 settles on the 1st of the next month, never the 29th, so February is not skipped", () => {
     const lines = generateIcs({ payday: 28, appUrl, now: new Date(2026, 10, 3, 10, 0), tz: "Europe/London" }).split("\r\n");
 
@@ -62,9 +68,12 @@ describe("generateIcs", () => {
     expect(tz).toContain("TZID:Europe/London\r\n");
     expect(tz).toContain("BEGIN:DAYLIGHT\r\n");
     expect(tz).toContain("TZOFFSETFROM:+0000\r\nTZOFFSETTO:+0100\r\n");
+    // 29 Mar 1970 and 25 Oct 1970 were the last Sundays of those months.
+    expect(tz).toContain("DTSTART:19700329T010000\r\n");
     expect(tz).toContain("RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU\r\n");
     expect(tz).toContain("BEGIN:STANDARD\r\n");
     expect(tz).toContain("TZOFFSETFROM:+0100\r\nTZOFFSETTO:+0000\r\n");
+    expect(tz).toContain("DTSTART:19701025T020000\r\n");
     expect(tz).toContain("RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\r\n");
   });
 

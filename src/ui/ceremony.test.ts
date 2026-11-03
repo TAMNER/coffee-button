@@ -12,6 +12,20 @@ describe("Ceremony.play", () => {
     expect(audio.coins).toBe(1);
   });
 
+  it("is identical every press: two plays give the same steps, the clink as the coin lands, ~2 s in all", async () => {
+    const log: string[][] = [];
+    for (let play = 0; play < 2; play++) {
+      const events: string[] = [];
+      const recording: Stage = { step: async (step) => void events.push(`${step.name} ${step.durationMs}ms`) };
+      const audio = { playCoin: () => void events.push("clink") };
+      await new Ceremony(recording).play({ audio });
+      log.push(events);
+    }
+
+    expect(log[0]).toEqual(["pour 800ms", "coin 500ms", "clink", "cheer 700ms"]);
+    expect(log[1]).toEqual(log[0]);
+  });
+
   it("still resolves when audio throws", async () => {
     const audio = new FakeAudio();
     audio.fail = true;
