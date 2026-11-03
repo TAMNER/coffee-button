@@ -11,9 +11,13 @@
     "icons": "node scripts/make-icons.mjs"
   },
   "devDependencies": {
+    "fake-indexeddb": "^6.2.7",
     "typescript": "~5.9.3",
     "vite": "^8.3.5",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "idb": "^8.0.4"
   }
 }
