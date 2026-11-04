@@ -60,4 +60,32 @@ describe("relay", () => {
     expect(seen.headers.accept).toBe("application/json");
     expect(seen.headers.cookie).toBeUndefined();
   });
+
+  it("forwards a PUT add-money body and Content-Type, and passes an upstream error status through", async () => {
+    const upstream = await startFakeUpstream({
+      status: 400,
+      contentType: "application/json",
+      body: '{"errors":[{"message":"INSUFFICIENT_FUNDS"}],"success":false}',
+    });
+    cleanups.push(upstream.close);
+    const relay = await listen(createRelay({ upstream: upstream.url }));
+    const A = "0f1e2d3c-4b5a-6978-8a9b-acbdcedf0123";
+    const G = "11111111-2222-3333-4444-555555555555";
+    const T = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    const path = `/api/v2/account/${A}/savings-goals/${G}/add-money/${T}`;
+    const sent = '{"amount":{"currency":"GBP","minorUnits":350}}';
+    const res = await fetch(relay + path, {
+      method: "PUT",
+      headers: { Authorization: "Bearer t", "Content-Type": "application/json" },
+      body: sent,
+    });
+    expect(res.status).toBe(400);
+    expect(res.headers.get("access-control-allow-origin")).toBe("*");
+    expect(await res.text()).toBe('{"errors":[{"message":"INSUFFICIENT_FUNDS"}],"success":false}');
+    const seen = upstream.seen[0];
+    expect(seen.method).toBe("PUT");
+    expect(seen.url).toBe(path);
+    expect(seen.body).toBe(sent);
+    expect(seen.headers["content-type"]).toBe("application/json");
+  });
 });
