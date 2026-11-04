@@ -241,3 +241,24 @@ describe("settings: malformed import", () => {
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
 });
+
+describe("settings: export and import leave the Starling link on the phone (ticket 19)", () => {
+  const LINK = {
+    token: "secret-tok",
+    relayUrl: "https://relay.example:8443",
+    accountUid: "acc-1",
+    spaceUid: "sg-1",
+    spaceName: "Coffee Button",
+  };
+
+  it("exportData omits the starling field: no token, no Space uid in the file", async () => {
+    const store = await storeWithFixture();
+    await store.putSettings({ ...FIXTURE.settings, starling: LINK });
+
+    const json = await exportData(store);
+
+    expect(JSON.parse(json)).toEqual(FIXTURE);
+    expect(json).not.toContain("secret-tok");
+    expect(json).not.toContain("sg-1");
+  });
+});

@@ -44,12 +44,14 @@ export interface ExportFile {
 }
 
 export async function exportData(store: Store): Promise<string> {
+  // The Starling link (token and Space) stays on this phone (ticket 19).
+  const { starling: _phoneOnly, ...settings } = await store.getSettings();
   const data: ExportFile = {
     version: EXPORT_VERSION,
     items: await store.items.list(),
     presses: await store.presses.list(),
     settlements: await store.settlements.list(),
-    settings: await store.getSettings(),
+    settings,
     goals: await store.goals.list(),
   };
   return JSON.stringify(data, null, 2);
