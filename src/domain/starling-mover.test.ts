@@ -144,3 +144,23 @@ describe("StarlingMover: firing", () => {
     expect((await store.presses.get("p1"))?.transfer).toEqual({ state: "moved", transferUid: "uid-1", attempts: 1 });
   });
 });
+
+describe("StarlingMover: retry queue", () => {
+  it("offline or relay 5xx leaves the press waiting; the next drain retries it with the same transferUid", async () => {
+    const { store, timers, calls, mover, addPress } = await setup({
+      outcomes: [new StarlingNetworkError(), new StarlingNetworkError(502)],
+    });
+    await addPress("p1");
+    await mover.move(350, { pressId: "p1" });
+    timers.advance(5000);
+    await mover.idle();
+
+    expect((await store.presses.get("p1"))?.transfer).toMatchObject({ state: "waiting", transferUid: "uid-1", attempts: 1 });
+
+    await mover.drain(); // 502
+    await mover.drain(); // ok
+
+    expect(calls.map((c) => c.transferUid)).toEqual(["uid-1", "uid-1", "uid-1"]);
+    expect((await store.presses.get("p1"))?.transfer).toEqual({ state: "moved", transferUid: "uid-1", attempts: 3 });
+  });
+});

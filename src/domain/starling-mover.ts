@@ -2,9 +2,14 @@
  * Per-press Starling Space transfers (ticket 20).
  */
 import type { MoneyMover, MoveRef, MoveResult } from "./money-mover";
-import type { Press, StarlingLink, Store } from "./store";
+import type { Press, PressTransfer, StarlingLink, Store } from "./store";
 
-const isWaiting = (p: Press) => p.transfer?.state === "waiting";
+/** Error names and messages from starling.ts never carry the token or request details. */
+function errorText(err: unknown): string {
+  return err instanceof Error ? err.message || err.name : "Unknown error";
+}
+
+const isWaiting =(p: Press) => p.transfer?.state === "waiting";
 
 /** How many presses still have money to move. */
 export function waitingCount(presses: readonly Press[]): number {
@@ -108,22 +113,32 @@ export class StarlingMover implements MoneyMover {
       .filter((p) => isWaiting(p) && !this.pending.has(p.id))
       .sort((a, b) => a.at - b.at);
     for (const press of queue) {
-      await this.fire(client, link, press);
+      if (!(await this.fire(client, link, press))) return;
     }
   }
 
-  private async fire(client: StarlingTransfers, link: StarlingLink, press: Press): Promise<void> {
+  /** One attempt at one press. Resolves false when the queue should stop for now. */
+  private async fire(client: StarlingTransfers, link: StarlingLink, press: Press): Promise<boolean> {
     const transfer = press.transfer!;
     const item = await this.store.items.get(press.itemId);
     const attempts = (transfer.attempts ?? 0) + 1;
-    await client.addMoney(
-      link.accountUid,
-      link.spaceUid,
-      transfer.transferUid,
-      press.pricePence,
-      `Coffee Button: ${item?.name ?? press.itemId}`,
-    );
-    await this.store.presses.put({ ...press, transfer: { state: "moved", transferUid: transfer.transferUid, attempts } });
+    const save = (next: Partial<PressTransfer>) =>
+      this.store.presses.put({ ...press, transfer: { transferUid: transfer.transferUid, state: "waiting", attempts, ...next } });
+    try {
+      await client.addMoney(
+        link.accountUid,
+        link.spaceUid,
+        transfer.transferUid,
+        press.pricePence,
+        `Coffee Button: ${item?.name ?? press.itemId}`,
+      );
+    } catch (err) {
+      // Offline, relay down (5xx) or anything unexpected: stays waiting for the next launch or return.
+      await save({ lastError: errorText(err) });
+      return false;
+    }
+    await save({ state: "moved" });
+    return true;
   }
 
   /** Resolves once every queued transfer attempt has settled. */
