@@ -14,3 +14,11 @@ describe("spaceLine with a Space", () => {
     );
   });
 });
+
+describe("spaceLine while presses are still moving", () => {
+  it("says how much is still on its way instead", () => {
+    expect(spaceLine({ owedPence: 1250, waitingPence: 600, spaceName: "Coffee Button" })).toBe(
+      "£6.00 still moving to your Space",
+    );
+  });
+});
