@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { StarlingAuthError, StarlingClient, StarlingRateLimited } from "./starling";
+import { StarlingAuthError, StarlingClient, StarlingNetworkError, StarlingRateLimited } from "./starling";
 
 interface Call {
   url: string;
@@ -101,5 +101,12 @@ describe("StarlingClient", () => {
     expect((first as StarlingRateLimited).retryAfterMs).toBe(3000);
     expect(second).toBeInstanceOf(StarlingRateLimited);
     expect((second as StarlingRateLimited).retryAfterMs).toBeUndefined();
+  });
+
+  it("a fetch that throws (offline, relay down, TLS) rejects with StarlingNetworkError", async () => {
+    const { fn } = fakeFetch(new TypeError("Failed to fetch"));
+    const client = new StarlingClient(fn, BASE, "tok");
+
+    await expect(client.accounts()).rejects.toBeInstanceOf(StarlingNetworkError);
   });
 });

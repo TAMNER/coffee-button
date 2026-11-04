@@ -32,6 +32,14 @@ export class StarlingRateLimited extends Error {
   }
 }
 
+/** The relay (or Starling behind it) could not be reached. Worth retrying later. */
+export class StarlingNetworkError extends Error {
+  constructor(readonly status?: number) {
+    super(status === undefined ? "Could not reach the relay" : `The relay answered HTTP ${status}`);
+    this.name = "StarlingNetworkError";
+  }
+}
+
 /** Retry-After is either whole seconds or an HTTP date. */
 function retryAfterMs(header: string | null): number | undefined {
   if (header === null || header.trim() === "") return undefined;
@@ -63,11 +71,17 @@ export class StarlingClient {
       Accept: "application/json",
     };
     if (body !== undefined) headers["Content-Type"] = "application/json";
-    const res = await this.fetchFn(`${this.baseUrl}${path}`, {
-      method,
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
+    let res: Response;
+    try {
+      res = await this.fetchFn(`${this.baseUrl}${path}`, {
+        method,
+        headers,
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+    } catch {
+      // The cause is dropped on purpose: some engines echo request details.
+      throw new StarlingNetworkError();
+    }
     if (res.status === 401 || res.status === 403) throw new StarlingAuthError(res.status);
     if (res.status === 429) throw new StarlingRateLimited(retryAfterMs(res.headers.get("retry-after")));
     return (await res.json()) as T;
