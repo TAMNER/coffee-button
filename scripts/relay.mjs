@@ -7,6 +7,7 @@
 //
 //   RELAY_PORT=8795 node scripts/relay.mjs
 import http from "node:http";
+import { pathToFileURL } from "node:url";
 import { allowRequest } from "./relay-rules.mjs";
 
 const STARLING = "https://api.starlingbank.com";
@@ -85,4 +86,17 @@ async function readBody(req) {
 function sendJson(res, status, value) {
   res.writeHead(status, { ...CORS, "Content-Type": "application/json" });
   res.end(JSON.stringify(value));
+}
+
+// Run directly (`node scripts/relay.mjs`): listen on 127.0.0.1 only; HTTPS is
+// added in front by Tailscale Funnel or any other TLS proxy.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const port = Number(process.env.RELAY_PORT ?? 8795);
+  const upstream = process.env.UPSTREAM || STARLING;
+  const server = createRelay({ upstream });
+  server.listen(port, "127.0.0.1", () => {
+    const address = server.address();
+    const bound = typeof address === "object" && address ? address.port : port;
+    console.log(`Coffee Button relay on http://127.0.0.1:${bound} -> ${upstream}`);
+  });
 }

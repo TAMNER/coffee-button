@@ -17,6 +17,12 @@ export function startFakeUpstream(reply: {
   body: string;
 }): Promise<FakeUpstream>;
 
+export function spawnRelay(env: Record<string, string>): Promise<{
+  url: string;
+  output(): string;
+  stop(): Promise<void>;
+}>;
+
 export function rawRequest(
   base: string,
   method: string,
