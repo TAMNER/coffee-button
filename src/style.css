@@ -682,3 +682,11 @@ body {
 .starling-waiting[hidden] {
   display: none;
 }
+
+/* Ticket 21: where the month's money sits when a Starling Space is linked (src/ui/settle.ts). */
+.invest-space {
+  margin: 0.6rem 16px 0;
+  color: var(--cobalt);
+  font-size: 0.85rem;
+  text-align: center;
+}

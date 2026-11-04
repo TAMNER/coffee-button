@@ -5,6 +5,8 @@ import { deviceHaptics } from "../adapters/haptics";
 import { browserUrlOpener, type UrlOpener } from "../adapters/open-url";
 import { formatPounds } from "../domain/money";
 import { InvestFlow, isSettleWindow, owed, owedSince } from "../domain/settle";
+import { spaceLine } from "../domain/settle-space";
+import { waitingTotal } from "../domain/starling-mover";
 import type { AppContext } from "./app";
 import { registerBelowTotal } from "./cup";
 
@@ -32,6 +34,7 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
   el.innerHTML = `
     <button type="button" class="invest-button" data-role="invest" hidden></button>
     <p class="invest-nudge" data-role="invest-nudge" hidden>${INVEST_NUDGE}</p>
+    <p class="invest-space" data-role="invest-space" hidden></p>
     <div class="invest-prompt" data-role="invest-prompt" role="group" hidden>
       <p data-role="invest-question"></p>
       <button type="button" data-role="invest-yes">Yes</button>
@@ -39,6 +42,7 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
     </div>`;
   const investButton = el.querySelector<HTMLButtonElement>("[data-role=invest]")!;
   const nudge = el.querySelector<HTMLElement>("[data-role=invest-nudge]")!;
+  const space = el.querySelector<HTMLElement>("[data-role=invest-space]")!;
   const prompt = el.querySelector<HTMLElement>("[data-role=invest-prompt]")!;
   const question = el.querySelector<HTMLElement>("[data-role=invest-question]")!;
   const yesButton = el.querySelector<HTMLButtonElement>("[data-role=invest-yes]")!;
@@ -51,10 +55,19 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
     const now = ctx.clock.now();
     owedPence = await owed(ctx.store, now);
     const since = await owedSince(ctx.store, now);
-    const { paydayDay, investUrl } = await ctx.store.getSettings();
+    const { paydayDay, investUrl, starling } = await ctx.store.getSettings();
     investButton.textContent = `Invest ${formatPounds(owedPence)}`;
     investButton.hidden = !prompt.hidden || !isSettleWindow(now, paydayDay, since, owedPence);
     nudge.hidden = investButton.hidden || Boolean(investUrl?.trim());
+    // Ticket 21: with a Space linked, say where the month's money is. The app
+    // never withdraws from the Space; the user moves it on from the Starling app.
+    const line = spaceLine({
+      owedPence,
+      waitingPence: starling ? waitingTotal(await ctx.store.presses.list()) : 0,
+      spaceName: starling?.spaceName ?? null,
+    });
+    space.textContent = line ?? "";
+    space.hidden = investButton.hidden || line === null;
   };
 
   // Synchronous in the click handler so Safari keeps the tap's user activation.
@@ -67,6 +80,7 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
     prompt.hidden = false;
     investButton.hidden = true;
     nudge.hidden = true;
+    space.hidden = true;
   });
   const closePrompt = () => {
     prompt.hidden = true;
