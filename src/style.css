@@ -655,3 +655,30 @@ body {
 @keyframes starling-spin {
   to { transform: rotate(360deg); }
 }
+
+/* Ticket 20: Starling transfers. The cup banner when Starling rejects the
+   token (src/ui/starling-mover.ts) sits top right of the info button; the
+   Settings line "N presses waiting to move" (src/ui/starling-settings.ts). */
+.starling-auth-banner {
+  position: fixed;
+  z-index: 3;
+  top: calc(max(env(safe-area-inset-top), var(--info-below, 0px)) + 8px);
+  left: calc(env(safe-area-inset-left) + 60px);
+  right: calc(env(safe-area-inset-right) + 16px);
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: var(--cobalt);
+  color: var(--on-dark);
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+.starling-auth-banner[hidden] {
+  display: none;
+}
+.starling-waiting {
+  margin: 0 0 0.6rem;
+}
+.starling-waiting[hidden] {
+  display: none;
+}

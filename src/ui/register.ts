@@ -11,3 +11,4 @@ import "./ring";
 import "./info";
 import "./invest-destination";
 import "./starling-settings";
+import "./starling-mover";

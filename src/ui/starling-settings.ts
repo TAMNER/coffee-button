@@ -16,7 +16,9 @@ import {
   DEFAULT_RELAY_URL,
   type StarlingConnection,
 } from "../domain/starling-link";
+import { waitingLine } from "../domain/starling-mover";
 import { registerSettingsSection, type AppContext } from "./app";
+import { onStarlingChange, useStarlingMoverIfLinked } from "./starling-mover";
 
 /** The token scopes the user ticks when making the Personal Access Token. */
 export const STARLING_SCOPES = [
@@ -36,6 +38,8 @@ function mountStarling(el: HTMLElement, ctx: AppContext): () => void {
   line.setAttribute("aria-live", "polite");
   el.append(body, line);
   let gone = false;
+  let showWaiting = async () => {};
+  const offChange = onStarlingChange(() => void showWaiting());
 
   const say = (text: string, isError = false) => {
     line.textContent = text;
@@ -45,8 +49,18 @@ function mountStarling(el: HTMLElement, ctx: AppContext): () => void {
   const showLinked = (spaceName: string) => {
     body.innerHTML = `
       <p class="starling-connected"></p>
+      <p class="starling-waiting" hidden></p>
       <div class="settings-row"><button type="button" data-role="starling-disconnect">Disconnect</button></div>`;
     body.querySelector(".starling-connected")!.textContent = `Connected: ${spaceName}`;
+    // Ticket 20: "N presses waiting to move" when transfers are queued.
+    const waiting = body.querySelector<HTMLElement>(".starling-waiting")!;
+    showWaiting = async () => {
+      const text = waitingLine(await ctx.store.presses.list());
+      if (gone || !waiting.isConnected) return;
+      waiting.textContent = text;
+      waiting.hidden = text === "";
+    };
+    void showWaiting();
     body.querySelector("[data-role=starling-disconnect]")!.addEventListener("click", async () => {
       if (!window.confirm("Forget the Starling token and Space on this phone? Money already moved stays in the Space.")) return;
       await disconnect(ctx.store);
@@ -146,6 +160,8 @@ function mountStarling(el: HTMLElement, ctx: AppContext): () => void {
         if (gone) return;
         say(`Linked to ${link.spaceName}. The token stays on this phone.`);
         showLinked(link.spaceName);
+        // Ticket 20: presses from now on move into this Space, without a relaunch.
+        void useStarlingMoverIfLinked(ctx);
       } catch (err) {
         if (gone) return;
         say(linkErrorMessage(err), true);
@@ -163,6 +179,7 @@ function mountStarling(el: HTMLElement, ctx: AppContext): () => void {
 
   return () => {
     gone = true;
+    offChange();
   };
 }
 
