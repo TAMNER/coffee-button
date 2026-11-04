@@ -163,4 +163,31 @@ describe("StarlingMover: retry queue", () => {
     expect(calls.map((c) => c.transferUid)).toEqual(["uid-1", "uid-1", "uid-1"]);
     expect((await store.presses.get("p1"))?.transfer).toEqual({ state: "moved", transferUid: "uid-1", attempts: 3 });
   });
+
+  it("drain on launch moves stored waiting presses oldest first, skipping moved, failed and unlinked ones", async () => {
+    const { store, calls, mover } = await setup();
+    const put = (id: string, at: number, state?: "waiting" | "moved" | "failed") =>
+      store.presses.put({ ...press(id, 350, state), at });
+    await put("late", 300, "waiting");
+    await put("early", 100, "waiting");
+    await put("mid", 200, "waiting");
+    await put("done", 50, "moved");
+    await put("dead", 60, "failed");
+    await put("ledger-only", 70);
+
+    await mover.drain();
+
+    expect(calls.map((c) => c.transferUid)).toEqual(["t-early", "t-mid", "t-late"]);
+  });
+
+  it("a network failure stops the run: later presses wait for the next drain", async () => {
+    const { store, calls, mover } = await setup({ outcomes: [new StarlingNetworkError()] });
+    await store.presses.put({ ...press("a", 350, "waiting"), at: 1 });
+    await store.presses.put({ ...press("b", 350, "waiting"), at: 2 });
+
+    await mover.drain();
+
+    expect(calls.map((c) => c.transferUid)).toEqual(["t-a"]);
+    expect((await store.presses.get("b"))?.transfer).toEqual({ state: "waiting", transferUid: "t-b" });
+  });
 });
