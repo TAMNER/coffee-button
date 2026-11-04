@@ -12,3 +12,11 @@ describe("ceremonyTimeline", () => {
     expect(total).toBeLessThanOrEqual(2200);
   });
 });
+
+describe("ceremonyTimeline for a vessel with no pour (Lunch)", () => {
+  it("skips the pour and goes coin then cheer, with the same coin and cheer as the pouring timeline", () => {
+    const steps = ceremonyTimeline({ pour: false });
+    expect(steps.map((s) => s.name)).toEqual(["coin", "cheer"]);
+    expect(steps).toEqual(ceremonyTimeline().filter((s) => s.name !== "pour"));
+  });
+});

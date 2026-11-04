@@ -12,6 +12,11 @@ const STEPS: readonly CeremonyStep[] = [
   { name: "cheer", durationMs: 700 },
 ];
 
-export function ceremonyTimeline(): CeremonyStep[] {
-  return STEPS.map((step) => ({ ...step }));
+/**
+ * The ceremony's steps. A vessel with nothing to pour (Lunch's plate) passes
+ * `{ pour: false }` and goes straight to coin, then cheer.
+ */
+export function ceremonyTimeline(options: { pour?: boolean } = {}): CeremonyStep[] {
+  const pour = options.pour ?? true;
+  return STEPS.filter((step) => pour || step.name !== "pour").map((step) => ({ ...step }));
 }
