@@ -169,11 +169,12 @@ interface Scene {
  * starts this play), so the old value is read now and shown in a copy laid
  * over the real one, which stays hidden until the flip.
  */
-function flipTotal(): () => void {
+function flipTotal(vessel: VesselArt = COFFEE_VESSEL): () => void {
   const amount = document.querySelector<HTMLElement>("[data-role=total-amount]");
   if (!amount) return () => {};
-  const steps = ceremonyTimeline();
-  const flipAt = steps[0].durationMs + steps[1].durationMs + 40;
+  const steps = ceremonyTimeline({ pour: vessel.pour });
+  const coinEnds = steps.findIndex((s) => s.name === "coin") + 1;
+  const flipAt = steps.slice(0, coinEnds).reduce((ms, s) => ms + s.durationMs, 0) + 40;
   const half = 110;
   const box = amount.getBoundingClientRect();
   const ghost = amount.cloneNode(true) as HTMLElement;
@@ -204,10 +205,9 @@ function vesselOnScreen(): VesselArt {
   return icon ? vesselFor(icon) : COFFEE_VESSEL;
 }
 
-function buildScene(seed: number): Scene | null {
+function buildScene(seed: number, vessel: VesselArt = vesselOnScreen()): Scene | null {
   const cup = document.querySelector("[data-role=cup] svg");
   if (!cup) return null;
-  const vessel = vesselOnScreen();
   const { viewBox, rim, base, liquidClass } = vessel;
   const overlay = overlayOver(cup, viewBox);
   const { screenTop } = overlayMetrics(cup, viewBox);
@@ -232,7 +232,7 @@ function buildScene(seed: number): Scene | null {
   const pour = svgEl("g", {});
   pour.append(defs, clipped);
   // In front of the disc, behind the cup.
-  cup.insertBefore(pour, cupFigure);
+  if (vessel.pour !== false) cup.insertBefore(pour, cupFigure);
 
   // Behind the disc, so its 32 points fan out round the mustard circle.
   const burst = svgEl("path", { class: "cp-mustard", d: STARBURST });
@@ -267,7 +267,7 @@ function buildScene(seed: number): Scene | null {
 
   overlay.append(...splashes.map((s) => s.el), coin, ...confetti.map((c) => c.el));
   document.body.append(overlay);
-  const removeGhost = flipTotal();
+  const removeGhost = flipTotal(vessel);
   return {
     cleanup() {
       overlay.remove();
@@ -315,7 +315,10 @@ function drawStep(scene: Scene, step: CeremonyStep): void {
       animate(scene.coin, [
         { transform: `translate(${RIM.x}px, ${scene.coinFrom}px)`, opacity: 1, easing: "cubic-bezier(.55,0,1,.45)" },
         { transform: `translate(${RIM.x}px, ${RIM.y}px)`, opacity: 1, offset: land },
-        { transform: `translate(${RIM.x}px, ${RIM.y + 26}px) scale(.6)`, opacity: 0 },
+        // Into the cup it sinks out of sight; on a plate it stays put and fades.
+        scene.vessel.pour === false
+          ? { transform: `translate(${RIM.x}px, ${RIM.y}px)`, opacity: 0 }
+          : { transform: `translate(${RIM.x}px, ${RIM.y + 26}px) scale(.6)`, opacity: 0 },
       ], { duration: ms });
       for (const { el, side } of scene.splashes) {
         animate(el, [
@@ -324,7 +327,16 @@ function drawStep(scene: Scene, step: CeremonyStep): void {
           { transform: `translate(${side * 22}px, -4px)`, opacity: 0 },
         ], { duration: 420, delay: ms * land, easing: "ease-out" });
       }
-      if (scene.cupFigure) {
+      if (scene.cupFigure && scene.vessel.pour === false) {
+        // The sandwich hops off the plate as the coin lands.
+        animate(scene.cupFigure, [
+          { transform: "translateY(0px)" },
+          { transform: "translateY(-22px)", offset: 0.3, easing: "ease-in" },
+          { transform: "translateY(0px)", offset: 0.6, easing: "ease-out" },
+          { transform: "translateY(-7px)", offset: 0.8, easing: "ease-in" },
+          { transform: "translateY(0px)" },
+        ], { duration: 520, delay: ms * land, easing: "ease-out", fill: "none" });
+      } else if (scene.cupFigure) {
         animate(scene.cupFigure, [
           { transform: "scale(1)" },
           { transform: "scale(1.06, .93)", offset: 0.24 },
@@ -354,12 +366,12 @@ function drawStep(scene: Scene, step: CeremonyStep): void {
 }
 
 /** A stage for one play. Never throws; a missing cup or API just means less drawing. */
-export function svgStage(seed: number): Stage {
+export function svgStage(seed: number, vessel?: VesselArt): Stage {
   let scene: Scene | null | undefined;
   return {
     async step(step) {
       try {
-        if (scene === undefined) scene = buildScene(seed);
+        if (scene === undefined) scene = buildScene(seed, vessel);
         if (scene) drawStep(scene, step);
       } catch {
         scene?.cleanup();
@@ -378,7 +390,13 @@ onStart((ctx) => {
   audio.unlockOnGestures(document);
   wireCeremony(
     ctx.bus,
-    { play: (adapters) => new Ceremony(svgStage(Date.now() + ++plays)).play(adapters) },
+    {
+      play: (adapters) => {
+        // Read once per play: a Lunch press skips the pour even if the user swipes on mid-ceremony.
+        const vessel = vesselOnScreen();
+        return new Ceremony(svgStage(Date.now() + ++plays, vessel), { pour: vessel.pour }).play(adapters);
+      },
+    },
     { audio },
   );
 });

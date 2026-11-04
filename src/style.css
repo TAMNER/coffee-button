@@ -14,7 +14,7 @@
   --on-dark: #fff9ef;
   --coffee: #6b3a22;
   --foam: #f3ddbb;
-  --beer: #e0a128;
+  --beer: #b8641a;
   --beer-foam: #fff3d6;
   --dark: #1d2a6e;
   --off: #e3ada0;
@@ -37,7 +37,7 @@
     --on-dark: #fff9ef;
     --coffee: #8a4e2c;
     --foam: #f3ddbb;
-    --beer: #f0b43a;
+    --beer: #cc7524;
     --beer-foam: #fff3d6;
     --dark: #0f1440;
     --off: #2f3772;
@@ -59,7 +59,7 @@
   --on-dark: #fff9ef;
   --coffee: #8a4e2c;
   --foam: #f3ddbb;
-  --beer: #f0b43a;
+  --beer: #cc7524;
   --beer-foam: #fff3d6;
   --dark: #0f1440;
   --off: #2f3772;
@@ -340,3 +340,22 @@ body {
   font-size: 0.9rem;
   text-align: center;
 }
+
+/* Ticket 13: Lunch's sandwich on a plate (src/ui/sandwich-art.ts). Bread is a
+   warm cream-mustard inside a mustard-deep crust; lettuce is the one green. */
+:root {
+  --bread: #f9dc9a;
+  --lettuce: #3f9a4a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bread: #f6d58c;
+    --lettuce: #56b862;
+  }
+}
+:root[data-theme="dark"] {
+  --bread: #f6d58c;
+  --lettuce: #56b862;
+}
+.cp-bread { fill: var(--bread); }
+.cp-lettuce { fill: var(--lettuce); }
