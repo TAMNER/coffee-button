@@ -2,6 +2,7 @@
  * Ticket 15: the info sheet's copy, as data, and when it shows.
  * The UI (src/ui/info.ts) only renders what is here.
  */
+import type { Store } from "./store";
 
 export interface InfoSection {
   heading: string;
@@ -32,4 +33,9 @@ export const INFO_SECTIONS: readonly InfoSection[] = [
 /** The Add to Home Screen section is marked "needed" only when the app is not already installed. */
 export function homeScreenHintNeeded(standalone: boolean): boolean {
   return !standalone;
+}
+
+/** The sheet opens by itself only until it has been seen once. */
+export async function shouldShowInfoOnLaunch(store: Store): Promise<boolean> {
+  return !(await store.getSettings()).infoSeen;
 }

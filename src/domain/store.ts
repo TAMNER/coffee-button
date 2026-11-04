@@ -38,6 +38,8 @@ export interface Settings {
   activeItemId?: string;
   /** An Invest tap not yet answered, kept so the question survives the app being killed. */
   pendingInvest?: PendingInvest;
+  /** True once the info sheet has been shown, so it opens by itself only on the first ever launch. */
+  infoSeen?: boolean;
 }
 
 export interface PendingInvest {
