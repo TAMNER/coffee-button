@@ -124,3 +124,30 @@ payday, set Settings > Payday to a day earlier than today first.
 - [ ] Import a file that is not an export (any other .json, or cancel the confirm).
   - Expected: an error message in red, or nothing changes on cancel; existing
     data is untouched.
+
+## 11. Starling relay
+
+Starling sends no CORS headers, so the app talks to it through a small relay
+(`scripts/relay.mjs`, Node built-ins only). It forwards only
+`GET /api/v2/accounts`, `GET`/`PUT /api/v2/account/{uid}/savings-goals` and
+`PUT /api/v2/account/{uid}/savings-goals/{uid}/add-money/{uid}`; everything
+else gets 403. It passes the Authorization header through and logs nothing but
+one startup line, so the token is never written anywhere.
+
+- Relay URL shape (the value for the relay field in Settings):
+  `https://black-box.<tailnet>.ts.net:8443`, with no trailing path.
+- One-time, by the author on black-box after `scripts/deploy.sh` has installed
+  `coffee-button-relay.service`: `tailscale funnel --bg --yes --https=8443 8795`.
+  Only the relay is public; the app itself stays tailnet-only.
+- [ ] On black-box: `curl -i http://127.0.0.1:8795/`.
+  - Expected: `403` with `{"error":"forbidden"}` (healthy: the root is not on
+    the allow-list).
+- [ ] From a phone off the tailnet: open `https://black-box.<tailnet>.ts.net:8443/`.
+  - Expected: the same 403 JSON over HTTPS.
+
+**A friend running their own relay:** copy `scripts/relay.mjs` and
+`scripts/relay-rules.mjs` anywhere with Node 18 or newer, run
+`RELAY_PORT=8795 node scripts/relay.mjs` (it listens on 127.0.0.1 only), and
+put any HTTPS in front of it: their own `tailscale funnel`, Caddy, nginx or a
+similar TLS proxy. Then paste that HTTPS origin into the relay field in
+Settings.
