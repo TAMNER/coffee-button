@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StarlingSpace } from "./starling";
-import { connect, type StarlingApi } from "./starling-link";
+import { chooseSpace, connect, type StarlingApi } from "./starling-link";
 import { MemoryStore } from "./store";
 
 /** A Starling stand-in that records which relay and token it was made with. */
@@ -42,5 +42,19 @@ describe("starling link: connect", () => {
     const { factory } = fakeStarling({ accounts: [] });
 
     await expect(connect(new MemoryStore(), factory, "tok", RELAY)).rejects.toThrow(/No Starling account/);
+  });
+});
+
+describe("starling link: choosing a Space", () => {
+  it("chooseSpace stores token, relay, account, Space uid and name, and leaves payday 25 alone", async () => {
+    const store = new MemoryStore();
+    const { factory } = fakeStarling({ spaces: [{ savingsGoalUid: "sg-1", name: "Holiday" }] });
+    const conn = await connect(store, factory, "tok-1", RELAY);
+
+    const link = await chooseSpace(store, conn, "sg-1");
+
+    const expected = { token: "tok-1", relayUrl: RELAY, accountUid: "acc-1", spaceUid: "sg-1", spaceName: "Holiday" };
+    expect(link).toEqual(expected);
+    expect(await store.getSettings()).toEqual({ paydayDay: 25, starling: expected });
   });
 });

@@ -5,7 +5,7 @@
  * Per-press transfers are ticket 20.
  */
 import { StarlingClient, StarlingError, type StarlingAccount, type StarlingSpace } from "./starling";
-import type { Store } from "./store";
+import type { StarlingLink, Store } from "./store";
 
 /** The author's relay; a friend may point the Settings field at their own. */
 export const DEFAULT_RELAY_URL = "https://black-box.<tailnet>.ts.net:8443";
@@ -43,4 +43,22 @@ export async function connect(
   if (!account) throw new StarlingError("No Starling account found for this token");
   const spaces = await api.listSpaces(account.accountUid);
   return { token: cleanToken, relayUrl: cleanRelay, accountUid: account.accountUid, spaces, api };
+}
+
+async function saveLink(store: Store, link: StarlingLink): Promise<StarlingLink> {
+  await store.putSettings({ ...(await store.getSettings()), starling: link });
+  return link;
+}
+
+/** Links one of the connection's existing Spaces. */
+export async function chooseSpace(store: Store, conn: StarlingConnection, spaceUid: string): Promise<StarlingLink> {
+  const space = conn.spaces.find((s) => s.savingsGoalUid === spaceUid);
+  if (!space) throw new StarlingError(`Unknown Space: ${spaceUid}`);
+  return saveLink(store, {
+    token: conn.token,
+    relayUrl: conn.relayUrl,
+    accountUid: conn.accountUid,
+    spaceUid: space.savingsGoalUid,
+    spaceName: space.name,
+  });
 }
