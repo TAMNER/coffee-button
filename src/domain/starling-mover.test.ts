@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { StarlingAuthError, StarlingError, StarlingNetworkError, StarlingRateLimited } from "./starling";
-import { StarlingMover, waitingCount, waitingTotal, type StarlingTransfers, type Timers } from "./starling-mover";
+import { StarlingMover, waitingCount, waitingLine, waitingTotal, type StarlingTransfers, type Timers } from "./starling-mover";
 import { MemoryStore, type Press, type StarlingLink } from "./store";
 
 const LINK: StarlingLink = {
@@ -86,6 +86,12 @@ describe("waiting presses", () => {
 
     expect(waitingCount(presses)).toBe(2);
     expect(waitingTotal(presses)).toBe(950);
+  });
+
+  it("the Settings line reads 'N presses waiting to move', singular for one, empty for none", () => {
+    expect(waitingLine([press("a", 350, "moved")])).toBe("");
+    expect(waitingLine([press("a", 350, "waiting")])).toBe("1 press waiting to move");
+    expect(waitingLine([press("a", 350, "waiting"), press("b", 600, "waiting")])).toBe("2 presses waiting to move");
   });
 });
 

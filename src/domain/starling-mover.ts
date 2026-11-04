@@ -25,6 +25,13 @@ export function waitingTotal(presses: readonly Press[]): number {
   return presses.filter(isWaiting).reduce((sum, p) => sum + p.pricePence, 0);
 }
 
+/** The Settings line, or "" when nothing is waiting. */
+export function waitingLine(presses: readonly Press[]): string {
+  const n = waitingCount(presses);
+  if (n === 0) return "";
+  return `${n} ${n === 1 ? "press" : "presses"} waiting to move`;
+}
+
 /** The part of StarlingClient the mover needs (duck-typed so tests pass a fake). */
 export interface StarlingTransfers {
   addMoney(accountUid: string, spaceUid: string, transferUid: string, amountPence: number, reference: string): Promise<unknown>;
