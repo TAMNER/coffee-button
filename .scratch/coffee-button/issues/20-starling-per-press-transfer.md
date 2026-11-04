@@ -8,6 +8,6 @@
 
 - [x] Press records carry transfer state (none | waiting | moved | failed) and a transferUid created once; unit tested
 - [x] StarlingMover schedules the move at undo-window close, not at press; an undo inside the window cancels it; unit tested with a fake clock
-- [x] Retry queue (launch/visibility wiring is DOM glue in src/ui/starling-mover.ts; the queue itself is unit tested) drains oldest first on launch and visibility, stops on 401/403, backs off on 429; unit tested
+- [x] Retry queue drains oldest first on launch and visibility, stops on 401/403, backs off on 429; unit tested (the launch/visibility wiring is DOM glue in src/ui/starling-mover.ts)
 - [x] Settings line "N presses waiting to move"; cup banner on token rejection (text from waitingLine, unit tested; DOM not tested)
 - [x] LedgerMover behaviour unchanged when nothing is linked
