@@ -22,10 +22,14 @@ export interface Stage {
 export const instantStage: Stage = { step: async () => {} };
 
 export class Ceremony {
-  constructor(private stage: Stage) {}
+  /** `{ pour: false }` for a vessel with nothing to pour: coin, then cheer. */
+  constructor(
+    private stage: Stage,
+    private options: { pour?: boolean } = {},
+  ) {}
 
   async play(adapters: CeremonyAdapters): Promise<void> {
-    for (const step of ceremonyTimeline()) {
+    for (const step of ceremonyTimeline(this.options)) {
       await this.stage.step(step);
       if (step.name === "coin") quietly(() => adapters.audio.playCoin());
     }
