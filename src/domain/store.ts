@@ -38,6 +38,8 @@ export interface Settings {
   activeItemId?: string;
   /** An Invest tap not yet answered, kept so the question survives the app being killed. */
   pendingInvest?: PendingInvest;
+  /** Where "Invest £X" sends the user (http or https); absent or blank means copy only. */
+  investUrl?: string;
 }
 
 export interface PendingInvest {
