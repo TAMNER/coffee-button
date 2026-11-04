@@ -54,6 +54,8 @@ export interface Settings {
   investUrl?: string;
   /** The linked Starling Space (ticket 19). On this phone only: export omits it, import ignores it. */
   starling?: StarlingLink;
+  /** Starling answered 401/403 to a transfer (ticket 20): retries stop and the cup shows a banner until the link is saved again. */
+  starlingAuthFailed?: boolean;
 }
 
 export interface StarlingLink {

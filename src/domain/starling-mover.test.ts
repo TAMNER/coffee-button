@@ -190,4 +190,18 @@ describe("StarlingMover: retry queue", () => {
     expect(calls.map((c) => c.transferUid)).toEqual(["t-a"]);
     expect((await store.presses.get("b"))?.transfer).toEqual({ state: "waiting", transferUid: "t-b" });
   });
+
+  it("401/403 marks the press failed, sets starlingAuthFailed and stops every later drain", async () => {
+    const { store, calls, mover } = await setup({ outcomes: [new StarlingAuthError(401)] });
+    await store.presses.put({ ...press("a", 350, "waiting"), at: 1 });
+    await store.presses.put({ ...press("b", 350, "waiting"), at: 2 });
+
+    await mover.drain();
+    await mover.drain();
+
+    expect(calls.map((c) => c.transferUid)).toEqual(["t-a"]);
+    expect((await store.presses.get("a"))?.transfer).toMatchObject({ state: "failed", attempts: 1 });
+    expect((await store.presses.get("b"))?.transfer?.state).toBe("waiting");
+    expect((await store.getSettings()).starlingAuthFailed).toBe(true);
+  });
 });

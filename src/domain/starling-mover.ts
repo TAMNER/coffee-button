@@ -1,6 +1,7 @@
 /**
  * Per-press Starling Space transfers (ticket 20).
  */
+import { StarlingAuthError } from "./starling";
 import type { MoneyMover, MoveRef, MoveResult } from "./money-mover";
 import type { Press, PressTransfer, StarlingLink, Store } from "./store";
 
@@ -106,8 +107,9 @@ export class StarlingMover implements MoneyMover {
   }
 
   private async runQueue(): Promise<void> {
-    const link = (await this.store.getSettings()).starling;
-    if (!link) return;
+    const { starling: link, starlingAuthFailed } = await this.store.getSettings();
+    // After a 401/403 nothing is tried until the link is saved again.
+    if (!link || starlingAuthFailed) return;
     const client = this.clientFor(link);
     const queue = (await this.store.presses.list())
       .filter((p) => isWaiting(p) && !this.pending.has(p.id))
@@ -133,6 +135,11 @@ export class StarlingMover implements MoneyMover {
         `Coffee Button: ${item?.name ?? press.itemId}`,
       );
     } catch (err) {
+      if (err instanceof StarlingAuthError) {
+        await save({ state: "failed", lastError: errorText(err) });
+        await this.store.putSettings({ ...(await this.store.getSettings()), starlingAuthFailed: true });
+        return false;
+      }
       // Offline, relay down (5xx) or anything unexpected: stays waiting for the next launch or return.
       await save({ lastError: errorText(err) });
       return false;
