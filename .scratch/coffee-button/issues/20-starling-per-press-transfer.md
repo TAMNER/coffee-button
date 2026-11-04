@@ -4,10 +4,10 @@
 
 **Blocked by:** 19 (Link Starling in Settings).
 
-**Status:** blocked
+**Status:** built (domain unit tested; UI glue untested in a DOM, needs a device check against the relay)
 
-- [ ] Press records carry transfer state (none | waiting | moved | failed) and a transferUid created once; unit tested
-- [ ] StarlingMover schedules the move at undo-window close, not at press; an undo inside the window cancels it; unit tested with a fake clock
-- [ ] Retry queue drains oldest first on launch and visibility, stops on 401/403, backs off on 429; unit tested
-- [ ] Settings line "N presses waiting to move"; cup banner on token rejection
-- [ ] LedgerMover behaviour unchanged when nothing is linked
+- [x] Press records carry transfer state (none | waiting | moved | failed) and a transferUid created once; unit tested
+- [x] StarlingMover schedules the move at undo-window close, not at press; an undo inside the window cancels it; unit tested with a fake clock
+- [x] Retry queue (launch/visibility wiring is DOM glue in src/ui/starling-mover.ts; the queue itself is unit tested) drains oldest first on launch and visibility, stops on 401/403, backs off on 429; unit tested
+- [x] Settings line "N presses waiting to move"; cup banner on token rejection (text from waitingLine, unit tested; DOM not tested)
+- [x] LedgerMover behaviour unchanged when nothing is linked
