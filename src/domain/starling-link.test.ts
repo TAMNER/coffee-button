@@ -37,4 +37,10 @@ describe("starling link: connect", () => {
     expect(conn.spaces).toEqual(spaces);
     expect((await store.getSettings()).starling).toBeUndefined();
   });
+
+  it("a token whose Starling login has no accounts is refused with 'No Starling account'", async () => {
+    const { factory } = fakeStarling({ accounts: [] });
+
+    await expect(connect(new MemoryStore(), factory, "tok", RELAY)).rejects.toThrow(/No Starling account/);
+  });
 });

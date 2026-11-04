@@ -4,7 +4,7 @@
  * Space is chosen or created. The link lives in Settings on this phone only.
  * Per-press transfers are ticket 20.
  */
-import { StarlingClient, type StarlingAccount, type StarlingSpace } from "./starling";
+import { StarlingClient, StarlingError, type StarlingAccount, type StarlingSpace } from "./starling";
 import type { Store } from "./store";
 
 /** The author's relay; a friend may point the Settings field at their own. */
@@ -40,6 +40,7 @@ export async function connect(
   const cleanRelay = relayUrl.trim();
   const api = factory(cleanRelay, cleanToken);
   const [account] = await api.accounts();
+  if (!account) throw new StarlingError("No Starling account found for this token");
   const spaces = await api.listSpaces(account.accountUid);
   return { token: cleanToken, relayUrl: cleanRelay, accountUid: account.accountUid, spaces, api };
 }
