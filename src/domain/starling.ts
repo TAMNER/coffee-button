@@ -54,4 +54,14 @@ export class StarlingClient {
     );
     return data.savingsGoalList;
   }
+
+  /** Creates a GBP Space and returns its uid. */
+  async createSpace(accountUid: string, name: string): Promise<string> {
+    const data = await this.request<{ savingsGoalUid: string }>(
+      "PUT",
+      `/api/v2/account/${encodeURIComponent(accountUid)}/savings-goals`,
+      { name, currency: "GBP" },
+    );
+    return data.savingsGoalUid;
+  }
 }

@@ -50,4 +50,17 @@ describe("StarlingClient", () => {
     expect(spaces).toEqual([{ savingsGoalUid: "sg-1", name: "Holiday", state: "ACTIVE" }]);
     expect(calls[0].url).toBe(`${BASE}/api/v2/account/acc-1/savings-goals`);
   });
+
+  it("createSpace(acc, name) PUTs {name, currency: GBP} as JSON and returns the new savingsGoalUid", async () => {
+    const { fn, calls } = fakeFetch(json({ savingsGoalUid: "sg-new", success: true }));
+    const client = new StarlingClient(fn, BASE, "tok");
+
+    const uid = await client.createSpace("acc-1", "Coffee Button");
+
+    expect(uid).toBe("sg-new");
+    expect(calls[0].url).toBe(`${BASE}/api/v2/account/acc-1/savings-goals`);
+    expect(calls[0].init?.method).toBe("PUT");
+    expect(new Headers(calls[0].init?.headers).get("content-type")).toBe("application/json");
+    expect(JSON.parse(String(calls[0].init?.body))).toEqual({ name: "Coffee Button", currency: "GBP" });
+  });
 });
