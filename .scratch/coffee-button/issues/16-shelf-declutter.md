@@ -4,8 +4,8 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done (branch worktree-wf_f1997fa3-be6-4, awaiting merge)
 
-- [ ] Default shelf items are exactly those four, in that order; unit tested
-- [ ] Shelf state still lights items as the lifetime total passes their price; existing tests updated, not deleted
-- [ ] Shelf screen renders one built-in plank (4 across on a 390px frame or 2+2, whichever the existing layout handles best) plus goals
+- [x] Default shelf items are exactly those four, in that order; unit tested (src/domain/shelf.test.ts)
+- [x] Shelf state still lights items as the lifetime total passes their price; existing tests updated, not deleted (plus a guard that a stored price for a removed item shows nothing)
+- [x] Shelf screen renders one built-in plank (4 across on a 390px frame or 2+2, whichever the existing layout handles best) plus goals: chose 2+2 (shelf.css sizes items at a third of the row with 94px art and centres the row, so two per plank needs no CSS change; four across would squeeze the art). Goals sit on their own plank above. Row split unit tested in src/ui/shelf-layout.test.ts
