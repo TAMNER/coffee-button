@@ -80,3 +80,14 @@ export async function createAndChooseSpace(
     spaceName: name,
   });
 }
+
+/** The stored link, or undefined when no Space is linked. */
+export async function starlingLink(store: Store): Promise<StarlingLink | undefined> {
+  return (await store.getSettings()).starling;
+}
+
+/** Forgets the token and the Space on this phone. Money already moved stays in the Space. */
+export async function disconnect(store: Store): Promise<void> {
+  const { starling: _forgotten, ...rest } = await store.getSettings();
+  await store.putSettings(rest);
+}

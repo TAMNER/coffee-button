@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StarlingSpace } from "./starling";
-import { chooseSpace, connect, createAndChooseSpace, type StarlingApi } from "./starling-link";
+import { chooseSpace, connect, createAndChooseSpace, disconnect, starlingLink, type StarlingApi } from "./starling-link";
 import { MemoryStore } from "./store";
 
 /** A Starling stand-in that records which relay and token it was made with. */
@@ -68,5 +68,21 @@ describe("starling link: choosing a Space", () => {
     expect(created).toEqual([{ accountUid: "acc-1", name: "Coffee Button" }]);
     expect(link).toEqual({ token: "tok-1", relayUrl: RELAY, accountUid: "acc-1", spaceUid: "sg-cb", spaceName: "Coffee Button" });
     expect((await store.getSettings()).starling).toEqual(link);
+  });
+});
+
+describe("starling link: disconnect", () => {
+  it("forgets token and Space entirely, keeps other settings, and starlingLink reads undefined", async () => {
+    const store = new MemoryStore();
+    const { factory } = fakeStarling({ spaces: [{ savingsGoalUid: "sg-1", name: "Holiday" }] });
+    await chooseSpace(store, await connect(store, factory, "tok-1", RELAY), "sg-1");
+    expect(await starlingLink(store)).toMatchObject({ spaceName: "Holiday" });
+
+    await disconnect(store);
+
+    const settings = await store.getSettings();
+    expect("starling" in settings).toBe(false);
+    expect(settings).toEqual({ paydayDay: 25 });
+    expect(await starlingLink(store)).toBeUndefined();
   });
 });
