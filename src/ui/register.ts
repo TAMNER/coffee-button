@@ -7,3 +7,4 @@ import "./shelf";
 import "./ceremony";
 import "./reminder";
 import "./settle-ceremony";
+import "./ring";
