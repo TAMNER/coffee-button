@@ -20,6 +20,9 @@ const MIME = {
   '.ico': 'image/x-icon',
   '.ics': 'text/calendar; charset=utf-8',
   '.woff2': 'font/woff2',
+  '.m4a': 'audio/mp4',
+  '.mp3': 'audio/mpeg',
+  '.md': 'text/markdown; charset=utf-8',
   '.map': 'application/json',
   '.txt': 'text/plain; charset=utf-8',
 }

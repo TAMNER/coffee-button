@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately; the device test needs 18).
 
-**Status:** done in branch, pending merge and the device test against the relay (ticket 18). The Settings UI is DOM glue and was not unit tested.
+**Status:** done; verified against the real Starling API on the iPhone 2026-11-04 (press moved money, undo did not, offline press moved on return)
 
 - [x] StarlingClient (accounts, listSpaces, createSpace, addMoney) built on injected fetch and a base URL; unit tested against a fake fetch for success, 401/403, 429 with Retry-After, and network failure
 - [x] Connect flow: verify → list Spaces → pick or create → persisted; unit tested at the domain seam

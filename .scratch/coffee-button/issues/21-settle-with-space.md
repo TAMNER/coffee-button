@@ -4,7 +4,7 @@
 
 **Blocked by:** 17 (Settle destination), 20 (Every press moves money into the Space).
 
-**Status:** code done; awaits a device check with a linked Space
+**Status:** done; verified against the real Starling API on the iPhone 2026-11-04 (press moved money, undo did not, offline press moved on return)
 
 - [x] A pure function produces the Space line from owed, waiting amount and Space name; unit tested
 - [x] Line rendered under the Invest button only when a Space is linked

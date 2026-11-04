@@ -4,7 +4,7 @@
 
 **Blocked by:** 19 (Link Starling in Settings).
 
-**Status:** built (domain unit tested; UI glue untested in a DOM, needs a device check against the relay)
+**Status:** done; verified against the real Starling API on the iPhone 2026-11-04 (press moved money, undo did not, offline press moved on return)
 
 - [x] Press records carry transfer state (none | waiting | moved | failed) and a transferUid created once; unit tested
 - [x] StarlingMover schedules the move at undo-window close, not at press; an undo inside the window cancels it; unit tested with a fake clock
