@@ -110,7 +110,11 @@ function parseExport(json: string): ExportFile {
 }
 
 export async function importData(store: Store, json: string): Promise<void> {
-  const { items, presses, settlements, goals, settings } = parseExport(json);
+  const { items, presses, settlements, goals, settings: fileSettings } = parseExport(json);
+  // A file never brings a Starling link; this phone keeps the one it has (ticket 19).
+  const { starling: _ignored, ...fromFile } = fileSettings;
+  const { starling } = await store.getSettings();
+  const settings = starling ? { ...fromFile, starling } : fromFile;
   await store.replaceAll({ items, presses, settlements, goals, settings });
 }
 

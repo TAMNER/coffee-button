@@ -261,4 +261,17 @@ describe("settings: export and import leave the Starling link on the phone (tick
     expect(json).not.toContain("secret-tok");
     expect(json).not.toContain("sg-1");
   });
+
+  it("importData ignores a starling field in the file: a fresh phone stays unlinked, a linked phone keeps its own link", async () => {
+    const planted = { ...FIXTURE, settings: { paydayDay: 20, starling: { ...LINK, token: "planted", spaceUid: "sg-x" } } };
+    const fresh = new MemoryStore();
+    const linked = new MemoryStore();
+    await linked.putSettings({ paydayDay: 25, starling: LINK });
+
+    await importData(fresh, JSON.stringify(planted));
+    await importData(linked, JSON.stringify(planted));
+
+    expect(await fresh.getSettings()).toEqual({ paydayDay: 20 });
+    expect(await linked.getSettings()).toEqual({ paydayDay: 20, starling: LINK });
+  });
 });
