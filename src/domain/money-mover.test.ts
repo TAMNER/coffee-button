@@ -1,12 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { LedgerMover, type MoneyMover } from "./money-mover";
+import { StarlingMover } from "./starling-mover";
+import { MemoryStore } from "./store";
 
 /**
- * The MoneyMover contract every implementation must pass. The ledger is the
- * only V1 implementation; a Starling Space mover (DESIGN.md, deferred) would be
- * added to this list.
+ * The MoneyMover contract every implementation must pass: the ledger and the
+ * Starling Space mover (ticket 20).
  */
-const movers: { name: string; make(): MoneyMover }[] = [{ name: "LedgerMover", make: () => new LedgerMover() }];
+const movers: { name: string; make(): MoneyMover }[] = [
+  { name: "LedgerMover", make: () => new LedgerMover() },
+  {
+    name: "StarlingMover",
+    make: () => new StarlingMover(new MemoryStore(), () => ({ addMoney: async () => ({}) }), { timers: { set: () => 0, clear: () => {} } }),
+  },
+];
 
 describe.each(movers)("MoneyMover contract: $name", ({ make }) => {
   it("resolves (never rejects) to { ok: true } or { ok: false, error } for a £3.50 press", async () => {

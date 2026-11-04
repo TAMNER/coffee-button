@@ -5,12 +5,14 @@ export interface MoveRef {
 export type MoveResult = { ok: true } | { ok: false; error: string };
 
 /**
- * Moves real money when a press happens. The ledger is the only V1
- * implementation: money is settled monthly by hand, so moving is a no-op.
- * A Starling Space mover is a documented future implementation (see DESIGN.md).
+ * Moves real money when a press happens. LedgerMover is a no-op (money is
+ * settled monthly by hand); StarlingMover (src/domain/starling-mover.ts) moves
+ * each press into a Starling Space once its undo window closes.
  */
 export interface MoneyMover {
   move(amountPence: number, ref: MoveRef): Promise<MoveResult>;
+  /** The press was undone inside its undo window: nothing must move for it. */
+  cancel?(ref: MoveRef): void;
 }
 
 /** The ledger already holds the press; nothing else to do. */
