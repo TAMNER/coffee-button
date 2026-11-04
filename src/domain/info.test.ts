@@ -8,6 +8,14 @@ describe("info sheet copy", () => {
     expect(INFO_SECTIONS.map((s) => s.heading)).toEqual(["The idea", "The money", "Swipe", "Add to Home Screen"]);
   });
 
+  it("sells the idea and explains the two money paths in plain words", () => {
+    const body = (heading: string) => INFO_SECTIONS.find((s) => s.heading === heading)!.body;
+    expect(body("The idea")).toMatch(/^Want to cut down on frivolous spending\?/);
+    expect(body("The idea")).toContain("Skip and Save!");
+    expect(body("The money")).toContain("Set up Starling");
+    expect(body("The money")).toContain("monthly");
+  });
+
   it("marks the Add to Home Screen section needed only when not running standalone", () => {
     expect(homeScreenHintNeeded(false)).toBe(true);
     expect(homeScreenHintNeeded(true)).toBe(false);

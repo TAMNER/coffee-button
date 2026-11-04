@@ -12,13 +12,15 @@ export interface InfoSection {
 export const INFO_SECTIONS: readonly InfoSection[] = [
   {
     heading: "The idea",
-    body: "Skip the coffee, press the cup. The price you didn't spend is saved.",
+    body:
+      "Want to cut down on frivolous spending? Want to save for something mindful and amazing? Skip and Save! " +
+      "Skip the coffee, press the cup, and the price you didn't spend is saved.",
   },
   {
     heading: "The money",
     body:
-      "Nothing moves when you press: the app keeps a tally. On the 26th you invest the month's total in one go. " +
-      "Link Starling in Settings and every press moves the price into a Space instead. Monzo is coming.",
+      "Set up Starling in Settings and every press moves the price into a Starling Space straight away. " +
+      "Otherwise the app keeps a tally of your savings and prompts you monthly to move the total into an investment account.",
   },
   {
     heading: "Swipe",
