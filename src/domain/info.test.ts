@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { INFO_SECTIONS, homeScreenHintNeeded, markInfoSeen, shouldShowInfoOnLaunch } from "./info";
+import { exportData, importData } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("info sheet copy", () => {
@@ -26,5 +27,15 @@ describe("info sheet on first launch", () => {
 
     expect(await shouldShowInfoOnLaunch(store)).toBe(false);
     expect(await store.getSettings()).toEqual({ paydayDay: 25, activeItemId: "beer", infoSeen: true });
+  });
+
+  it("stays seen after an export is imported into a fresh store", async () => {
+    const store = new MemoryStore();
+    await markInfoSeen(store);
+    const fresh = new MemoryStore();
+
+    await importData(fresh, await exportData(store));
+
+    expect(await shouldShowInfoOnLaunch(fresh)).toBe(false);
   });
 });
