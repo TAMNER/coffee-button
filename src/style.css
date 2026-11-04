@@ -449,3 +449,131 @@ body {
   0%, 70%, 100% { transform: translateY(0); }
   85% { transform: translateY(-4px); }
 }
+
+/* Ticket 15: the info button top-left on the cup screen and its bottom sheet
+   (src/ui/info.ts). The sheet is cream paper in both themes with a torn top
+   edge, so its ink and headings use the light theme's cobalt for contrast. */
+.info-button {
+  position: fixed;
+  z-index: 3;
+  /* --info-below: the bottom of the Safari banner, set by src/ui/info.ts. */
+  top: calc(max(env(safe-area-inset-top), var(--info-below, 0px)) + 8px);
+  left: calc(env(safe-area-inset-left) + 8px);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--cobalt);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1;
+  opacity: 0.7;
+  box-shadow: inset 0 0 0 2px currentColor;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.info-button:active {
+  opacity: 1;
+}
+.info-button:focus-visible {
+  opacity: 1;
+  outline: 3px solid var(--cobalt);
+  outline-offset: 2px;
+}
+.info-overlay[hidden] {
+  display: none;
+}
+.info-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+}
+.info-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--dark) 45%, transparent);
+}
+.info-sheet {
+  --info-cobalt: #2443b0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 22px max(16px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 16px) max(16px, env(safe-area-inset-left));
+  background: var(--cream);
+  color: #1d2a6e;
+  outline: none;
+  text-align: left;
+  /* A torn paper top edge: a shallow zigzag cut. */
+  clip-path: polygon(
+    0 10px, 4% 3px, 9% 9px, 15% 2px, 22% 8px, 28% 1px, 35% 7px, 41% 2px, 48% 9px, 55% 3px,
+    61% 8px, 68% 1px, 74% 7px, 81% 2px, 87% 9px, 93% 3px, 100% 8px, 100% 100%, 0 100%
+  );
+}
+.info-grip {
+  width: 40px;
+  height: 4px;
+  margin: 0 auto 10px;
+  border-radius: 2px;
+  background: var(--info-cobalt);
+  opacity: 0.35;
+}
+.info-title {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--info-cobalt);
+}
+.info-section h3 {
+  margin: 14px 0 4px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--info-cobalt);
+}
+.info-section p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+/* Still in Safari: the Home Screen hint is the one thing to act on. */
+.info-section[data-needed="true"] {
+  margin-top: 14px;
+  padding: 2px 12px 10px;
+  border-radius: 4px;
+  background: var(--mustard);
+}
+.info-close {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--info-cobalt);
+  color: #fff9ef;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: 4px 4px 0 #8e2f25;
+  cursor: pointer;
+}
+.info-close:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #8e2f25;
+}
+.info-close:focus-visible {
+  outline: 3px solid var(--mustard);
+  outline-offset: 2px;
+}
