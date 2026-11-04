@@ -9,4 +9,11 @@ describe("shelfRows", () => {
       ["laptop", "ski"],
     ]);
   });
+
+  it("with no goals there is no empty goal plank", () => {
+    expect(shelfRows([], ["weekend", "espresso", "laptop", "ski"])).toEqual([
+      ["weekend", "espresso"],
+      ["laptop", "ski"],
+    ]);
+  });
 });
