@@ -12,6 +12,16 @@ export interface Press {
   pricePence: number;
   /** Epoch milliseconds. */
   at: number;
+  /** The Starling Space transfer for this press (ticket 20); absent means no mover was linked at press time. */
+  transfer?: PressTransfer;
+}
+
+export interface PressTransfer {
+  state: "waiting" | "moved" | "failed";
+  /** Created once per press and reused on every retry, so Starling moves the money at most once. */
+  transferUid: string;
+  attempts?: number;
+  lastError?: string;
 }
 
 export interface Settlement {
