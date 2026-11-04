@@ -11,4 +11,10 @@ describe("allowRequest", () => {
     expect(allowRequest("GET", `/api/v2/account/${A}/savings-goals`)).toBe(true);
     expect(allowRequest("PUT", `/api/v2/account/${A}/savings-goals`)).toBe(true);
   });
+
+  const G = "11111111-2222-3333-4444-555555555555";
+  const T = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+  it("allows PUT add-money into a savings goal", () => {
+    expect(allowRequest("PUT", `/api/v2/account/${A}/savings-goals/${G}/add-money/${T}`)).toBe(true);
+  });
 });

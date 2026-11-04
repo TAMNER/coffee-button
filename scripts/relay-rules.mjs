@@ -6,6 +6,10 @@ const UUID = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-
 const RULES = [
   { methods: ["GET"], path: new RegExp("^/api/v2/accounts$") },
   { methods: ["GET", "PUT"], path: new RegExp(`^/api/v2/account/${UUID}/savings-goals$`) },
+  {
+    methods: ["PUT"],
+    path: new RegExp(`^/api/v2/account/${UUID}/savings-goals/${UUID}/add-money/${UUID}$`),
+  },
 ];
 
 /**
