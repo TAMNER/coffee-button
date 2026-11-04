@@ -23,4 +23,13 @@ describe("relay", () => {
     expect(res.headers.get("access-control-allow-headers")).toBe("Authorization,Content-Type,Accept");
     expect(res.headers.get("access-control-max-age")).toBe("86400");
   });
+
+  it("refuses anything not allowed with a 403 JSON body and CORS headers", async () => {
+    const relay = await listen(createRelay({ upstream: "http://127.0.0.1:9" }));
+    const res = await fetch(`${relay}/api/v2/account-holder`);
+    expect(res.status).toBe(403);
+    expect(res.headers.get("access-control-allow-origin")).toBe("*");
+    expect(res.headers.get("content-type")).toMatch(/^application\/json/);
+    expect(await res.json()).toEqual({ error: "forbidden" });
+  });
 });

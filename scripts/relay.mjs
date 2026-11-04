@@ -27,7 +27,7 @@ export function createRelay(options = {}) {
       res.end();
       return;
     }
-    res.writeHead(403, CORS);
-    res.end();
+    res.writeHead(403, { ...CORS, "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "forbidden" }));
   });
 }
