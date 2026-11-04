@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done (branch worktree-wf_94a0471a-70c-2; DOM glue verified by headless screenshots, not unit tests)
 
-- [ ] The ring label text for an item is a pure function ("COFFEE £3.50", "BEER £6.00"); unit tested
-- [ ] Ring rendered as SVG textPath around the button; top arc "SKIP AND SAVE"; bottom arc follows the active item after a swipe (listens to the 'item' bus event) and after a reprice
-- [ ] Left/right chevrons at cup height, tappable, switching item with the same slide as a swipe; up chevron at the bottom for the shelf (tappable too)
-- [ ] Chevrons and ring respect prefers-reduced-motion and do not intercept the cup press
-- [ ] Looks right in light and dark themes on a 390px wide phone frame
+- [x] The ring label text for an item is a pure function ("COFFEE £3.50", "BEER £6.00"); unit tested
+- [x] Ring rendered as SVG textPath around the button; top arc "SKIP AND SAVE"; bottom arc follows the active item after a swipe (listens to the 'item' bus event) and after a reprice
+- [x] Left/right chevrons at cup height, tappable, switching item with the same slide as a swipe; up chevron at the bottom for the shelf (tappable too)
+- [x] Chevrons and ring respect prefers-reduced-motion and do not intercept the cup press
+- [x] Looks right in light and dark themes on a 390px wide phone frame
