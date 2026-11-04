@@ -4,7 +4,15 @@
  * Space is chosen or created. The link lives in Settings on this phone only.
  * Per-press transfers are ticket 20.
  */
-import { StarlingClient, StarlingError, type StarlingAccount, type StarlingSpace } from "./starling";
+import {
+  StarlingAuthError,
+  StarlingClient,
+  StarlingError,
+  StarlingNetworkError,
+  StarlingRateLimited,
+  type StarlingAccount,
+  type StarlingSpace,
+} from "./starling";
 import type { StarlingLink, Store } from "./store";
 
 /** The author's relay; a friend may point the Settings field at their own. */
@@ -90,4 +98,12 @@ export async function starlingLink(store: Store): Promise<StarlingLink | undefin
 export async function disconnect(store: Store): Promise<void> {
   const { starling: _forgotten, ...rest } = await store.getSettings();
   await store.putSettings(rest);
+}
+
+/** One line for the Settings screen. Never echoes the error's own text, which could carry request details. */
+export function linkErrorMessage(err: unknown): string {
+  if (err instanceof StarlingAuthError) return "Starling rejected the token";
+  if (err instanceof StarlingNetworkError) return "Could not reach the relay";
+  if (err instanceof StarlingRateLimited) return "Starling is busy. Try again in a minute.";
+  return "Starling did not accept that. Try again.";
 }

@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
-import type { StarlingSpace } from "./starling";
-import { chooseSpace, connect, createAndChooseSpace, disconnect, starlingLink, type StarlingApi } from "./starling-link";
+import { StarlingAuthError, StarlingNetworkError, StarlingRateLimited, type StarlingSpace } from "./starling";
+import {
+  chooseSpace,
+  connect,
+  createAndChooseSpace,
+  disconnect,
+  linkErrorMessage,
+  starlingLink,
+  type StarlingApi,
+} from "./starling-link";
 import { MemoryStore } from "./store";
 
 /** A Starling stand-in that records which relay and token it was made with. */
@@ -84,5 +92,16 @@ describe("starling link: disconnect", () => {
     expect("starling" in settings).toBe(false);
     expect(settings).toEqual({ paydayDay: 25 });
     expect(await starlingLink(store)).toBeUndefined();
+  });
+});
+
+describe("starling link: what the user is told", () => {
+  it("names a rejected token, an unreachable relay, a rate limit, and anything else, without the token", () => {
+    expect(linkErrorMessage(new StarlingAuthError(401))).toBe("Starling rejected the token");
+    expect(linkErrorMessage(new StarlingAuthError(403))).toBe("Starling rejected the token");
+    expect(linkErrorMessage(new StarlingNetworkError())).toBe("Could not reach the relay");
+    expect(linkErrorMessage(new StarlingNetworkError(502))).toBe("Could not reach the relay");
+    expect(linkErrorMessage(new StarlingRateLimited(3000))).toBe("Starling is busy. Try again in a minute.");
+    expect(linkErrorMessage(new Error("tok-1 leaked?"))).toBe("Starling did not accept that. Try again.");
   });
 });
