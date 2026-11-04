@@ -17,46 +17,82 @@ you clear into your Stocks and Shares ISA once a month.
   the cup. Long-press on the total opens settings.
 - **Press.** Records an item (default: Coffee, £3.50) with timestamp. A 5-second
   undo toast reverses it. No hold-to-confirm.
-- **Items.** Presses reference an item (name, icon, price). Coffee (£3.50) and
-  Beer (£6.00) are seeded; more items are a settings change, not a code change.
-  A horizontal swipe on the main screen cycles the active item, the vessel
-  slides out and the next slides in, and the press uses that item's price
-  (added 2026-11-03, ticket 12).
+- **Items.** Presses reference an item (name, icon, price). Coffee (£3.50),
+  Beer (£6.00) and Lunch (£8.00, a sandwich on a plate) are seeded; more items
+  are a settings change, not a code change. A horizontal swipe on the main
+  screen cycles the active item, the vessel slides out and the next slides in,
+  and the press uses that item's price (added 2026-11-03, ticket 12; Lunch
+  2026-11-04). Faint cobalt chevrons at cup height (tappable) and at the
+  bottom of the screen signify the swipes.
+- **Ring.** Curved text around the button like a stamp: "SKIP AND SAVE" over
+  the top arc, the active item and price ("COFFEE £3.50") on the bottom arc,
+  permanent, updating on swipe.
+- **Info.** A small i in the top-left opens a sheet: the idea, the money (nothing
+  moves until you link a bank; Starling in Settings moves every press into a
+  Space; Monzo is coming), the swipes, and an Add to Home Screen hint.
 - **Ceremony on every press.** Pour, coin drop into the cup, cheer with
-  confetti. Identical stimulus every time (Pavlovian), ~2 s, never blocks: the
+  confetti. Beer pours amber ale with a cream foam head. Lunch has no pour:
+  the coin drops onto the plate, the sandwich hops, confetti as usual. Identical stimulus every time (Pavlovian), ~2 s, never blocks: the
   press is recorded before the animation starts and the user may leave
   mid-animation.
 - **Two taps total.** Home Screen icon → tap the cup. No widgets.
 
 ## Money
 
-- **Mechanism: ledger, monthly settle.** Real money does not move on the press.
-  Revolut (the author's bank) has no personal API; Open Banking needs a company
-  and a paid provider; a Starling float was rejected as inelegant. The ledger
-  works on any bank, which is what friends need.
+- **Mechanism: ledger first, optional bank mover.** Every press is a ledger
+  entry. With no bank linked, nothing moves until settle day. With Starling
+  linked (round-one feedback, 2026-11-04), every press that survives the 5 s
+  undo window moves the item's price from the main account into a Starling
+  Space, so the money is physically out of reach within seconds. Offline or
+  relay-down presses stay in the ledger marked waiting and are retried on the
+  next launch or return to the app. Problems surface only as a line in
+  Settings ("2 presses waiting to move") or a banner on the cup when Starling
+  rejects the token. Undo never reverses a real transfer.
+- **Starling specifics (checked 2026-11-04).** Personal Access Token, no
+  company needed, never expires, 5 req/s and 1000 req/day. Space transfers
+  (`add-money` on a savings goal) need only the `savings-goal-transfer:create`
+  scope and no in-app approval. The API sends no CORS headers, so the browser
+  cannot call it: a relay is required. The token lives in IndexedDB on the
+  phone only, never in the repo or on a server's disk.
+- **Relay.** One plain Node file on black-box, exposed on its own port by
+  Tailscale Funnel (the app is not on Funnel). It forwards only Starling's
+  accounts and savings-goal paths, never logs, and its URL is a Settings field
+  so a friend can run their own copy. Cloudflare Workers was considered and
+  declined by the author (self-host preferred).
+- **Space.** After pasting the token the app lists existing Spaces to pick one,
+  with "Create a Coffee Button Space" at the top. Nothing is created silently.
+  Money stays in the Space; the author moves it on from the Starling app.
+- **Monzo.** Wanted, built when a tester exists. Facts: the developer API is
+  "not suitable for public applications", a client may only connect to its
+  creator's account plus a hand-picked few, tokens last about 6 hours (refresh
+  tokens only for confidential clients), every login needs approval in the
+  Monzo app. CORS is open, so no relay. It will never be a one-tap link for
+  the public.
 - **Settle day.** Payday is the 25th; settle day is the 26th. From settle day
-  the main screen shows a single "Invest £X" button. It copies £X to the
-  clipboard and opens InvestEngine (universal link to investengine.com, falling
-  back to the App Store page). On return the app asks "Did you invest £X?"
-  Yes clears the owed balance and plays the settle ceremony. "Not yet" leaves
-  it owed.
+  the main screen shows "Invest £X". It copies £X to the clipboard and opens
+  the destination the user set once in Settings ("Where do you invest?", blank
+  by default; blank means copy only). On return the app asks "Did you invest
+  £X?" Yes clears the owed balance and plays the settle ceremony. With a
+  Space linked the screen also says "£X is waiting in your Coffee Button
+  Space". InvestEngine is no longer assumed: friends use whatever they use.
+- **Fund nudge.** Under the button, for people with nothing set: "Not sure how
+  or where to invest? Open your stocks and shares ISA and invest in Vanguard
+  funds. I recommend ESG Global All Cap UCITS ETF (V3AB)."
 - **Settle ceremony.** Bigger than the press ceremony: the month's coins cascade
   out of the cup, lifetime total ticks up on the shelf screen.
 - **Missed months.** Owed balance rolls over. One reminder line per week on the
   shelf screen ("£X owed since October"). Never a modal, never a badge.
-- **InvestEngine.** Stays. AutoInvest invests deposited cash without further
-  action. Deposits from £1.
-- **MoneyMover interface.** The ledger is one implementation. A Starling Space
-  mover (personal access token → savings goal, no in-app prompt) is a documented
-  future implementation. In a browser it would need a small proxy on black-box
-  for CORS and request signing; it is a stub in docs, not code, until asked for.
+- **MoneyMover interface.** LedgerMover (no-op) and StarlingMover (per-press
+  Space transfer with a persisted queue). Monzo is the next implementation.
 
 ## Motivation screen ("the shelf")
 
 - **Pace line.** "At this rate you'll have £X by December."
 - **Compounding line.** "£X at 5% for 10 years is £Y." Rate fixed at 5%.
-- **Shelf.** Drawn big-ticket items (laptop, ski week, long-haul flight, used
-  car, …) with rough editable prices, greyed until the lifetime total passes the
+- **Shelf.** Four drawn big-ticket items spread across the price range
+  (weekend away £300, espresso machine £400, laptop £1000, ski week £1500;
+  cut from ten on 2026-11-04 because the screen was too busy) with rough
+  editable prices, greyed until the lifetime total passes the
   price, then lit with "you could now buy this". Unreached items show progress.
   Up to three personal goals with a price.
 - **Also shown.** Owed-since line when a settle is overdue. Nothing else.
@@ -90,10 +126,13 @@ you clear into your Stocks and Shares ISA once a month.
 
 ## Hosting
 
-- Served from `black-box` (this machine, on the author's tailnet) via
-  `tailscale serve` of the built `dist/` folder, which provides HTTPS.
-- One deploy script: build, then point `tailscale serve` at `dist/`.
-- Friends later: `tailscale funnel` makes the same site a public link.
+- Author's preview: served from `black-box` (on the author's tailnet) by a
+  small Node static server behind `tailscale serve`, which provides HTTPS.
+  One deploy script.
+- Friends: the public repo publishes the built app to GitHub Pages. Friends
+  open the link in Safari and Add to Home Screen. No accounts, no server
+  state, each phone keeps its own data.
+- Starling relay: Node on black-box, its own port on Tailscale Funnel.
 - Devices on the tailnet today: black-box (linux), a Windows desktop, iphone-13.
 
 ## Explicitly dropped
@@ -105,5 +144,5 @@ accounts, server-side state, sync, iCloud, LLM-generated text, mascots.
 
 ## Deferred (discussed, parked)
 
-Starling Space mover (needs proxy); Tailscale Funnel for friends; sync backend;
+Monzo mover (needs a tester); sync backend;
 Rive if the cup grows many states; custom domain (~£10/yr).
