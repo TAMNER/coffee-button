@@ -25,12 +25,13 @@ const pressA = { id: "p1", itemId: "beer", pricePence: 600, at: Date.UTC(2026, 1
 const pressB = { id: "p2", itemId: "beer", pricePence: 600, at: Date.UTC(2026, 10, 4, 18, 0) };
 
 describe.each(backends)("Store contract: $name", (backend) => {
-  it("a fresh store holds Coffee at 350 then Beer at 600, in that order", async () => {
+  it("a fresh store holds Coffee at 350, Beer at 600, then Lunch at 800, in that order", async () => {
     const store = await backend.open(freshName());
 
     expect(await listItems(store)).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
       { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+      { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
     ]);
   });
 

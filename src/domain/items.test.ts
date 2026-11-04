@@ -29,6 +29,20 @@ describe("item cycling", () => {
 });
 
 describe("ensureDefaultItems", () => {
+  it("adds Lunch at 800 (icon sandwich) once, after Beer, to a store that has only Coffee and Beer", async () => {
+    const store = new MemoryStore();
+    await store.items.delete("lunch");
+
+    await ensureDefaultItems(store);
+    await ensureDefaultItems(store);
+
+    expect(await listItems(store)).toEqual([
+      { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
+      { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+      { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
+    ]);
+  });
+
   it("adds Beer at 600 to a store that has only Coffee", async () => {
     const store = new MemoryStore();
     await store.items.delete("beer");
@@ -38,6 +52,7 @@ describe("ensureDefaultItems", () => {
     expect(await listItems(store)).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
       { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+      { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
     ]);
   });
 
@@ -51,6 +66,7 @@ describe("ensureDefaultItems", () => {
     expect(await listItems(store)).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
       { id: "beer", name: "Beer", icon: "beer", pricePence: 650 },
+      { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
     ]);
   });
 
@@ -63,6 +79,7 @@ describe("ensureDefaultItems", () => {
 
     expect(await listItems(store)).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
+      { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
       { id: "beer-1", name: "beer", icon: "pint", pricePence: 550 },
     ]);
   });

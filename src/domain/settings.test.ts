@@ -13,6 +13,7 @@ describe("settings: items", () => {
     expect(items).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 },
       { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+      { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
       { id: "tea-1", name: "Tea", icon: "cup", pricePence: 250 },
     ]);
   });
@@ -29,6 +30,7 @@ describe("settings: items", () => {
     expect(await store.items.list()).toEqual([
       { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 380 },
       { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+      { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
       { id: "beer-1", name: "Pint", icon: "pint", pricePence: 600 },
     ]);
     expect(await store.presses.list()).toEqual([
@@ -85,6 +87,7 @@ const FIXTURE = {
   items: [
     { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 380 },
     { id: "beer", name: "Beer", icon: "pint", pricePence: 600 },
+    { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
   ],
   presses: [
     { id: "p1", itemId: "coffee", pricePence: 350, at: 1790000000000 },
@@ -133,7 +136,7 @@ describe("settings: export and import", () => {
 
     await importData(store, JSON.stringify(FIXTURE));
 
-    expect((await store.items.list()).map((i) => i.id)).toEqual(["coffee", "beer"]);
+    expect((await store.items.list()).map((i) => i.id)).toEqual(["coffee", "beer", "lunch"]);
     expect((await store.presses.list()).map((p) => p.id)).toEqual(["p1", "p2"]);
   });
 });

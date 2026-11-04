@@ -51,8 +51,9 @@ export const DEFAULT_SETTINGS: Settings = { paydayDay: 25 };
 /** Seeded into every fresh store. Users may reprice it in settings. */
 export const DEFAULT_ITEM: Item = { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 };
 export const BEER_ITEM: Item = { id: "beer", name: "Beer", icon: "beer", pricePence: 600 };
+export const LUNCH_ITEM: Item = { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 };
 /** Every item a fresh store starts with, in the order the cup screen cycles them. */
-export const DEFAULT_ITEMS: readonly Item[] = [DEFAULT_ITEM, BEER_ITEM];
+export const DEFAULT_ITEMS: readonly Item[] = [DEFAULT_ITEM, BEER_ITEM, LUNCH_ITEM];
 
 export interface Collection<T extends { id: string }> {
   get(id: string): Promise<T | undefined>;
