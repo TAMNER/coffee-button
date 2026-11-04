@@ -115,6 +115,10 @@ function parseExport(json: string): ExportFile {
   if (settings?.activeItemId !== undefined && typeof settings.activeItemId !== "string") {
     throw new Error(`${NOT_EXPORT} (active item must be an item id)`);
   }
+  const investUrl: unknown = settings?.investUrl;
+  if (investUrl !== undefined && (typeof investUrl !== "string" || validateInvestUrl(investUrl) === null)) {
+    throw new Error(`${NOT_EXPORT} (where you invest must be an http or https link)`);
+  }
   return data as ExportFile;
 }
 
