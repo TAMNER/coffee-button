@@ -102,6 +102,29 @@ describe("StarlingMover: scheduling", () => {
     expect(calls).toEqual([]);
   });
 
+  it("a drain (return to the app) inside a press's undo window leaves that press alone", async () => {
+    const { timers, calls, mover, addPress } = await setup();
+    await addPress("p1");
+    await mover.move(350, { pressId: "p1" });
+
+    timers.advance(1000);
+    await mover.drain();
+
+    expect(calls).toEqual([]);
+  });
+
+  it("with no Starling link stored (disconnected) move() leaves the press as a plain ledger entry", async () => {
+    const { store, timers, calls, mover, addPress } = await setup({ linked: false });
+    await addPress("p1");
+
+    expect(await mover.move(350, { pressId: "p1" })).toEqual({ ok: true });
+    timers.advance(5000);
+    await mover.idle();
+
+    expect((await store.presses.get("p1"))?.transfer).toBeUndefined();
+    expect(calls).toEqual([]);
+  });
+
   it("cancel() inside the window (undo) disarms the timer, so the window closing moves nothing", async () => {
     const { timers, calls, mover, addPress } = await setup();
     await addPress("p1");

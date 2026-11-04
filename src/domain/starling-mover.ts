@@ -86,6 +86,8 @@ export class StarlingMover implements MoneyMover {
   async schedule(pressId: string): Promise<void> {
     const press = await this.store.presses.get(pressId);
     if (!press) return;
+    // Disconnected since boot: the press stays a plain ledger entry.
+    if (!(await this.store.getSettings()).starling) return;
     if (!press.transfer) {
       press.transfer = { state: "waiting", transferUid: this.newUid() };
       await this.store.presses.put(press);
