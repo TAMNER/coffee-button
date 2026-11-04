@@ -17,23 +17,32 @@ describe("Ceremony.play", () => {
     for (let play = 0; play < 2; play++) {
       const events: string[] = [];
       const recording: Stage = { step: async (step) => void events.push(`${step.name} ${step.durationMs}ms`) };
-      const audio = { playCoin: () => void events.push("clink") };
+      const audio = {
+        playPour: (ms: number) => void events.push(`pour-sound ${ms}ms`),
+        playCoin: () => void events.push("clink"),
+        playCheer: () => void events.push("woohoo"),
+      };
       await new Ceremony(recording).play({ audio });
       log.push(events);
     }
 
-    expect(log[0]).toEqual(["pour 800ms", "coin 500ms", "clink", "cheer 700ms"]);
+    // The pour sound starts with the pour and swells into the clink; the cheer starts with the confetti.
+    expect(log[0]).toEqual(["pour-sound 800ms", "pour 800ms", "coin 500ms", "clink", "woohoo", "cheer 700ms"]);
     expect(log[1]).toEqual(log[0]);
   });
 
   it("for a vessel with no pour (Lunch's plate) plays coin, the clink, then cheer, and no pour", async () => {
     const events: string[] = [];
     const recording: Stage = { step: async (step) => void events.push(`${step.name} ${step.durationMs}ms`) };
-    const audio = { playCoin: () => void events.push("clink") };
+    const audio = {
+      playPour: (ms: number) => void events.push(`pour-sound ${ms}ms`),
+      playCoin: () => void events.push("clink"),
+      playCheer: () => void events.push("woohoo"),
+    };
 
     await new Ceremony(recording, { pour: false }).play({ audio });
 
-    expect(events).toEqual(["coin 500ms", "clink", "cheer 700ms"]);
+    expect(events).toEqual(["coin 500ms", "clink", "woohoo", "cheer 700ms"]);
   });
 
   it("still resolves when audio throws", async () => {

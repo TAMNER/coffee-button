@@ -30,6 +30,8 @@ export class Ceremony {
 
   async play(adapters: CeremonyAdapters): Promise<void> {
     for (const step of ceremonyTimeline(this.options)) {
+      if (step.name === "pour") quietly(() => adapters.audio.playPour(step.durationMs));
+      if (step.name === "cheer") quietly(() => adapters.audio.playCheer());
       await this.stage.step(step);
       if (step.name === "coin") quietly(() => adapters.audio.playCoin());
     }
