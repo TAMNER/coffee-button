@@ -101,6 +101,32 @@ describe("StarlingMover: scheduling", () => {
     expect((await store.presses.get("p1"))?.transfer).toEqual({ state: "waiting", transferUid: "uid-1" });
     expect(calls).toEqual([]);
   });
+
+  it("cancel() inside the window (undo) disarms the timer, so the window closing moves nothing", async () => {
+    const { timers, calls, mover, addPress } = await setup();
+    await addPress("p1");
+    await mover.move(350, { pressId: "p1" });
+
+    timers.advance(2000);
+    mover.cancel({ pressId: "p1" });
+    timers.advance(10_000);
+    await mover.idle();
+
+    expect(calls).toEqual([]);
+  });
+
+  it("a press undone inside the window is gone from the ledger, so a later drain moves nothing for it", async () => {
+    const { store, timers, calls, mover, addPress } = await setup();
+    await addPress("p1");
+    await mover.move(350, { pressId: "p1" });
+
+    mover.cancel({ pressId: "p1" });
+    await store.presses.delete("p1"); // the ledger's undo
+    timers.advance(10_000);
+    await mover.drain();
+
+    expect(calls).toEqual([]);
+  });
 });
 
 describe("StarlingMover: firing", () => {

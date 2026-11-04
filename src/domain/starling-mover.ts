@@ -88,6 +88,12 @@ export class StarlingMover implements MoneyMover {
     );
   }
 
+  /** Undo inside the window: the transfer never fires. The ledger's undo deletes the press itself. */
+  cancel(ref: MoveRef): void {
+    this.timers.clear(this.pending.get(ref.pressId));
+    this.pending.delete(ref.pressId);
+  }
+
   /** Moves every waiting press whose undo window has closed, oldest first, one at a time. */
   drain(): Promise<void> {
     this.chain = this.chain.then(() => this.runQueue()).catch((err) => console.error("Starling queue failed", err));
