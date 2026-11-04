@@ -49,6 +49,8 @@ export class StarlingMover implements MoneyMover {
   private readonly newUid: () => string;
   private readonly undoMs: number;
   private chain: Promise<void> = Promise.resolve();
+  /** Presses still inside their undo window, with the timer that closes it. */
+  private readonly pending = new Map<string, unknown>();
 
   constructor(
     private readonly store: Store,
@@ -77,6 +79,45 @@ export class StarlingMover implements MoneyMover {
       press.transfer = { state: "waiting", transferUid: this.newUid() };
       await this.store.presses.put(press);
     }
+    this.pending.set(
+      pressId,
+      this.timers.set(() => {
+        this.pending.delete(pressId);
+        void this.drain();
+      }, this.undoMs),
+    );
+  }
+
+  /** Moves every waiting press whose undo window has closed, oldest first, one at a time. */
+  drain(): Promise<void> {
+    this.chain = this.chain.then(() => this.runQueue()).catch((err) => console.error("Starling queue failed", err));
+    return this.chain;
+  }
+
+  private async runQueue(): Promise<void> {
+    const link = (await this.store.getSettings()).starling;
+    if (!link) return;
+    const client = this.clientFor(link);
+    const queue = (await this.store.presses.list())
+      .filter((p) => isWaiting(p) && !this.pending.has(p.id))
+      .sort((a, b) => a.at - b.at);
+    for (const press of queue) {
+      await this.fire(client, link, press);
+    }
+  }
+
+  private async fire(client: StarlingTransfers, link: StarlingLink, press: Press): Promise<void> {
+    const transfer = press.transfer!;
+    const item = await this.store.items.get(press.itemId);
+    const attempts = (transfer.attempts ?? 0) + 1;
+    await client.addMoney(
+      link.accountUid,
+      link.spaceUid,
+      transfer.transferUid,
+      press.pricePence,
+      `Coffee Button: ${item?.name ?? press.itemId}`,
+    );
+    await this.store.presses.put({ ...press, transfer: { state: "moved", transferUid: transfer.transferUid, attempts } });
   }
 
   /** Resolves once every queued transfer attempt has settled. */

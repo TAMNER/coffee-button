@@ -102,3 +102,19 @@ describe("StarlingMover: scheduling", () => {
     expect(calls).toEqual([]);
   });
 });
+
+describe("StarlingMover: firing", () => {
+  it("when the undo window closes it adds the price to the Space with the press's transferUid and marks it moved", async () => {
+    const { store, timers, calls, mover, addPress } = await setup();
+    await addPress("p1", 0, "beer", 600);
+
+    await mover.move(600, { pressId: "p1" });
+    timers.advance(5000);
+    await mover.idle();
+
+    expect(calls).toEqual([
+      { accountUid: "acc-1", spaceUid: "sg-1", transferUid: "uid-1", amountPence: 600, reference: "Coffee Button: Beer" },
+    ]);
+    expect((await store.presses.get("p1"))?.transfer).toEqual({ state: "moved", transferUid: "uid-1", attempts: 1 });
+  });
+});
