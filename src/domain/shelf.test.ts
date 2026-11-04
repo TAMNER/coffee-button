@@ -19,19 +19,13 @@ describe("shelfState", () => {
 });
 
 describe("shelfItems", () => {
-  it("a fresh store has the ten default items at their rough prices in pounds", async () => {
+  it("a fresh store has the four default items, cheapest first, at their rough prices in pounds", async () => {
     const items = await shelfItems(new MemoryStore());
-    expect(items.map((i) => [i.name, i.pricePence])).toEqual([
-      ["Laptop", 100000],
-      ["Ski week", 150000],
-      ["Long-haul flight", 80000],
-      ["Used car", 500000],
-      ["Espresso machine", 40000],
-      ["Bike", 60000],
-      ["Weekend away", 30000],
-      ["Phone", 90000],
-      ["Camera", 70000],
-      ["Festival ticket", 35000],
+    expect(items.map((i) => [i.id, i.name, i.pricePence])).toEqual([
+      ["weekend-away", "Weekend away", 30000],
+      ["espresso-machine", "Espresso machine", 40000],
+      ["laptop", "Laptop", 100000],
+      ["ski-week", "Ski week", 150000],
     ]);
   });
 
@@ -41,7 +35,7 @@ describe("shelfItems", () => {
 
     const items = await shelfItems(store);
     expect(items.find((i) => i.id === "laptop")?.pricePence).toBe(120000);
-    expect(items.find((i) => i.id === "bike")?.pricePence).toBe(60000);
+    expect(items.find((i) => i.id === "espresso-machine")?.pricePence).toBe(40000);
     expect((await store.getSettings()).paydayDay).toBe(25);
   });
 });
@@ -96,7 +90,7 @@ describe("shelfView", () => {
     expect(view.lifetimePence).toBe(24000);
     expect(view.compoundedPence).toBe(39093);
     expect(view.overdueLine).toBe("£12.00 owed since October");
-    expect(view.items).toHaveLength(10);
+    expect(view.items).toHaveLength(4);
     expect(view.items.find((i) => i.id === "weekend-away")).toMatchObject({ lit: false, progress: 0.8 });
     expect(view.goals).toEqual([expect.objectContaining({ name: "Guitar", pricePence: 45000, lit: false })]);
   });
