@@ -183,3 +183,8 @@ export class StarlingMover implements MoneyMover {
     return this.chain;
   }
 }
+
+/** The boot decision: a stored Starling link gets a StarlingMover, otherwise `fallback` (the LedgerMover) stays. */
+export async function moverFor(store: Store, fallback: MoneyMover, makeStarling: () => StarlingMover): Promise<MoneyMover> {
+  return (await store.getSettings()).starling ? makeStarling() : fallback;
+}

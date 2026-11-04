@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { StarlingAuthError, StarlingError, StarlingNetworkError, StarlingRateLimited } from "./starling";
-import { StarlingMover, waitingCount, waitingLine, waitingTotal, type StarlingTransfers, type Timers } from "./starling-mover";
+import { moverFor, StarlingMover, waitingCount, waitingLine, waitingTotal, type StarlingTransfers, type Timers } from "./starling-mover";
+import { LedgerMover } from "./money-mover";
 import { MemoryStore, type Press, type StarlingLink } from "./store";
 
 const LINK: StarlingLink = {
@@ -92,6 +93,18 @@ describe("waiting presses", () => {
     expect(waitingLine([press("a", 350, "moved")])).toBe("");
     expect(waitingLine([press("a", 350, "waiting")])).toBe("1 press waiting to move");
     expect(waitingLine([press("a", 350, "waiting"), press("b", 600, "waiting")])).toBe("2 presses waiting to move");
+  });
+});
+
+describe("choosing the mover at boot", () => {
+  it("a stored Starling link gets a StarlingMover; no link keeps the LedgerMover it was given", async () => {
+    const ledger = new LedgerMover();
+    const make = () => new StarlingMover(new MemoryStore(), () => fakeClient().client);
+    const { store: linked } = await setup();
+    const { store: unlinked } = await setup({ linked: false });
+
+    expect(await moverFor(linked, ledger, make)).toBeInstanceOf(StarlingMover);
+    expect(await moverFor(unlinked, ledger, make)).toBe(ledger);
   });
 });
 
