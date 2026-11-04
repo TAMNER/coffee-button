@@ -53,6 +53,8 @@ export interface StarlingMoverOptions {
   newUid?: () => string;
   /** How long the undo toast stays up; the transfer fires when it closes. */
   undoMs?: number;
+  /** Runs after every queue run (moved, waiting or failed), e.g. to redraw a banner. */
+  onSettled?: () => void | Promise<void>;
 }
 
 /**
@@ -64,6 +66,7 @@ export class StarlingMover implements MoneyMover {
   private readonly timers: Timers;
   private readonly newUid: () => string;
   private readonly undoMs: number;
+  private readonly onSettled?: () => void | Promise<void>;
   private chain: Promise<void> = Promise.resolve();
   /** Presses still inside their undo window, with the timer that closes it. */
   private readonly pending = new Map<string, unknown>();
@@ -78,6 +81,7 @@ export class StarlingMover implements MoneyMover {
     this.timers = opts.timers ?? browserTimers;
     this.newUid = opts.newUid ?? (() => crypto.randomUUID());
     this.undoMs = opts.undoMs ?? 5000;
+    this.onSettled = opts.onSettled;
   }
 
   /** Called right after the press is recorded: marks it waiting and arms the undo-window timer. */
@@ -116,7 +120,11 @@ export class StarlingMover implements MoneyMover {
 
   /** Moves every waiting press whose undo window has closed, oldest first, one at a time. */
   drain(): Promise<void> {
-    this.chain = this.chain.then(() => this.runQueue()).catch((err) => console.error("Starling queue failed", err));
+    this.chain = this.chain
+      .then(() => this.runQueue())
+      .catch((err) => console.error("Starling queue failed", errorText(err)))
+      .then(() => this.onSettled?.())
+      .catch((err) => console.error("Starling onSettled failed", errorText(err)));
     return this.chain;
   }
 

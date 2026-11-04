@@ -277,6 +277,23 @@ describe("StarlingMover: retry queue", () => {
     expect((await store.getSettings()).starlingAuthFailed).toBeUndefined();
   });
 
+  it("onSettled runs after every queue run, so the cup banner and Settings line can redraw", async () => {
+    const store = new MemoryStore();
+    await store.putSettings({ ...(await store.getSettings()), starling: LINK });
+    await store.presses.put({ ...press("a", 350, "waiting"), at: 1 });
+    const settled: string[] = [];
+    const mover = new StarlingMover(store, () => fakeClient([new StarlingAuthError(403)]).client, {
+      onSettled: async () => {
+        settled.push(String((await store.getSettings()).starlingAuthFailed));
+      },
+    });
+
+    await mover.drain();
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(settled).toEqual(["true"]);
+  });
+
   it("a drain during the 429 back-off (a return to the app) does not call Starling early", async () => {
     const { store, calls, mover } = await setup({ outcomes: [new StarlingRateLimited(undefined)] });
     await store.presses.put({ ...press("a", 350, "waiting"), at: 1 });
