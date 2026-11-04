@@ -4,10 +4,16 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done (pending device check)
 
-- [ ] InvestFlow takes the destination URL from settings; blank means copy only and still asks on the next return to the app; unit tested
-- [ ] URL validation: http(s) only, otherwise the field shows an error and is not saved; unit tested
-- [ ] Settings section "Where do you invest?" saves the URL; export/import carry it
-- [ ] Nudge text shown under the Invest button only when no URL is set
-- [ ] No remaining reference to InvestEngine in code or UI copy (DESIGN.md already updated)
+- [x] InvestFlow takes the destination URL from settings; blank means copy only and still asks on the next return to the app; unit tested
+- [x] URL validation: http(s) only, otherwise the field shows an error and is not saved; unit tested
+- [x] Settings section "Where do you invest?" saves the URL; export/import carry it
+- [x] Nudge text shown under the Invest button only when no URL is set
+- [x] No remaining reference to InvestEngine in code or UI copy (DESIGN.md already updated)
+
+## Notes
+
+- InvestFlow reads `settings.investUrl` in `resume()` (run on every mount and every return to the app) and opens it synchronously in `invest()`, because Safari only allows `window.open` inside the tap's user activation, before any await.
+- Import refuses a file whose `investUrl` is not an http(s) link, since the app would open it.
+- The settings section and the nudge are DOM glue (no DOM test environment); the rules are in `validateInvestUrl` / `setInvestUrl` (src/domain/settings.ts).
