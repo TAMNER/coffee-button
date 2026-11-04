@@ -63,4 +63,19 @@ describe("StarlingClient", () => {
     expect(new Headers(calls[0].init?.headers).get("content-type")).toBe("application/json");
     expect(JSON.parse(String(calls[0].init?.body))).toEqual({ name: "Coffee Button", currency: "GBP" });
   });
+
+  it("addMoney PUTs the amount in minor units and the reference under the transfer uid and returns the result", async () => {
+    const { fn, calls } = fakeFetch(json({ transferUid: "tx-1", success: true }));
+    const client = new StarlingClient(fn, BASE, "tok");
+
+    const result = await client.addMoney("acc-1", "sg-1", "tx-1", 350, "Coffee");
+
+    expect(result).toEqual({ transferUid: "tx-1", success: true });
+    expect(calls[0].url).toBe(`${BASE}/api/v2/account/acc-1/savings-goals/sg-1/add-money/tx-1`);
+    expect(calls[0].init?.method).toBe("PUT");
+    expect(JSON.parse(String(calls[0].init?.body))).toEqual({
+      amount: { currency: "GBP", minorUnits: 350 },
+      reference: "Coffee",
+    });
+  });
 });

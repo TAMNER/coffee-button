@@ -16,6 +16,11 @@ export interface StarlingSpace {
   [field: string]: unknown;
 }
 
+export interface StarlingTransferResult {
+  transferUid: string;
+  success: boolean;
+}
+
 export class StarlingClient {
   private readonly baseUrl: string;
 
@@ -63,5 +68,25 @@ export class StarlingClient {
       { name, currency: "GBP" },
     );
     return data.savingsGoalUid;
+  }
+
+  /**
+   * Moves money from the main account into a Space. The caller picks
+   * `transferUid`, so retrying the same transfer is idempotent at Starling.
+   */
+  async addMoney(
+    accountUid: string,
+    spaceUid: string,
+    transferUid: string,
+    amountPence: number,
+    reference: string,
+  ): Promise<StarlingTransferResult> {
+    const path =
+      `/api/v2/account/${encodeURIComponent(accountUid)}` +
+      `/savings-goals/${encodeURIComponent(spaceUid)}/add-money/${encodeURIComponent(transferUid)}`;
+    return this.request<StarlingTransferResult>("PUT", path, {
+      amount: { currency: "GBP", minorUnits: amountPence },
+      reference,
+    });
   }
 }
