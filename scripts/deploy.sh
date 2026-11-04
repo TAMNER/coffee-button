@@ -10,7 +10,8 @@
 #
 # One-time setup already done on black-box: `sudo tailscale set --operator=openclaw`
 # and lingering is enabled for the user (so the service survives logout/reboot).
-# Friends later: `tailscale funnel --bg 8787` instead of serve (see docs/DESIGN.md).
+# The app stays tailnet-only. Only the Starling relay (scripts/relay.mjs, port
+# 8795) is public, via Tailscale Funnel on :8443 (see docs/DESIGN.md).
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -41,15 +42,43 @@ RestartSec=2
 WantedBy=default.target
 UNIT
 
+# Starling relay (ticket 18): scripts/relay.mjs on 127.0.0.1:$RELAY_PORT.
+RELAY_PORT=8795
+RELAY_UNIT="$UNIT_DIR/coffee-button-relay.service"
+cat > "$RELAY_UNIT" <<UNIT
+[Unit]
+Description=Coffee Button Starling relay (127.0.0.1:$RELAY_PORT)
+After=network.target
+
+[Service]
+ExecStart=$(command -v node) $ROOT/scripts/relay.mjs
+Environment=RELAY_PORT=$RELAY_PORT
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+UNIT
+
 systemctl --user daemon-reload
 systemctl --user enable --now coffee-button.service >/dev/null
 systemctl --user restart coffee-button.service
+systemctl --user enable --now coffee-button-relay.service >/dev/null
+systemctl --user restart coffee-button-relay.service
 
 # Idempotent: re-running re-points the same HTTPS mapping at the same port.
 tailscale serve --bg --yes "$PORT" >/dev/null
 
+# The relay alone goes on the public internet, on its own HTTPS port; the app's
+# port above stays tailnet-only. The author runs this once by hand (Funnel
+# config persists), so it stays commented out here:
+# tailscale funnel --bg --yes --https=8443 8795
+
 sleep 1
 systemctl --user is-active coffee-button.service
 curl -fsS -o /dev/null -w "local   %{http_code}\n" "http://127.0.0.1:$PORT/"
+systemctl --user is-active coffee-button-relay.service
+# The relay refuses everything off its allow-list, so 403 here means healthy.
+curl -sS -o /dev/null -w "relay   %{http_code} (expect 403)\n" "http://127.0.0.1:$RELAY_PORT/"
 URL="https://$(tailscale status --json | python3 -I -c 'import json,sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))')"
 curl -fsS -o /dev/null -w "tailnet %{http_code} $URL\n" "$URL/" || echo "tailnet check failed (certificate may take a minute on first use)"
