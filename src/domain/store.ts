@@ -40,6 +40,8 @@ export interface Settings {
   pendingInvest?: PendingInvest;
   /** True once the info sheet has been shown, so it opens by itself only on the first ever launch. */
   infoSeen?: boolean;
+  /** Where "Invest £X" sends the user (http or https); absent or blank means copy only. */
+  investUrl?: string;
 }
 
 export interface PendingInvest {

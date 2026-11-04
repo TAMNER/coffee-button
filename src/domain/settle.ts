@@ -97,11 +97,6 @@ function isOverdue(now: Date, owedSince: Date | null): boolean {
   return owedSince !== null && owedSince < monthStart;
 }
 
-/** Universal link: opens the InvestEngine app when installed, the website otherwise. */
-export const INVESTENGINE_URL = "https://investengine.com/";
-/** Fallback when the universal link cannot be opened. */
-export const APP_STORE_URL = "https://apps.apple.com/gb/app/investengine/id1485669937";
-
 export interface InvestDeps {
   store: Store;
   clock: Clock;
@@ -114,30 +109,34 @@ export interface InvestDeps {
 /** How long an unanswered Invest tap is still asked about after a restart. */
 export const PENDING_INVEST_MAX_MS = 24 * 60 * 60 * 1000;
 
-/** Invest £X → copy, open InvestEngine, ask on return, settle on yes. */
+/** Invest £X → copy, open the user's destination (if any), ask on return, settle on yes. */
 export class InvestFlow {
   private promptListeners = new Set<(text: string) => void>();
   private stopWaiting: (() => void) | null = null;
   /** The amount and the Invest tap's time, until the user answers. */
   private pending: PendingInvest | null = null;
+  /** settings.investUrl as last read by resume(); blank means copy only. */
+  private destination = "";
 
   constructor(private deps: InvestDeps) {}
 
-  /** `fn` receives the confirmation question when the user returns from InvestEngine. */
+  /** `fn` receives the confirmation question when the user returns to the app. */
   onPrompt(fn: (text: string) => void): () => void {
     this.promptListeners.add(fn);
     return () => this.promptListeners.delete(fn);
   }
 
   /**
-   * On boot: if an Invest tap is still unanswered (the app may have been killed
-   * while the user was in InvestEngine), ask about it now.
+   * On boot and on every return: reads the destination (so invest() can open it
+   * with no await first), and if an Invest tap is still unanswered (the app may
+   * have been killed while the user was away), asks about it now.
    */
   async resume(): Promise<void> {
-    const saved = (await this.deps.store.getSettings()).pendingInvest;
+    const { pendingInvest: saved, investUrl } = await this.deps.store.getSettings();
+    this.destination = investUrl?.trim() ?? "";
     if (!saved) return;
     if (this.deps.clock.now().getTime() - saved.startedAt > PENDING_INVEST_MAX_MS) {
-      await this.savePending(null); // too old to be a fresh InvestEngine trip
+      await this.savePending(null); // too old to be a fresh trip away
       return;
     }
     this.pending = saved;
@@ -190,9 +189,9 @@ export class InvestFlow {
       () => true,
       () => false,
     );
-    const opened = this.deps.opener.open(INVESTENGINE_URL);
+    const opened = this.destination ? this.deps.opener.open(this.destination) : null;
     await this.savePending(this.pending);
     await copied;
-    if (!(await opened)) await this.deps.opener.open(APP_STORE_URL);
+    await opened;
   }
 }

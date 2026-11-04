@@ -576,4 +576,12 @@ body {
 .info-close:focus-visible {
   outline: 3px solid var(--mustard);
   outline-offset: 2px;
+/* --- Ticket 17: fund nudge under the Invest button (only while no destination is set) --- */
+.invest-nudge {
+  max-width: 22rem;
+  margin: 1rem 16px 0;
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  text-align: center;
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
+import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -78,6 +78,30 @@ describe("settings: payday", () => {
     await expect(setPayday(store, 29)).rejects.toThrow(/1 to 28/);
 
     expect((await store.getSettings()).paydayDay).toBe(1);
+  });
+});
+
+describe("settings: invest destination", () => {
+  it("validateInvestUrl keeps http and https links, normalised, and refuses anything else", () => {
+    expect(validateInvestUrl("  https://Example.com/isa ")).toBe("https://example.com/isa");
+    expect(validateInvestUrl("http://example.com")).toBe("http://example.com/");
+    expect(validateInvestUrl("javascript:alert(1)")).toBeNull();
+    expect(validateInvestUrl("ftp://example.com/")).toBeNull();
+    expect(validateInvestUrl("example.com")).toBeNull();
+    expect(validateInvestUrl("")).toBeNull();
+  });
+
+  it("setInvestUrl stores the normalised link, refuses ftp:// leaving it unchanged, and blank clears it", async () => {
+    const store = new MemoryStore();
+
+    await setInvestUrl(store, " https://Example.com/isa");
+    expect(await store.getSettings()).toEqual({ paydayDay: 25, investUrl: "https://example.com/isa" });
+
+    await expect(setInvestUrl(store, "ftp://example.com/")).rejects.toThrow("http");
+    expect((await store.getSettings()).investUrl).toBe("https://example.com/isa");
+
+    await setInvestUrl(store, "   ");
+    expect(await store.getSettings()).toEqual({ paydayDay: 25 });
   });
 });
 
@@ -228,6 +252,29 @@ describe("settings: malformed import", () => {
 
     expect(JSON.parse(json).settings).toEqual({ paydayDay: 20, activeItemId: "beer" });
     expect(await activeItemId(target)).toBe("beer");
+  });
+
+  it("export then import round-trips where you invest: https://example.com/isa stays set", async () => {
+    const source = await storeWithFixture();
+    await setInvestUrl(source, "https://example.com/isa");
+    const json = await exportData(source);
+
+    const target = new MemoryStore();
+    await importData(target, json);
+
+    expect(JSON.parse(json).settings).toEqual({ paydayDay: 20, investUrl: "https://example.com/isa" });
+    expect((await target.getSettings()).investUrl).toBe("https://example.com/isa");
+  });
+
+  it("a file whose invest destination is javascript:alert(1) is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { ...FIXTURE, settings: { paydayDay: 20, investUrl: "javascript:alert(1)" } };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow(
+      "This file is not a Coffee Button export (where you invest must be an http or https link)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
 
   it("a file whose active item is not text is rejected and the store is untouched", async () => {

@@ -23,16 +23,22 @@ export function createInvestFlow(
   });
 }
 
+/** Shown under the Invest button while no destination is set (DESIGN.md: Fund nudge). */
+const INVEST_NUDGE =
+  "Not sure how or where to invest? Open your stocks and shares ISA and invest in Vanguard funds. I recommend ESG Global All Cap UCITS ETF (V3AB).";
+
 function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
   el.className = "invest";
   el.innerHTML = `
     <button type="button" class="invest-button" data-role="invest" hidden></button>
+    <p class="invest-nudge" data-role="invest-nudge" hidden>${INVEST_NUDGE}</p>
     <div class="invest-prompt" data-role="invest-prompt" role="group" hidden>
       <p data-role="invest-question"></p>
       <button type="button" data-role="invest-yes">Yes</button>
       <button type="button" data-role="invest-not-yet">Not yet</button>
     </div>`;
   const investButton = el.querySelector<HTMLButtonElement>("[data-role=invest]")!;
+  const nudge = el.querySelector<HTMLElement>("[data-role=invest-nudge]")!;
   const prompt = el.querySelector<HTMLElement>("[data-role=invest-prompt]")!;
   const question = el.querySelector<HTMLElement>("[data-role=invest-question]")!;
   const yesButton = el.querySelector<HTMLButtonElement>("[data-role=invest-yes]")!;
@@ -45,9 +51,10 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
     const now = ctx.clock.now();
     owedPence = await owed(ctx.store, now);
     const since = await owedSince(ctx.store, now);
-    const { paydayDay } = await ctx.store.getSettings();
+    const { paydayDay, investUrl } = await ctx.store.getSettings();
     investButton.textContent = `Invest ${formatPounds(owedPence)}`;
     investButton.hidden = !prompt.hidden || !isSettleWindow(now, paydayDay, since, owedPence);
+    nudge.hidden = investButton.hidden || Boolean(investUrl?.trim());
   };
 
   // Synchronous in the click handler so Safari keeps the tap's user activation.
@@ -59,6 +66,7 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
     question.textContent = text;
     prompt.hidden = false;
     investButton.hidden = true;
+    nudge.hidden = true;
   });
   const closePrompt = () => {
     prompt.hidden = true;
@@ -77,7 +85,7 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
     closePrompt();
   });
 
-  // iOS often kills the Home Screen app while InvestEngine is open (and the
+  // iOS often kills the Home Screen app while the user is investing elsewhere (and the
   // service worker may reload it), so the unanswered question lives in the store
   // and is asked again on mount and on every return.
   const onVisible = () => {

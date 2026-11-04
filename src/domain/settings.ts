@@ -32,6 +32,17 @@ export function validatePayday(day: number): boolean {
   return Number.isInteger(day) && day >= 1 && day <= 28;
 }
 
+/** The normalised link when `text` is an http or https URL, otherwise null. */
+export function validateInvestUrl(text: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(text.trim());
+  } catch {
+    return null;
+  }
+  return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+}
+
 export const EXPORT_VERSION = 1;
 
 export interface ExportFile {
@@ -104,6 +115,10 @@ function parseExport(json: string): ExportFile {
   if (settings?.activeItemId !== undefined && typeof settings.activeItemId !== "string") {
     throw new Error(`${NOT_EXPORT} (active item must be an item id)`);
   }
+  const investUrl: unknown = settings?.investUrl;
+  if (investUrl !== undefined && (typeof investUrl !== "string" || validateInvestUrl(investUrl) === null)) {
+    throw new Error(`${NOT_EXPORT} (where you invest must be an http or https link)`);
+  }
   return data as ExportFile;
 }
 
@@ -115,6 +130,15 @@ export async function importData(store: Store, json: string): Promise<void> {
 export async function setPayday(store: Store, day: number): Promise<void> {
   if (!validatePayday(day)) throw new Error(`Payday must be a whole day from 1 to 28, got ${day}`);
   await store.putSettings({ ...(await store.getSettings()), paydayDay: day });
+}
+
+/** Saves where "Invest £X" goes; blank clears it (copy only); anything not http(s) is refused. */
+export async function setInvestUrl(store: Store, text: string): Promise<void> {
+  const { investUrl: _old, ...settings } = await store.getSettings();
+  if (text.trim() === "") return store.putSettings(settings);
+  const url = validateInvestUrl(text);
+  if (url === null) throw new Error(`Where you invest must be an http or https link, got ${text}`);
+  await store.putSettings({ ...settings, investUrl: url });
 }
 
 /** The item a tap on the cup records: the stored choice while it exists, else the first item in cycling order. */

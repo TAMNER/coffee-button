@@ -23,23 +23,29 @@ describe("InvestFlow", () => {
     expect(clipboard.written).toEqual(["12.50"]);
   });
 
-  it("opens https://investengine.com/ and nothing else when that open works", async () => {
-    const { opener, flow } = setup();
+  it("opens the destination set in settings, https://example.com/isa, and nothing else", async () => {
+    const { store, opener, flow } = setup();
+    await store.putSettings({ ...(await store.getSettings()), investUrl: "https://example.com/isa" });
+    await flow.resume(); // reads the destination, so the tap itself opens it with no await first
 
     await flow.invest(1250);
 
-    expect(opener.opened).toEqual(["https://investengine.com/"]);
+    expect(opener.opened).toEqual(["https://example.com/isa"]);
   });
 
-  it("falls back to the App Store page when opening investengine.com fails", async () => {
-    const { opener, flow } = setup(["https://investengine.com/"]);
+  it("with the destination blank, copies 12.50, opens nothing, and still asks on the next return", async () => {
+    const { store, clipboard, opener, flow } = setup();
+    await store.putSettings({ ...(await store.getSettings()), investUrl: "  " });
+    await flow.resume();
+    const prompts: string[] = [];
+    flow.onPrompt((text) => prompts.push(text));
 
     await flow.invest(1250);
+    opener.returnToApp();
 
-    expect(opener.opened).toEqual([
-      "https://investengine.com/",
-      "https://apps.apple.com/gb/app/investengine/id1485669937",
-    ]);
+    expect(clipboard.written).toEqual(["12.50"]);
+    expect(opener.opened).toEqual([]);
+    expect(prompts).toEqual(["Did you invest £12.50?"]);
   });
 
   it('asks "Did you invest £12.50?" once the user comes back to the app', async () => {
@@ -101,8 +107,10 @@ describe("InvestFlow", () => {
 });
 
 describe("InvestFlow when the clipboard write is refused", () => {
-  it("still resolves, still falls back to the App Store, and still asks on return", async () => {
-    const { clipboard, opener, flow } = setup(["https://investengine.com/"]);
+  it("still resolves, still opens the destination, and still asks on return", async () => {
+    const { store, clipboard, opener, flow } = setup();
+    await store.putSettings({ ...(await store.getSettings()), investUrl: "https://example.com/isa" });
+    await flow.resume();
     clipboard.fail = true;
     const prompts: string[] = [];
     flow.onPrompt((text) => prompts.push(text));
@@ -110,15 +118,12 @@ describe("InvestFlow when the clipboard write is refused", () => {
     await expect(flow.invest(1250)).resolves.toBeUndefined();
     opener.returnToApp();
 
-    expect(opener.opened).toEqual([
-      "https://investengine.com/",
-      "https://apps.apple.com/gb/app/investengine/id1485669937",
-    ]);
+    expect(opener.opened).toEqual(["https://example.com/isa"]);
     expect(prompts).toEqual(["Did you invest £12.50?"]);
   });
 });
 
-describe("InvestFlow across an app restart (iOS kills the PWA while InvestEngine is open)", () => {
+describe("InvestFlow across an app restart (iOS kills the PWA while the user is investing elsewhere)", () => {
   it('a fresh flow on the same store asks "Did you invest £12.50?" on boot, and Yes settles £12.50 at the Invest tap\'s time', async () => {
     const { store, clock, clipboard, opener, flow } = setup();
     await flow.invest(1250);
