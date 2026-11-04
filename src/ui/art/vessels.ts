@@ -6,6 +6,7 @@
  */
 import { BASE, CUP_VIEWBOX, cupSvg, LIQUID_DROP, RIM } from "../cup-art";
 import * as pint from "../pint-art";
+import * as sandwich from "../sandwich-art";
 
 export interface Point {
   readonly x: number;
@@ -34,6 +35,12 @@ export interface VesselArt {
   readonly liquidDrop: number;
   /** Fill class of the liquid, used for the pour stream and its splashes (e.g. "cp-coffee"). */
   readonly liquidClass: string;
+  /**
+   * False for a vessel with nothing to pour (Lunch's plate): the ceremony skips
+   * the pour, the coin lands on `rim` and the figure hops instead of squashing.
+   * Absent means it pours.
+   */
+  readonly pour?: boolean;
 }
 
 export const COFFEE_VESSEL: VesselArt = {
@@ -54,10 +61,22 @@ export const BEER_VESSEL: VesselArt = {
   liquidClass: "cp-beer",
 };
 
+export const SANDWICH_VESSEL: VesselArt = {
+  viewBox: sandwich.CUP_VIEWBOX,
+  svg: sandwich.cupSvg,
+  rim: sandwich.RIM,
+  base: sandwich.BASE,
+  liquidDrop: sandwich.LIQUID_DROP,
+  // Crumbs: what flies off the plate where the coin lands.
+  liquidClass: "cp-bread",
+  pour: false,
+};
+
 const VESSELS: Record<string, VesselArt> = {
   coffee: COFFEE_VESSEL,
   beer: BEER_VESSEL,
   pint: BEER_VESSEL,
+  sandwich: SANDWICH_VESSEL,
 };
 
 /** The vessel for an item icon; any icon without its own art gets the coffee cup. */
