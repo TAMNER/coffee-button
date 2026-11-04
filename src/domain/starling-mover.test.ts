@@ -221,4 +221,14 @@ describe("StarlingMover: retry queue", () => {
     expect(calls).toHaveLength(2);
     expect((await store.presses.get("a"))?.transfer?.state).toBe("moved");
   });
+
+  it("a drain during the 429 back-off (a return to the app) does not call Starling early", async () => {
+    const { store, calls, mover } = await setup({ outcomes: [new StarlingRateLimited(undefined)] });
+    await store.presses.put({ ...press("a", 350, "waiting"), at: 1 });
+
+    await mover.drain();
+    await mover.drain();
+
+    expect(calls).toHaveLength(1);
+  });
 });

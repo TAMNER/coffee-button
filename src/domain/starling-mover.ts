@@ -10,7 +10,10 @@ function errorText(err: unknown): string {
   return err instanceof Error ? err.message || err.name : "Unknown error";
 }
 
-const isWaiting =(p: Press) => p.transfer?.state === "waiting";
+/** How long to wait after a 429 that carried no usable Retry-After. */
+export const RATE_LIMIT_FALLBACK_MS = 60_000;
+
+const isWaiting = (p: Press) => p.transfer?.state === "waiting";
 
 /** How many presses still have money to move. */
 export function waitingCount(presses: readonly Press[]): number {
@@ -112,6 +115,8 @@ export class StarlingMover implements MoneyMover {
     const { starling: link, starlingAuthFailed } = await this.store.getSettings();
     // After a 401/403 nothing is tried until the link is saved again.
     if (!link || starlingAuthFailed) return;
+    // Starling asked us to slow down; the back-off timer resumes the queue.
+    if (this.backoff !== undefined) return;
     const client = this.clientFor(link);
     const queue = (await this.store.presses.list())
       .filter((p) => isWaiting(p) && !this.pending.has(p.id))
