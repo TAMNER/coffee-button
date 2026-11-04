@@ -1,7 +1,7 @@
 /**
  * Per-press Starling Space transfers (ticket 20).
  */
-import { StarlingAuthError } from "./starling";
+import { StarlingAuthError, StarlingRateLimited } from "./starling";
 import type { MoneyMover, MoveRef, MoveResult } from "./money-mover";
 import type { Press, PressTransfer, StarlingLink, Store } from "./store";
 
@@ -57,6 +57,8 @@ export class StarlingMover implements MoneyMover {
   private chain: Promise<void> = Promise.resolve();
   /** Presses still inside their undo window, with the timer that closes it. */
   private readonly pending = new Map<string, unknown>();
+  /** The timer that resumes the queue after a 429, while one is armed. */
+  private backoff: unknown;
 
   constructor(
     private readonly store: Store,
@@ -138,6 +140,15 @@ export class StarlingMover implements MoneyMover {
       if (err instanceof StarlingAuthError) {
         await save({ state: "failed", lastError: errorText(err) });
         await this.store.putSettings({ ...(await this.store.getSettings()), starlingAuthFailed: true });
+        return false;
+      }
+      if (err instanceof StarlingRateLimited) {
+        await save({ lastError: errorText(err) });
+        this.timers.clear(this.backoff);
+        this.backoff = this.timers.set(() => {
+          this.backoff = undefined;
+          void this.drain();
+        }, err.retryAfterMs ?? RATE_LIMIT_FALLBACK_MS);
         return false;
       }
       // Offline, relay down (5xx) or anything unexpected: stays waiting for the next launch or return.

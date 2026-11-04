@@ -204,4 +204,21 @@ describe("StarlingMover: retry queue", () => {
     expect((await store.presses.get("b"))?.transfer?.state).toBe("waiting");
     expect((await store.getSettings()).starlingAuthFailed).toBe(true);
   });
+
+  it("429 keeps the press waiting and tries again by itself after Retry-After, not before", async () => {
+    const { store, timers, calls, mover } = await setup({ outcomes: [new StarlingRateLimited(30_000)] });
+    await store.presses.put({ ...press("a", 350, "waiting"), at: 1 });
+
+    await mover.drain();
+    expect((await store.presses.get("a"))?.transfer).toMatchObject({ state: "waiting", attempts: 1 });
+    timers.advance(29_999);
+    await mover.idle();
+    expect(calls).toHaveLength(1);
+
+    timers.advance(1);
+    await mover.idle();
+
+    expect(calls).toHaveLength(2);
+    expect((await store.presses.get("a"))?.transfer?.state).toBe("moved");
+  });
 });
