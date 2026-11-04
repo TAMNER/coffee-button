@@ -8,4 +8,12 @@ describe("normaliseBase", () => {
     expect(normaliseBase("coffee-button/")).toBe("/coffee-button/");
     expect(normaliseBase("/coffee-button/")).toBe("/coffee-button/");
   });
+
+  it("defaults to / when unset, blank or only slashes", () => {
+    expect(normaliseBase(undefined)).toBe("/");
+    expect(normaliseBase("")).toBe("/");
+    expect(normaliseBase("  ")).toBe("/");
+    expect(normaliseBase("/")).toBe("/");
+    expect(normaliseBase("//")).toBe("/");
+  });
 });
