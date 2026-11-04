@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StarlingSpace } from "./starling";
-import { chooseSpace, connect, type StarlingApi } from "./starling-link";
+import { chooseSpace, connect, createAndChooseSpace, type StarlingApi } from "./starling-link";
 import { MemoryStore } from "./store";
 
 /** A Starling stand-in that records which relay and token it was made with. */
@@ -56,5 +56,17 @@ describe("starling link: choosing a Space", () => {
     const expected = { token: "tok-1", relayUrl: RELAY, accountUid: "acc-1", spaceUid: "sg-1", spaceName: "Holiday" };
     expect(link).toEqual(expected);
     expect(await store.getSettings()).toEqual({ paydayDay: 25, starling: expected });
+  });
+
+  it("createAndChooseSpace creates 'Coffee Button' on the account and stores the new Space", async () => {
+    const store = new MemoryStore();
+    const { factory, created } = fakeStarling({ createdUid: "sg-cb" });
+    const conn = await connect(store, factory, "tok-1", RELAY);
+
+    const link = await createAndChooseSpace(store, conn);
+
+    expect(created).toEqual([{ accountUid: "acc-1", name: "Coffee Button" }]);
+    expect(link).toEqual({ token: "tok-1", relayUrl: RELAY, accountUid: "acc-1", spaceUid: "sg-cb", spaceName: "Coffee Button" });
+    expect((await store.getSettings()).starling).toEqual(link);
   });
 });

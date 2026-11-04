@@ -62,3 +62,21 @@ export async function chooseSpace(store: Store, conn: StarlingConnection, spaceU
     spaceName: space.name,
   });
 }
+
+export const COFFEE_BUTTON_SPACE_NAME = "Coffee Button";
+
+/** Creates a new Space on the account (only when the user asks) and links it. */
+export async function createAndChooseSpace(
+  store: Store,
+  conn: StarlingConnection,
+  name = COFFEE_BUTTON_SPACE_NAME,
+): Promise<StarlingLink> {
+  const spaceUid = await conn.api.createSpace(conn.accountUid, name);
+  return saveLink(store, {
+    token: conn.token,
+    relayUrl: conn.relayUrl,
+    accountUid: conn.accountUid,
+    spaceUid,
+    spaceName: name,
+  });
+}
