@@ -690,3 +690,11 @@ body {
   font-size: 0.85rem;
   text-align: center;
 }
+
+/* Build stamp at the foot of the info sheet (src/ui/info.ts). */
+.info-build {
+  margin: 0.8rem 0 0;
+  text-align: center;
+  font-size: 0.7rem;
+  opacity: 0.55;
+}

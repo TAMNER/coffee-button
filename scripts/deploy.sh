@@ -24,7 +24,7 @@ if [ ! -d node_modules ] || [ package-lock.json -nt node_modules/.package-lock.j
   npm ci
 fi
 
-npm run build
+BUILD_ID="$(git rev-parse --short HEAD)" npm run build
 
 mkdir -p "$UNIT_DIR"
 cat > "$UNIT" <<UNIT

@@ -12,6 +12,8 @@ const paper = "#F6CDC1";
 export default defineConfig({
   // Ticket 22: GitHub Pages builds with BASE_PATH=/coffee-button/; black-box stays at /.
   base: normaliseBase(process.env.BASE_PATH),
+  // The info sheet shows this so a stale Home Screen app is easy to spot. deploy.sh sets it to the git hash.
+  define: { __BUILD_ID__: JSON.stringify(process.env.BUILD_ID ?? "dev") },
   plugins: [
     VitePWA({
       registerType: "autoUpdate",

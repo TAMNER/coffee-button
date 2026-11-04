@@ -1,3 +1,4 @@
+declare const __BUILD_ID__: string;
 /**
  * Ticket 15: the ⓘ button top-left on the cup screen and the bottom sheet it
  * opens. The copy and the "show once" rule live in src/domain/info.ts; this is
@@ -39,6 +40,7 @@ function sheetHtml(id: number): string {
       <h2 class="info-title" id="info-title-${id}">How it works</h2>
       ${sections}
       <button type="button" class="info-close" data-role="info-close">Close</button>
+      <p class="info-build">Build ${__BUILD_ID__}</p>
     </div>`;
 }
 
