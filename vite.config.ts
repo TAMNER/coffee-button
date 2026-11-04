@@ -1,11 +1,17 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { normaliseBase } from "./src/build/base-path";
+
+// The config runs in Node; the project has no @types/node, so declare the one global used.
+declare const process: { env: Record<string, string | undefined> };
 
 // Cut Paper salmon: the launch background and the status bar colour.
 const paper = "#F6CDC1";
 
 export default defineConfig({
+  // Ticket 22: GitHub Pages builds with BASE_PATH=/coffee-button/; black-box stays at /.
+  base: normaliseBase(process.env.BASE_PATH),
   plugins: [
     VitePWA({
       registerType: "autoUpdate",

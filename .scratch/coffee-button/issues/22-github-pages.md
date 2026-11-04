@@ -4,9 +4,9 @@
 
 **Blocked by:** None (can start immediately; merge after the others so the first public build is the full one).
 
-**Status:** ready-for-agent
+**Status:** built in worktree; awaiting author: flip repo public, enable Pages (Actions source), confirm first deploy green
 
-- [ ] vite base path configurable (default "/"); a unit test or build check shows manifest start_url/scope resolve under a sub-path
-- [ ] .github/workflows/pages.yml: npm ci, test, build with the sub-path base, deploy-pages
-- [ ] Repo public, Pages enabled, first deploy green, link recorded in README
-- [ ] README install section for friends
+- [x] vite base path configurable (default "/"); a unit test or build check shows manifest start_url/scope resolve under a sub-path
+- [x] .github/workflows/pages.yml: npm ci, test, build with the sub-path base, deploy-pages
+- [ ] Repo public, Pages enabled, first deploy green, link recorded in README (link recorded; public/Pages/deploy left to the author)
+- [x] README install section for friends
