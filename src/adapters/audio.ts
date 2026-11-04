@@ -21,7 +21,7 @@ type AudioContextCtor = typeof AudioContext;
  * iOS only lets an AudioContext start or resume inside a user activation, and a
  * touch pointerdown is not one in WebKit; touchend and click are. iOS also
  * suspends or "interrupts" the context whenever the app is backgrounded (for
- * example while the user is in InvestEngine). So unlock() runs on every
+ * example while the user is in their investing app). So unlock() runs on every
  * touchend and click for the life of the page, never just the first, and the
  * cup's click handler calls it again synchronously before its first await.
  */

@@ -123,7 +123,7 @@ describe("InvestFlow when the clipboard write is refused", () => {
   });
 });
 
-describe("InvestFlow across an app restart (iOS kills the PWA while InvestEngine is open)", () => {
+describe("InvestFlow across an app restart (iOS kills the PWA while the user is investing elsewhere)", () => {
   it('a fresh flow on the same store asks "Did you invest £12.50?" on boot, and Yes settles £12.50 at the Invest tap\'s time', async () => {
     const { store, clock, clipboard, opener, flow } = setup();
     await flow.invest(1250);

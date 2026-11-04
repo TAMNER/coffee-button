@@ -78,10 +78,20 @@ payday, set Settings > Payday to a day earlier than today first.
 
 - [ ] With at least one press this month, check under the total.
   - Expected: an "Invest £X" button showing the amount owed.
+- [ ] With Settings > Where do you invest? blank, check under the button.
+  - Expected: "Not sure how or where to invest? Open your stocks and shares
+    ISA and invest in Vanguard funds. I recommend ESG Global All Cap UCITS ETF
+    (V3AB)."
+- [ ] Tap "Invest £X" with the field still blank, leave to another app, and
+  come back.
+  - Expected: nothing opens; "Did you invest £X?" shows on return. Tap Not yet.
+- [ ] In Settings > Where do you invest?, type "example" and tap away.
+  - Expected: an inline error; the field is not saved.
+- [ ] Enter the https link of your own investing app or site and tap away.
+  - Expected: a confirmation line; back on the cup screen the nudge is gone.
 - [ ] Tap "Invest £X".
-  - Expected: the InvestEngine app opens (or investengine.com if the app is not
-    installed; the App Store page if neither can open).
-- [ ] In InvestEngine, long press an amount field and Paste.
+  - Expected: your link opens.
+- [ ] There, long press an amount field and Paste.
   - Expected: the owed amount pastes as a plain number, e.g. "12.50" (no £).
 - [ ] Return to Coffee Button (app switcher or the top-left back link).
   - Expected: "Did you invest £X?" with Yes and Not yet; the Invest button is
@@ -93,7 +103,7 @@ payday, set Settings > Payday to a day earlier than today first.
     cascade out of the cup), then the shelf shows the lifetime invested ticking up to the
     new total. The Invest button is gone afterwards.
 
-- [ ] Make another press, tap Invest, and while in InvestEngine swipe Coffee
+- [ ] Make another press, tap Invest, and while in your investing app swipe Coffee
   Button away in the app switcher. Reopen it from the Home Screen.
   - Expected: "Did you invest £X?" appears straight away. Tap Not yet.
 - [ ] Return to the cup after a few seconds in another app, then tap the cup.

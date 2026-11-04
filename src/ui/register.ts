@@ -8,3 +8,4 @@ import "./ceremony";
 import "./reminder";
 import "./settle-ceremony";
 import "./ring";
+import "./invest-destination";

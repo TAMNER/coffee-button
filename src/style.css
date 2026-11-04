@@ -449,3 +449,13 @@ body {
   0%, 70%, 100% { transform: translateY(0); }
   85% { transform: translateY(-4px); }
 }
+
+/* --- Ticket 17: fund nudge under the Invest button (only while no destination is set) --- */
+.invest-nudge {
+  max-width: 22rem;
+  margin: 1rem 16px 0;
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  text-align: center;
+}
