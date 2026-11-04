@@ -321,4 +321,18 @@ describe("settings: export and import leave the Starling link on the phone (tick
     expect(await fresh.getSettings()).toEqual({ paydayDay: 20 });
     expect(await linked.getSettings()).toEqual({ paydayDay: 20, starling: LINK });
   });
+
+  it("starlingAuthFailed is this phone's state too: export leaves it out, import keeps the phone's own (ticket 20)", async () => {
+    const store = await storeWithFixture();
+    await store.putSettings({ ...FIXTURE.settings, starling: LINK, starlingAuthFailed: true });
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+
+    const healthy = new MemoryStore();
+    await healthy.putSettings({ paydayDay: 25, starling: LINK });
+    await importData(healthy, JSON.stringify({ ...FIXTURE, settings: { paydayDay: 20, starlingAuthFailed: true } }));
+    await importData(store, JSON.stringify({ ...FIXTURE, settings: { paydayDay: 20 } }));
+
+    expect(await healthy.getSettings()).toEqual({ paydayDay: 20, starling: LINK });
+    expect(await store.getSettings()).toEqual({ paydayDay: 20, starling: LINK, starlingAuthFailed: true });
+  });
 });
