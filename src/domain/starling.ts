@@ -16,6 +16,14 @@ export interface StarlingSpace {
   [field: string]: unknown;
 }
 
+/** Starling refused the token (401) or its scopes (403). Never carries the token. */
+export class StarlingAuthError extends Error {
+  constructor(readonly status: number) {
+    super(`Starling rejected the token (HTTP ${status})`);
+    this.name = "StarlingAuthError";
+  }
+}
+
 export interface StarlingTransferResult {
   transferUid: string;
   success: boolean;
@@ -43,6 +51,7 @@ export class StarlingClient {
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+    if (res.status === 401 || res.status === 403) throw new StarlingAuthError(res.status);
     return (await res.json()) as T;
   }
 

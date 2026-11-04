@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { StarlingClient } from "./starling";
+import { StarlingAuthError, StarlingClient } from "./starling";
 
 interface Call {
   url: string;
@@ -77,5 +77,16 @@ describe("StarlingClient", () => {
       amount: { currency: "GBP", minorUnits: 350 },
       reference: "Coffee",
     });
+  });
+
+  it.each([401, 403])("a %i answer rejects with StarlingAuthError, whose message does not carry the token", async (status) => {
+    const { fn } = fakeFetch(json({ error: "invalid_token" }, status));
+    const client = new StarlingClient(fn, BASE, "secret-tok");
+
+    const err = await client.accounts().catch((e: unknown) => e);
+
+    expect(err).toBeInstanceOf(StarlingAuthError);
+    expect((err as StarlingAuthError).status).toBe(status);
+    expect(String((err as Error).message)).not.toContain("secret-tok");
   });
 });
