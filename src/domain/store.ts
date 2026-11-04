@@ -38,6 +38,17 @@ export interface Settings {
   activeItemId?: string;
   /** An Invest tap not yet answered, kept so the question survives the app being killed. */
   pendingInvest?: PendingInvest;
+  /** The linked Starling Space (ticket 19). On this phone only: export omits it, import ignores it. */
+  starling?: StarlingLink;
+}
+
+export interface StarlingLink {
+  /** Starling Personal Access Token. Never logged, never exported. */
+  token: string;
+  relayUrl: string;
+  accountUid: string;
+  spaceUid: string;
+  spaceName: string;
 }
 
 export interface PendingInvest {
