@@ -38,6 +38,13 @@ describe("shelfItems", () => {
     expect(items.find((i) => i.id === "espresso-machine")?.pricePence).toBe(40000);
     expect((await store.getSettings()).paydayDay).toBe(25);
   });
+
+  it("an old install's stored price for a removed item (bike) shows nothing of it", async () => {
+    const store = new MemoryStore();
+    await setShelfPrice(store, "bike", 55000);
+
+    expect((await shelfItems(store)).map((i) => i.id)).toEqual(["weekend-away", "espresso-machine", "laptop", "ski-week"]);
+  });
 });
 
 describe("goals", () => {
