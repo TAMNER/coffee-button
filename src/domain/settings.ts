@@ -55,12 +55,14 @@ export interface ExportFile {
 }
 
 export async function exportData(store: Store): Promise<string> {
+  // The Starling link (token and Space) stays on this phone (ticket 19).
+  const { starling: _phoneOnly, ...settings } = await store.getSettings();
   const data: ExportFile = {
     version: EXPORT_VERSION,
     items: await store.items.list(),
     presses: await store.presses.list(),
     settlements: await store.settlements.list(),
-    settings: await store.getSettings(),
+    settings,
     goals: await store.goals.list(),
   };
   return JSON.stringify(data, null, 2);
@@ -123,7 +125,11 @@ function parseExport(json: string): ExportFile {
 }
 
 export async function importData(store: Store, json: string): Promise<void> {
-  const { items, presses, settlements, goals, settings } = parseExport(json);
+  const { items, presses, settlements, goals, settings: fileSettings } = parseExport(json);
+  // A file never brings a Starling link; this phone keeps the one it has (ticket 19).
+  const { starling: _ignored, ...fromFile } = fileSettings;
+  const { starling } = await store.getSettings();
+  const settings = starling ? { ...fromFile, starling } : fromFile;
   await store.replaceAll({ items, presses, settlements, goals, settings });
 }
 

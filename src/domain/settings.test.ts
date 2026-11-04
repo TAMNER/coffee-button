@@ -288,3 +288,37 @@ describe("settings: malformed import", () => {
     expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
 });
+
+describe("settings: export and import leave the Starling link on the phone (ticket 19)", () => {
+  const LINK = {
+    token: "secret-tok",
+    relayUrl: "https://relay.example:8443",
+    accountUid: "acc-1",
+    spaceUid: "sg-1",
+    spaceName: "Coffee Button",
+  };
+
+  it("exportData omits the starling field: no token, no Space uid in the file", async () => {
+    const store = await storeWithFixture();
+    await store.putSettings({ ...FIXTURE.settings, starling: LINK });
+
+    const json = await exportData(store);
+
+    expect(JSON.parse(json)).toEqual(FIXTURE);
+    expect(json).not.toContain("secret-tok");
+    expect(json).not.toContain("sg-1");
+  });
+
+  it("importData ignores a starling field in the file: a fresh phone stays unlinked, a linked phone keeps its own link", async () => {
+    const planted = { ...FIXTURE, settings: { paydayDay: 20, starling: { ...LINK, token: "planted", spaceUid: "sg-x" } } };
+    const fresh = new MemoryStore();
+    const linked = new MemoryStore();
+    await linked.putSettings({ paydayDay: 25, starling: LINK });
+
+    await importData(fresh, JSON.stringify(planted));
+    await importData(linked, JSON.stringify(planted));
+
+    expect(await fresh.getSettings()).toEqual({ paydayDay: 20 });
+    expect(await linked.getSettings()).toEqual({ paydayDay: 20, starling: LINK });
+  });
+});

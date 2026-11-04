@@ -10,3 +10,4 @@ import "./settle-ceremony";
 import "./ring";
 import "./info";
 import "./invest-destination";
+import "./starling-settings";
