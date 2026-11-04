@@ -128,6 +128,15 @@ export async function setPayday(store: Store, day: number): Promise<void> {
   await store.putSettings({ ...(await store.getSettings()), paydayDay: day });
 }
 
+/** Saves where "Invest £X" goes; blank clears it (copy only); anything not http(s) is refused. */
+export async function setInvestUrl(store: Store, text: string): Promise<void> {
+  const { investUrl: _old, ...settings } = await store.getSettings();
+  if (text.trim() === "") return store.putSettings(settings);
+  const url = validateInvestUrl(text);
+  if (url === null) throw new Error(`Where you invest must be an http or https link, got ${text}`);
+  await store.putSettings({ ...settings, investUrl: url });
+}
+
 /** The item a tap on the cup records: the stored choice while it exists, else the first item in cycling order. */
 export async function activeItemId(store: Store): Promise<string> {
   const chosen = (await store.getSettings()).activeItemId;

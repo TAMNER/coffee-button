@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setPayday, validateInvestUrl, validatePayday } from "./settings";
+import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -89,6 +89,19 @@ describe("settings: invest destination", () => {
     expect(validateInvestUrl("ftp://example.com/")).toBeNull();
     expect(validateInvestUrl("example.com")).toBeNull();
     expect(validateInvestUrl("")).toBeNull();
+  });
+
+  it("setInvestUrl stores the normalised link, refuses ftp:// leaving it unchanged, and blank clears it", async () => {
+    const store = new MemoryStore();
+
+    await setInvestUrl(store, " https://Example.com/isa");
+    expect(await store.getSettings()).toEqual({ paydayDay: 25, investUrl: "https://example.com/isa" });
+
+    await expect(setInvestUrl(store, "ftp://example.com/")).rejects.toThrow("http");
+    expect((await store.getSettings()).investUrl).toBe("https://example.com/isa");
+
+    await setInvestUrl(store, "   ");
+    expect(await store.getSettings()).toEqual({ paydayDay: 25 });
   });
 });
 
