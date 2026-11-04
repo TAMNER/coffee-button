@@ -7,3 +7,10 @@ describe("cheerPhrase", () => {
     expect(cheerPhrase(7)).toBe(cheerPhrase(7));
   });
 });
+
+describe("cheerPhrase over many plays", () => {
+  it("varies: ten consecutive seeds do not all give the same phrase", () => {
+    const seen = new Set(Array.from({ length: 10 }, (_, i) => cheerPhrase(i)));
+    expect(seen.size).toBeGreaterThan(1);
+  });
+});
