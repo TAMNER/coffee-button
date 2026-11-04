@@ -16,26 +16,38 @@ export interface StarlingSpace {
   [field: string]: unknown;
 }
 
+/** Any failure talking to Starling. `status` is the HTTP status when there was an answer. */
+export class StarlingError extends Error {
+  constructor(
+    message: string,
+    readonly status?: number,
+  ) {
+    super(message);
+    this.name = "StarlingError";
+  }
+}
+
 /** Starling refused the token (401) or its scopes (403). Never carries the token. */
-export class StarlingAuthError extends Error {
-  constructor(readonly status: number) {
-    super(`Starling rejected the token (HTTP ${status})`);
+export class StarlingAuthError extends StarlingError {
+  declare readonly status: number;
+  constructor(status: number) {
+    super(`Starling rejected the token (HTTP ${status})`, status);
     this.name = "StarlingAuthError";
   }
 }
 
 /** Starling's 5 req/s or 1000 req/day limit was hit. */
-export class StarlingRateLimited extends Error {
+export class StarlingRateLimited extends StarlingError {
   constructor(readonly retryAfterMs: number | undefined) {
-    super("Starling asked us to slow down");
+    super("Starling asked us to slow down", 429);
     this.name = "StarlingRateLimited";
   }
 }
 
-/** The relay (or Starling behind it) could not be reached. Worth retrying later. */
-export class StarlingNetworkError extends Error {
-  constructor(readonly status?: number) {
-    super(status === undefined ? "Could not reach the relay" : `The relay answered HTTP ${status}`);
+/** The relay (or Starling behind it) could not be reached or is down (5xx). Worth retrying later. */
+export class StarlingNetworkError extends StarlingError {
+  constructor(status?: number) {
+    super(status === undefined ? "Could not reach the relay" : `The relay answered HTTP ${status}`, status);
     this.name = "StarlingNetworkError";
   }
 }
@@ -84,6 +96,8 @@ export class StarlingClient {
     }
     if (res.status === 401 || res.status === 403) throw new StarlingAuthError(res.status);
     if (res.status === 429) throw new StarlingRateLimited(retryAfterMs(res.headers.get("retry-after")));
+    if (res.status >= 500) throw new StarlingNetworkError(res.status);
+    if (!res.ok) throw new StarlingError(`Starling answered HTTP ${res.status}`, res.status);
     return (await res.json()) as T;
   }
 

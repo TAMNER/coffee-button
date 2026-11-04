@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { StarlingAuthError, StarlingClient, StarlingNetworkError, StarlingRateLimited } from "./starling";
+import { StarlingAuthError, StarlingClient, StarlingError, StarlingNetworkError, StarlingRateLimited } from "./starling";
 
 interface Call {
   url: string;
@@ -108,5 +108,19 @@ describe("StarlingClient", () => {
     const client = new StarlingClient(fn, BASE, "tok");
 
     await expect(client.accounts()).rejects.toBeInstanceOf(StarlingNetworkError);
+  });
+
+  it("a 502 from the relay is a StarlingNetworkError with the status; a 400 is a StarlingError but not a network one", async () => {
+    const { fn } = fakeFetch(new Response("Bad Gateway", { status: 502 }), json({ errors: [] }, 400));
+    const client = new StarlingClient(fn, BASE, "tok");
+
+    const gateway = await client.accounts().catch((e: unknown) => e);
+    const bad = await client.createSpace("acc-1", "").catch((e: unknown) => e);
+
+    expect(gateway).toBeInstanceOf(StarlingNetworkError);
+    expect((gateway as StarlingNetworkError).status).toBe(502);
+    expect(bad).toBeInstanceOf(StarlingError);
+    expect(bad).not.toBeInstanceOf(StarlingNetworkError);
+    expect((bad as StarlingError).status).toBe(400);
   });
 });
