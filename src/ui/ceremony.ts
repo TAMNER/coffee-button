@@ -1,5 +1,6 @@
 import { deviceAudio, type Audio } from "../adapters/audio";
 import { ceremonyTimeline, type CeremonyStep } from "../domain/ceremony-timeline";
+import { cheerPhrase } from "../domain/cheer";
 import { onStart, type Bus } from "./app";
 import { COFFEE_VESSEL, vesselFor, type VesselArt } from "./art/vessels";
 import { COIN_MARKUP, confettiMarkup, STARBURST } from "./cup-art";
@@ -153,6 +154,7 @@ function pinOrigin(el: SVGElement | HTMLElement, x: number, y: number): void {
 
 interface Scene {
   cleanup(): void;
+  seed: number;
   vessel: VesselArt;
   cupFigure: SVGGElement | null;
   liquid: SVGGElement | null;
@@ -277,6 +279,7 @@ function buildScene(seed: number, vessel: VesselArt = vesselOnScreen()): Scene |
       pour.remove();
       removeGhost();
     },
+    seed,
     vessel,
     cupFigure,
     liquid,
@@ -349,6 +352,7 @@ function drawStep(scene: Scene, step: CeremonyStep): void {
       break;
     }
     case "cheer":
+      showBanner(cheerPhrase(scene.seed));
       animate(scene.burst, [
         { transform: `${rim} scale(.2)`, opacity: 0 },
         { transform: `${rim} scale(.55)`, opacity: 1, offset: 0.17 },
@@ -365,6 +369,35 @@ function drawStep(scene: Scene, step: CeremonyStep): void {
       }
       break;
   }
+}
+
+/**
+ * The "Well done!" banner: a strip of mustard paper slammed over the cup a beat
+ * after the coin lands, held, then flicked away. It outlives the cheer step by
+ * design (the eye needs the hold) and removes itself.
+ */
+const BANNER_MS = 1150;
+function showBanner(text: string): void {
+  const banner = document.createElement("div");
+  banner.className = "cheer-banner";
+  banner.setAttribute("role", "status");
+  banner.textContent = text;
+  document.body.append(banner);
+  if (typeof banner.animate !== "function") {
+    setTimeout(() => banner.remove(), BANNER_MS);
+    return;
+  }
+  const slam = banner.animate(
+    [
+      { transform: "translate(-50%, -50%) rotate(-14deg) scale(0.2)", opacity: 0 },
+      { transform: "translate(-50%, -50%) rotate(-5deg) scale(1.18)", opacity: 1, offset: 0.14, easing: "cubic-bezier(.2,1.4,.4,1)" },
+      { transform: "translate(-50%, -50%) rotate(-4deg) scale(1)", opacity: 1, offset: 0.24 },
+      { transform: "translate(-50%, -50%) rotate(-4deg) scale(1)", opacity: 1, offset: 0.82 },
+      { transform: "translate(-50%, -50%) rotate(6deg) scale(0.6) translateY(-40px)", opacity: 0 },
+    ],
+    { duration: BANNER_MS, delay: 120, fill: "forwards", easing: "ease-in" },
+  );
+  slam.onfinish = slam.oncancel = () => banner.remove();
 }
 
 /** A stage for one play. Never throws; a missing cup or API just means less drawing. */
