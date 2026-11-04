@@ -38,4 +38,16 @@ describe("StarlingClient", () => {
     expect(calls[0].init?.method ?? "GET").toBe("GET");
     expect(new Headers(calls[0].init?.headers).get("authorization")).toBe("Bearer tok-123");
   });
+
+  it("listSpaces(acc) GETs the account's savings goals and returns them; a trailing slash on the base is dropped", async () => {
+    const { fn, calls } = fakeFetch(
+      json({ savingsGoalList: [{ savingsGoalUid: "sg-1", name: "Holiday", state: "ACTIVE" }] }),
+    );
+    const client = new StarlingClient(fn, `${BASE}/`, "tok");
+
+    const spaces = await client.listSpaces("acc-1");
+
+    expect(spaces).toEqual([{ savingsGoalUid: "sg-1", name: "Holiday", state: "ACTIVE" }]);
+    expect(calls[0].url).toBe(`${BASE}/api/v2/account/acc-1/savings-goals`);
+  });
 });

@@ -10,6 +10,12 @@ export interface StarlingAccount {
   [field: string]: unknown;
 }
 
+export interface StarlingSpace {
+  savingsGoalUid: string;
+  name: string;
+  [field: string]: unknown;
+}
+
 export class StarlingClient {
   private readonly baseUrl: string;
 
@@ -38,5 +44,14 @@ export class StarlingClient {
   async accounts(): Promise<StarlingAccount[]> {
     const data = await this.request<{ accounts: StarlingAccount[] }>("GET", "/api/v2/accounts");
     return data.accounts;
+  }
+
+  /** The account's Spaces (Starling calls them savings goals). */
+  async listSpaces(accountUid: string): Promise<StarlingSpace[]> {
+    const data = await this.request<{ savingsGoalList: StarlingSpace[] }>(
+      "GET",
+      `/api/v2/account/${encodeURIComponent(accountUid)}/savings-goals`,
+    );
+    return data.savingsGoalList;
   }
 }
