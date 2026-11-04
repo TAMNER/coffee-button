@@ -254,6 +254,18 @@ describe("settings: malformed import", () => {
     expect(await activeItemId(target)).toBe("beer");
   });
 
+  it("export then import round-trips where you invest: https://example.com/isa stays set", async () => {
+    const source = await storeWithFixture();
+    await setInvestUrl(source, "https://example.com/isa");
+    const json = await exportData(source);
+
+    const target = new MemoryStore();
+    await importData(target, json);
+
+    expect(JSON.parse(json).settings).toEqual({ paydayDay: 20, investUrl: "https://example.com/isa" });
+    expect((await target.getSettings()).investUrl).toBe("https://example.com/isa");
+  });
+
   it("a file whose active item is not text is rejected and the store is untouched", async () => {
     const store = await storeWithFixture();
     const broken = { ...FIXTURE, settings: { paydayDay: 20, activeItemId: 7 } };
