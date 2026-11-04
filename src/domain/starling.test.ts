@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { StarlingAuthError, StarlingClient } from "./starling";
+import { StarlingAuthError, StarlingClient, StarlingRateLimited } from "./starling";
 
 interface Call {
   url: string;
@@ -88,5 +88,18 @@ describe("StarlingClient", () => {
     expect(err).toBeInstanceOf(StarlingAuthError);
     expect((err as StarlingAuthError).status).toBe(status);
     expect(String((err as Error).message)).not.toContain("secret-tok");
+  });
+
+  it("a 429 with Retry-After: 3 rejects with StarlingRateLimited after 3000 ms; without the header it is undefined", async () => {
+    const { fn } = fakeFetch(json({}, 429, { "retry-after": "3" }), json({}, 429));
+    const client = new StarlingClient(fn, BASE, "tok");
+
+    const first = await client.listSpaces("acc-1").catch((e: unknown) => e);
+    const second = await client.listSpaces("acc-1").catch((e: unknown) => e);
+
+    expect(first).toBeInstanceOf(StarlingRateLimited);
+    expect((first as StarlingRateLimited).retryAfterMs).toBe(3000);
+    expect(second).toBeInstanceOf(StarlingRateLimited);
+    expect((second as StarlingRateLimited).retryAfterMs).toBeUndefined();
   });
 });

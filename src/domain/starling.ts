@@ -24,6 +24,23 @@ export class StarlingAuthError extends Error {
   }
 }
 
+/** Starling's 5 req/s or 1000 req/day limit was hit. */
+export class StarlingRateLimited extends Error {
+  constructor(readonly retryAfterMs: number | undefined) {
+    super("Starling asked us to slow down");
+    this.name = "StarlingRateLimited";
+  }
+}
+
+/** Retry-After is either whole seconds or an HTTP date. */
+function retryAfterMs(header: string | null): number | undefined {
+  if (header === null || header.trim() === "") return undefined;
+  const seconds = Number(header);
+  if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
+  const at = Date.parse(header);
+  return Number.isNaN(at) ? undefined : Math.max(0, at - Date.now());
+}
+
 export interface StarlingTransferResult {
   transferUid: string;
   success: boolean;
@@ -52,6 +69,7 @@ export class StarlingClient {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (res.status === 401 || res.status === 403) throw new StarlingAuthError(res.status);
+    if (res.status === 429) throw new StarlingRateLimited(retryAfterMs(res.headers.get("retry-after")));
     return (await res.json()) as T;
   }
 
