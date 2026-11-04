@@ -576,6 +576,7 @@ body {
 .info-close:focus-visible {
   outline: 3px solid var(--mustard);
   outline-offset: 2px;
+}
 /* --- Ticket 17: fund nudge under the Invest button (only while no destination is set) --- */
 .invest-nudge {
   max-width: 22rem;
@@ -584,6 +585,7 @@ body {
   font-size: 0.85rem;
   line-height: 1.4;
   text-align: center;
+}
 /* Ticket 19: Starling section in Settings. Inherits the .settings inputs and buttons. */
 .starling-help {
   margin: 0 0 0.4rem;
