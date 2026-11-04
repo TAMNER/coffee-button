@@ -19,12 +19,12 @@ import {
 import { weeklyOverdueLine } from "../domain/settle";
 import { HOME_SCREEN, onStart, registerScreen, registerSettingsSection, type AppContext } from "./app";
 import { goalArt, itemArt } from "./art/items";
+import { shelfRows } from "./shelf-layout";
 import "./shelf.css";
 
 export const SHELF_SCREEN = "shelf";
 const TAP_MAX_MS = 500;
 const SWIPE_PX = 60;
-const PER_ROW = 3;
 
 /** "3.80" or "£3.80" to 380; null when it is not a positive amount. */
 function parsePence(text: string): number | null {
@@ -54,13 +54,9 @@ function entryHtml(entry: ShelfEntry, isGoal: boolean): string {
     </li>`;
 }
 
-/** Entries three to a shelf; each row stands on its own tomato plank. */
-function shelvesHtml(entries: string[]): string {
-  let html = "";
-  for (let i = 0; i < entries.length; i += PER_ROW) {
-    html += `<ul class="shelf-row">${entries.slice(i, i + PER_ROW).join("")}</ul>`;
-  }
-  return html;
+/** Each row stands on its own tomato plank; shelf-layout.ts decides the rows. */
+function shelvesHtml(rows: string[][]): string {
+  return rows.map((row) => `<ul class="shelf-row">${row.join("")}</ul>`).join("");
 }
 
 function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
@@ -106,10 +102,12 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
       `is ${formatPounds(view.compoundedPence)}.`;
     overdue.hidden = view.overdueLine === null;
     overdue.textContent = view.overdueLine ?? "";
-    shelf.innerHTML = shelvesHtml([
-      ...view.goals.map((g) => entryHtml(g, true)),
-      ...view.items.map((i) => entryHtml(i, false)),
-    ]);
+    shelf.innerHTML = shelvesHtml(
+      shelfRows(
+        view.goals.map((g) => entryHtml(g, true)),
+        view.items.map((i) => entryHtml(i, false)),
+      ),
+    );
     form.hidden = view.goals.length >= MAX_GOALS;
   };
 
