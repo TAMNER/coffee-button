@@ -72,6 +72,8 @@ function mountStarling(el: HTMLElement, ctx: AppContext): () => void {
   const showForm = () => {
     body.innerHTML = `
       <form class="starling-form" autocomplete="off">
+        <p class="starling-help">Starling is free, quick to open and easy to set up here. You do not have to bank with it day to day:
+          the author tops up Starling from Revolut, so one more app is not needed.</p>
         <p class="starling-help">Make a Personal Access Token in the Starling developer portal with these scopes:</p>
         <ul class="starling-scopes"></ul>
         <label class="starling-field">Token

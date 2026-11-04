@@ -698,3 +698,25 @@ body {
   font-size: 0.7rem;
   opacity: 0.55;
 }
+
+/* Gear button top-right, the info button's mirror (src/ui/settings-button.ts). */
+.settings-button {
+  position: fixed;
+  z-index: 3;
+  top: calc(max(env(safe-area-inset-top), var(--info-below, 0px)) + 8px);
+  right: calc(env(safe-area-inset-right) + 8px);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--cobalt);
+  opacity: 0.7;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.settings-button:active { opacity: 1; }
+.settings-button:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }

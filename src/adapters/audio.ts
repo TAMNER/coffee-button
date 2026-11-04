@@ -38,6 +38,11 @@ export class WebAudioCoin implements Audio {
   /** Call inside a user gesture: creates the context lazily and resumes it if needed. */
   unlock(): void {
     try {
+      // iOS mutes Web Audio with the ringer switch unless the page's audio
+      // session is "playback" (Safari 17+ AudioSession API; a no-op elsewhere).
+      // Trade-off: a clink then pauses music from other apps for a moment.
+      const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+      if (session && session.type !== "playback") session.type = "playback";
       const ctx = this.context();
       if (!ctx || ctx.state === "running") return;
       void ctx.resume().catch(() => {});
