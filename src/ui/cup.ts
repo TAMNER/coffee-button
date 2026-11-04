@@ -5,6 +5,20 @@ import { formatPounds } from "../domain/money";
 import { activeItemId, setActiveItem } from "../domain/settings";
 import { DEFAULT_ITEM, type Item } from "../domain/store";
 import { registerScreen, type AppContext, type Mount } from "./app";
+
+/** What a cup-screen extra (ring, chevrons, info button) may do besides the AppContext. */
+export interface CupContext extends AppContext {
+  /** Switch to the next (1) or previous (-1) item exactly as a swipe does. */
+  switchItem(dir: 1 | -1): void;
+  /** The item currently on the button. */
+  activeItem(): Item;
+}
+export type CupMount = (el: HTMLElement, ctx: CupContext) => void | (() => void);
+/** Modules layered over the cup screen (ring text, chevrons, info button). Each gets its own div inside .cup-extras. */
+const cupExtras: CupMount[] = [];
+export function registerCupExtra(mount: CupMount): void {
+  cupExtras.push(mount);
+}
 import { vesselFor } from "./art/vessels";
 import { PAPER_BAND_SVG } from "./cup-art";
 
@@ -69,6 +83,7 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
     <button class="cup-button" type="button" data-role="cup"></button>
     <p class="total" id="total" data-role="total" aria-live="polite"><span class="total-amount" data-role="total-amount"></span> <span class="total-label" data-role="total-label"></span></p>
     <div class="below-total" data-role="below-total"></div>
+    <div class="cup-extras" data-role="cup-extras"></div>
     <div class="toast" data-role="undo-toast" hidden>
       <span data-role="toast-text"></span>
       <button type="button" data-role="undo">Undo</button>
@@ -223,7 +238,14 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
   render();
   void refresh();
   const belowTotalCleanups = mountBelowTotal(el.querySelector<HTMLElement>("[data-role=below-total]")!, ctx);
+  const cupCtx: CupContext = { ...ctx, show: ctx.show, switchItem, activeItem: () => active };
+  const extrasSlot = el.querySelector<HTMLElement>("[data-role=cup-extras]")!;
+  const extraCleanups = cupExtras.flatMap((mount) => {
+    const slot = extrasSlot.appendChild(document.createElement("div"));
+    return mount(slot, cupCtx) ?? [];
+  });
   return () => {
+    for (const fn of extraCleanups) fn();
     alive = false;
     window.clearTimeout(toastTimer);
     document.removeEventListener("visibilitychange", onVisible);
