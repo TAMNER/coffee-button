@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done (relay + tests + deploy unit; the funnel line is in deploy.sh commented out for the author to run once by hand)
 
-- [ ] The allow rule (method + path → allowed) is a pure function in its own module, unit tested with allowed, denied and traversal-style paths
-- [ ] Relay handles OPTIONS preflight with the CORS headers; forwards body and Authorization; returns upstream status and JSON unchanged
-- [ ] No request logging; token never written anywhere
-- [ ] Deploy script installs coffee-button-relay.service and runs `tailscale funnel --bg --yes <port>` for the relay port only; the app's own port stays tailnet-only. DO NOT run the funnel command in the ticket; add it to the script and document the one-liner for the author to run
-- [ ] README/DEVICE-CHECKLIST notes the public relay URL shape and how a friend runs their own
+- [x] The allow rule (method + path → allowed) is a pure function in its own module, unit tested with allowed, denied and traversal-style paths
+- [x] Relay handles OPTIONS preflight with the CORS headers; forwards body and Authorization; returns upstream status and JSON unchanged
+- [x] No request logging; token never written anywhere
+- [x] Deploy script installs coffee-button-relay.service and runs `tailscale funnel --bg --yes <port>` for the relay port only; the app's own port stays tailnet-only. DO NOT run the funnel command in the ticket; add it to the script and document the one-liner for the author to run
+- [x] README/DEVICE-CHECKLIST notes the public relay URL shape and how a friend runs their own
