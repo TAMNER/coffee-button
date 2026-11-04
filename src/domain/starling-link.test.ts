@@ -95,6 +95,21 @@ describe("starling link: disconnect", () => {
   });
 });
 
+describe("starling link: a rejected token (ticket 20)", () => {
+  it("saving the link again (reconnect) clears starlingAuthFailed, and so does disconnect", async () => {
+    const store = new MemoryStore();
+    const { factory } = fakeStarling({ spaces: [{ savingsGoalUid: "sg-1", name: "Holiday" }] });
+    await store.putSettings({ ...(await store.getSettings()), starlingAuthFailed: true });
+
+    await chooseSpace(store, await connect(store, factory, "tok-2", RELAY), "sg-1");
+    expect((await store.getSettings()).starlingAuthFailed).toBeUndefined();
+
+    await store.putSettings({ ...(await store.getSettings()), starlingAuthFailed: true });
+    await disconnect(store);
+    expect(await store.getSettings()).toEqual({ paydayDay: 25 });
+  });
+});
+
 describe("starling link: what the user is told", () => {
   it("names a rejected token, an unreachable relay, a rate limit, and anything else, without the token", () => {
     expect(linkErrorMessage(new StarlingAuthError(401))).toBe("Starling rejected the token");

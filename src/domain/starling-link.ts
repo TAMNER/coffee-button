@@ -54,7 +54,9 @@ export async function connect(
 }
 
 async function saveLink(store: Store, link: StarlingLink): Promise<StarlingLink> {
-  await store.putSettings({ ...(await store.getSettings()), starling: link });
+  // A fresh link is a fresh start: transfers held back by a rejected token resume (ticket 20).
+  const { starlingAuthFailed: _cleared, ...settings } = await store.getSettings();
+  await store.putSettings({ ...settings, starling: link });
   return link;
 }
 
@@ -96,7 +98,7 @@ export async function starlingLink(store: Store): Promise<StarlingLink | undefin
 
 /** Forgets the token and the Space on this phone. Money already moved stays in the Space. */
 export async function disconnect(store: Store): Promise<void> {
-  const { starling: _forgotten, ...rest } = await store.getSettings();
+  const { starling: _forgotten, starlingAuthFailed: _cleared, ...rest } = await store.getSettings();
   await store.putSettings(rest);
 }
 
