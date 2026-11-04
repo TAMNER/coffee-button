@@ -173,7 +173,8 @@ body {
 .total {
   touch-action: manipulation;
   -webkit-touch-callout: none;
-  margin: 0;
+  /* Clear of the ring's bottom arc ("COFFEE £3.50"), which hangs below the disc. */
+  margin: clamp(26px, 5dvh, 44px) 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
