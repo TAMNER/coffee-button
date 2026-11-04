@@ -32,6 +32,17 @@ export function validatePayday(day: number): boolean {
   return Number.isInteger(day) && day >= 1 && day <= 28;
 }
 
+/** The normalised link when `text` is an http or https URL, otherwise null. */
+export function validateInvestUrl(text: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(text.trim());
+  } catch {
+    return null;
+  }
+  return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+}
+
 export const EXPORT_VERSION = 1;
 
 export interface ExportFile {

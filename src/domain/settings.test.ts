@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setPayday, validatePayday } from "./settings";
+import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setPayday, validateInvestUrl, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -78,6 +78,17 @@ describe("settings: payday", () => {
     await expect(setPayday(store, 29)).rejects.toThrow(/1 to 28/);
 
     expect((await store.getSettings()).paydayDay).toBe(1);
+  });
+});
+
+describe("settings: invest destination", () => {
+  it("validateInvestUrl keeps http and https links, normalised, and refuses anything else", () => {
+    expect(validateInvestUrl("  https://Example.com/isa ")).toBe("https://example.com/isa");
+    expect(validateInvestUrl("http://example.com")).toBe("http://example.com/");
+    expect(validateInvestUrl("javascript:alert(1)")).toBeNull();
+    expect(validateInvestUrl("ftp://example.com/")).toBeNull();
+    expect(validateInvestUrl("example.com")).toBeNull();
+    expect(validateInvestUrl("")).toBeNull();
   });
 });
 
