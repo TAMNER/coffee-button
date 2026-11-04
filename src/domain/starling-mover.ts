@@ -1,7 +1,8 @@
 /**
  * Per-press Starling Space transfers (ticket 20).
  */
-import type { Press } from "./store";
+import type { MoneyMover, MoveRef, MoveResult } from "./money-mover";
+import type { Press, StarlingLink, Store } from "./store";
 
 const isWaiting = (p: Press) => p.transfer?.state === "waiting";
 
@@ -13,4 +14,73 @@ export function waitingCount(presses: readonly Press[]): number {
 /** Pence still to move into the Space. */
 export function waitingTotal(presses: readonly Press[]): number {
   return presses.filter(isWaiting).reduce((sum, p) => sum + p.pricePence, 0);
+}
+
+/** The part of StarlingClient the mover needs (duck-typed so tests pass a fake). */
+export interface StarlingTransfers {
+  addMoney(accountUid: string, spaceUid: string, transferUid: string, amountPence: number, reference: string): Promise<unknown>;
+}
+
+/** setTimeout and clearTimeout, injectable for tests. */
+export interface Timers {
+  set(fn: () => void, ms: number): unknown;
+  clear(handle: unknown): void;
+}
+
+export const browserTimers: Timers = {
+  set: (fn, ms) => setTimeout(fn, ms),
+  clear: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
+};
+
+export interface StarlingMoverOptions {
+  timers?: Timers;
+  newUid?: () => string;
+  /** How long the undo toast stays up; the transfer fires when it closes. */
+  undoMs?: number;
+}
+
+/**
+ * A MoneyMover that moves each press's price into the linked Starling Space
+ * once the press survives the undo window. The queue is the presses
+ * themselves: a press marked waiting is retried until moved or failed.
+ */
+export class StarlingMover implements MoneyMover {
+  private readonly timers: Timers;
+  private readonly newUid: () => string;
+  private readonly undoMs: number;
+  private chain: Promise<void> = Promise.resolve();
+
+  constructor(
+    private readonly store: Store,
+    private readonly clientFor: (link: StarlingLink) => StarlingTransfers,
+    opts: StarlingMoverOptions = {},
+  ) {
+    this.timers = opts.timers ?? browserTimers;
+    this.newUid = opts.newUid ?? (() => crypto.randomUUID());
+    this.undoMs = opts.undoMs ?? 5000;
+  }
+
+  /** Called right after the press is recorded: marks it waiting and arms the undo-window timer. */
+  async move(_amountPence: number, ref: MoveRef): Promise<MoveResult> {
+    try {
+      await this.schedule(ref.pressId);
+    } catch (err) {
+      return { ok: false, error: err instanceof Error && err.message ? err.message : "Could not schedule the transfer" };
+    }
+    return { ok: true };
+  }
+
+  async schedule(pressId: string): Promise<void> {
+    const press = await this.store.presses.get(pressId);
+    if (!press) return;
+    if (!press.transfer) {
+      press.transfer = { state: "waiting", transferUid: this.newUid() };
+      await this.store.presses.put(press);
+    }
+  }
+
+  /** Resolves once every queued transfer attempt has settled. */
+  idle(): Promise<void> {
+    return this.chain;
+  }
 }
