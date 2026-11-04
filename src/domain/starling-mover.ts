@@ -1,7 +1,7 @@
 /**
  * Per-press Starling Space transfers (ticket 20).
  */
-import { StarlingAuthError, StarlingRateLimited } from "./starling";
+import { StarlingAuthError, StarlingError, StarlingNetworkError, StarlingRateLimited } from "./starling";
 import type { MoneyMover, MoveRef, MoveResult } from "./money-mover";
 import type { Press, PressTransfer, StarlingLink, Store } from "./store";
 
@@ -157,6 +157,11 @@ export class StarlingMover implements MoneyMover {
           void this.drain();
         }, err.retryAfterMs ?? RATE_LIMIT_FALLBACK_MS);
         return false;
+      }
+      if (err instanceof StarlingError && !(err instanceof StarlingNetworkError)) {
+        // Starling answered and refused this one transfer; retrying would not change its answer.
+        await save({ state: "failed", lastError: errorText(err) });
+        return true;
       }
       // Offline, relay down (5xx) or anything unexpected: stays waiting for the next launch or return.
       await save({ lastError: errorText(err) });

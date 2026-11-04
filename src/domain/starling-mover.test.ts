@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { StarlingAuthError, StarlingNetworkError, StarlingRateLimited } from "./starling";
+import { StarlingAuthError, StarlingError, StarlingNetworkError, StarlingRateLimited } from "./starling";
 import { StarlingMover, waitingCount, waitingTotal, type StarlingTransfers, type Timers } from "./starling-mover";
 import { MemoryStore, type Press, type StarlingLink } from "./store";
 
@@ -243,6 +243,19 @@ describe("StarlingMover: retry queue", () => {
 
     expect(calls).toHaveLength(2);
     expect((await store.presses.get("a"))?.transfer?.state).toBe("moved");
+  });
+
+  it("any other Starling refusal (e.g. HTTP 400) fails that press only and the queue moves on", async () => {
+    const { store, calls, mover } = await setup({ outcomes: [new StarlingError("Starling answered HTTP 400", 400)] });
+    await store.presses.put({ ...press("a", 350, "waiting"), at: 1 });
+    await store.presses.put({ ...press("b", 350, "waiting"), at: 2 });
+
+    await mover.drain();
+
+    expect(calls.map((c) => c.transferUid)).toEqual(["t-a", "t-b"]);
+    expect((await store.presses.get("a"))?.transfer).toMatchObject({ state: "failed", lastError: "Starling answered HTTP 400" });
+    expect((await store.presses.get("b"))?.transfer?.state).toBe("moved");
+    expect((await store.getSettings()).starlingAuthFailed).toBeUndefined();
   });
 
   it("a drain during the 429 back-off (a return to the app) does not call Starling early", async () => {
