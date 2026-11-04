@@ -28,3 +28,8 @@ export const INFO_SECTIONS: readonly InfoSection[] = [
     body: "In Safari, tap the share button, then Add to Home Screen. The app needs it to keep your data.",
   },
 ];
+
+/** The Add to Home Screen section is marked "needed" only when the app is not already installed. */
+export function homeScreenHintNeeded(standalone: boolean): boolean {
+  return !standalone;
+}
