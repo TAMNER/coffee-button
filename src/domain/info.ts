@@ -39,3 +39,9 @@ export function homeScreenHintNeeded(standalone: boolean): boolean {
 export async function shouldShowInfoOnLaunch(store: Store): Promise<boolean> {
   return !(await store.getSettings()).infoSeen;
 }
+
+/** Remembers that the sheet has been shown, leaving every other setting as it was. */
+export async function markInfoSeen(store: Store): Promise<void> {
+  const settings = await store.getSettings();
+  await store.putSettings({ ...settings, infoSeen: true });
+}
