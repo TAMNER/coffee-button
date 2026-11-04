@@ -33,6 +33,21 @@ describe("InvestFlow", () => {
     expect(opener.opened).toEqual(["https://example.com/isa"]);
   });
 
+  it("with the destination blank, copies 12.50, opens nothing, and still asks on the next return", async () => {
+    const { store, clipboard, opener, flow } = setup();
+    await store.putSettings({ ...(await store.getSettings()), investUrl: "  " });
+    await flow.resume();
+    const prompts: string[] = [];
+    flow.onPrompt((text) => prompts.push(text));
+
+    await flow.invest(1250);
+    opener.returnToApp();
+
+    expect(clipboard.written).toEqual(["12.50"]);
+    expect(opener.opened).toEqual([]);
+    expect(prompts).toEqual(["Did you invest £12.50?"]);
+  });
+
   it('asks "Did you invest £12.50?" once the user comes back to the app', async () => {
     const { opener, flow } = setup();
     const prompts: string[] = [];
