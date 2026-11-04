@@ -115,6 +115,22 @@ describe.each(backends)("Store contract: $name", (backend) => {
     expect(await store.getSettings()).toEqual(settings);
   });
 
+  it("the Starling link (ticket 19) is kept in settings and, where persistent, survives reopening", async () => {
+    const name = freshName();
+    const store = await backend.open(name);
+    const starling = {
+      token: "tok-1",
+      relayUrl: "https://relay.example:8443",
+      accountUid: "acc-1",
+      spaceUid: "sg-1",
+      spaceName: "Coffee Button",
+    };
+    await store.putSettings({ paydayDay: 25, starling });
+
+    const reread = backend.persistent ? await backend.open(name) : store;
+    expect((await reread.getSettings()).starling).toEqual(starling);
+  });
+
   it("an export imported into a second fresh store gives back the same export", async () => {
     const source = await backend.open(freshName());
     await source.items.put(beer);
