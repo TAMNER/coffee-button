@@ -16,3 +16,9 @@ export function startFakeUpstream(reply: {
   contentType: string;
   body: string;
 }): Promise<FakeUpstream>;
+
+export function rawRequest(
+  base: string,
+  method: string,
+  target: string,
+): Promise<{ status: number; body: string }>;

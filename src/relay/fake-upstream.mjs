@@ -28,3 +28,24 @@ export async function startFakeUpstream(reply) {
     close: () => new Promise((resolve) => server.close(resolve)),
   };
 }
+
+/**
+ * Send a request with the target exactly as given (fetch would normalise "..").
+ * @param {string} base
+ * @param {string} method
+ * @param {string} target
+ */
+export function rawRequest(base, method, target) {
+  const { hostname, port } = new URL(base);
+  return new Promise((resolve, reject) => {
+    const req = http.request({ hostname, port, method, path: target }, (res) => {
+      const chunks = [];
+      res.on("data", (c) => chunks.push(c));
+      res.on("end", () =>
+        resolve({ status: res.statusCode, body: Buffer.concat(chunks).toString("utf8") }),
+      );
+    });
+    req.on("error", reject);
+    req.end();
+  });
+}

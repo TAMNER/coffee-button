@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createRelay, type RelayServer } from "../../scripts/relay.mjs";
-import { startFakeUpstream } from "./fake-upstream.mjs";
+import { rawRequest, startFakeUpstream } from "./fake-upstream.mjs";
 
 const servers: RelayServer[] = [];
 const cleanups: (() => Promise<void>)[] = [];
@@ -87,5 +87,27 @@ describe("relay", () => {
     expect(seen.url).toBe(path);
     expect(seen.body).toBe(sent);
     expect(seen.headers["content-type"]).toBe("application/json");
+  });
+
+  it.each([
+    "/api/v2/account/0f1e2d3c-4b5a-6978-8a9b-acbdcedf0123/../accounts",
+    "/api/v2/accounts/../account-holder",
+    "/api/v2/account/0f1e2d3c-4b5a-6978-8a9b-acbdcedf0123%2F..%2F..%2Faccounts",
+    "http://evil.example/api/v2/accounts",
+  ])("refuses raw request target %s without touching upstream", async (target) => {
+    const upstream = await startFakeUpstream({ status: 200, contentType: "text/plain", body: "no" });
+    cleanups.push(upstream.close);
+    const relay = await listen(createRelay({ upstream: upstream.url }));
+    const res = await rawRequest(relay, "GET", target);
+    expect(res.status).toBe(403);
+    expect(upstream.seen).toHaveLength(0);
+  });
+
+  it("answers 502 JSON when the upstream cannot be reached", async () => {
+    const relay = await listen(createRelay({ upstream: "http://127.0.0.1:9" }));
+    const res = await fetch(`${relay}/api/v2/accounts`);
+    expect(res.status).toBe(502);
+    expect(res.headers.get("access-control-allow-origin")).toBe("*");
+    expect(await res.json()).toEqual({ error: "upstream unreachable" });
   });
 });
