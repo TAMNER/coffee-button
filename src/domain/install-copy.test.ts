@@ -10,4 +10,11 @@ describe("installCopy", () => {
       infoBody: "In Safari, tap the share button, then Add to Home Screen. The app needs it to keep your data.",
     });
   });
+
+  it("anywhere else (Android Chrome, desktop, other iOS browsers) the wording is neutral and has no Safari warning", () => {
+    expect(installCopy({ iosSafari: false })).toEqual({
+      banner: "Add Coffee Button to your home screen from your browser's menu, then use the installed app.",
+      infoBody: "Open your browser's menu and choose Install app or Add to Home screen. The app needs it to keep your data.",
+    });
+  });
 });

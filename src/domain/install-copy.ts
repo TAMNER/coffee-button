@@ -20,6 +20,11 @@ const SAFARI: InstallCopy = {
   infoBody: "In Safari, tap the share button, then Add to Home Screen. The app needs it to keep your data.",
 };
 
-export function installCopy(_facts: BrowserFacts): InstallCopy {
-  return SAFARI;
+const ELSEWHERE: InstallCopy = {
+  banner: "Add Coffee Button to your home screen from your browser's menu, then use the installed app.",
+  infoBody: "Open your browser's menu and choose Install app or Add to Home screen. The app needs it to keep your data.",
+};
+
+export function installCopy(facts: BrowserFacts): InstallCopy {
+  return facts.iosSafari ? SAFARI : ELSEWHERE;
 }
