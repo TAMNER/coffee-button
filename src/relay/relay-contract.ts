@@ -114,6 +114,7 @@ export function relayContract(name: string, start: StartRelay, options: Contract
     });
 
     it.each([
+      `/api/v2/account/${A}/../accounts`,
       `/api/v2/accounts/../account-holder`,
       `/api/v2/account/${A}%2F..%2F..%2Faccounts`,
       `/api/v2/account/${A}/savings-goals/%2e%2e/%2e%2e/balance`,
@@ -125,7 +126,7 @@ export function relayContract(name: string, start: StartRelay, options: Contract
     });
 
     // The comment in relay.mjs: never check one path and forward another.
-    const resolvesToAllowed = `/api/v2/account/${A}/../accounts`;
+    const resolvesToAllowed = `/api/v2/x/../accounts`;
     if (options.dotSegments === "refused") {
       it.each([resolvesToAllowed, "http://evil.example/api/v2/accounts"])(
         "refuses raw target %s, which only resolves to an allowed path, without touching upstream",
