@@ -8,21 +8,28 @@ function dayNumber(d: Date): number {
 }
 
 /**
- * Year-to-date pence extrapolated to 31 December: total this calendar year,
- * divided by days elapsed (today counts), times days in the year. Rounded to pence.
+ * This year's pence extrapolated to the end of 31 December, measured from the
+ * user's first press rather than from 1 January:
+ *  - The window starts on the local day of the earliest press at or before
+ *    `now`; if that day is in an earlier year, it starts on 1 January.
+ *  - Saved = presses this calendar year at or before `now`.
+ *  - Pace = saved / days from window start to today (both counted)
+ *    * days from window start to 31 December (both counted). Rounded to pence.
+ *  - No presses: 0. Undone presses are deleted from the ledger, so they never
+ *    count, not even as the first press.
  */
 export function paceToYearEnd(presses: Press[], now: Date): number {
   const year = now.getFullYear();
-  const yearToDate = presses
-    .filter((p) => {
-      const at = new Date(p.at);
-      return at.getFullYear() === year && p.at <= now.getTime();
-    })
+  const past = presses.filter((p) => p.at <= now.getTime());
+  if (past.length === 0) return 0;
+  const yearToDate = past
+    .filter((p) => new Date(p.at).getFullYear() === year)
     .reduce((sum, p) => sum + p.pricePence, 0);
-  const jan1 = new Date(year, 0, 1);
-  const daysElapsed = dayNumber(now) - dayNumber(jan1) + 1;
-  const daysInYear = dayNumber(new Date(year + 1, 0, 1)) - dayNumber(jan1);
-  return Math.round((yearToDate / daysElapsed) * daysInYear);
+  const firstDay = dayNumber(new Date(Math.min(...past.map((p) => p.at))));
+  const start = Math.max(firstDay, dayNumber(new Date(year, 0, 1)));
+  const daysElapsed = dayNumber(now) - start + 1;
+  const daysInWindow = dayNumber(new Date(year + 1, 0, 1)) - start;
+  return Math.round((yearToDate / daysElapsed) * daysInWindow);
 }
 
 /** Annual compounding: principal * (1 + rate)^years, rounded to pence. */
