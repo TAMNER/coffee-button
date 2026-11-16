@@ -28,3 +28,14 @@ const ELSEWHERE: InstallCopy = {
 export function installCopy(facts: BrowserFacts): InstallCopy {
   return facts.iosSafari ? SAFARI : ELSEWHERE;
 }
+
+/**
+ * Safari on iPhone or iPad, from the user agent and the touch-point count
+ * (src/adapters/browser.ts reads both). iPadOS reports a Mac user agent, so a
+ * "Macintosh" with touch counts as iPad. The installed Home Screen app drops
+ * the "Safari" token, so other iOS browsers are ruled out by their own tokens.
+ */
+export function isIosSafari(userAgent: string, maxTouchPoints: number): boolean {
+  const ios = /iPhone|iPad|iPod/.test(userAgent) || (/Macintosh/.test(userAgent) && maxTouchPoints > 1);
+  return ios && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(userAgent);
+}
