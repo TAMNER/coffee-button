@@ -44,6 +44,7 @@ export async function spawnRelay(env) {
  */
 export async function startFakeUpstream(reply) {
   const seen = [];
+  let current = reply;
   const server = http.createServer((req, res) => {
     const chunks = [];
     req.on("data", (c) => chunks.push(c));
@@ -54,14 +55,19 @@ export async function startFakeUpstream(reply) {
         headers: req.headers,
         body: Buffer.concat(chunks).toString("utf8"),
       });
-      res.writeHead(reply.status, { "Content-Type": reply.contentType, "X-Upstream-Only": "1" });
-      res.end(reply.body);
+      res.writeHead(current.status, { "Content-Type": current.contentType, "X-Upstream-Only": "1" });
+      res.end(current.body);
     });
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   return {
     url: `http://127.0.0.1:${server.address().port}`,
     seen,
+    /** Change the canned reply and forget earlier requests (one fake shared across tests). */
+    reset: (next) => {
+      current = next;
+      seen.length = 0;
+    },
     close: () => new Promise((resolve) => server.close(resolve)),
   };
 }

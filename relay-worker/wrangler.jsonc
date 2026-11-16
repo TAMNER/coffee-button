@@ -1,0 +1,25 @@
+// The Starling relay Worker. Deploy from the repo root with
+//   npx wrangler deploy -c relay-worker/wrangler.jsonc
+// It serves https://coffee-button-relay.<your-subdomain>.workers.dev and nothing else.
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "coffee-button-relay",
+  "main": "../scripts/relay-worker.mjs",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  // No public per-version preview URLs: only the one address above.
+  "preview_urls": false,
+  // Requests carry the user's Starling token in Authorization. Store no
+  // Workers Logs, no invocation logs, no Logpush. The code logs nothing either.
+  "observability": {
+    "enabled": false,
+    "head_sampling_rate": 0,
+    "logs": { "enabled": false, "invocation_logs": false },
+  },
+  "logpush": false,
+  "vars": {
+    // Set to the app's address once known, e.g. "https://coffee-button.<your-subdomain>.workers.dev".
+    // Unset or blank answers CORS with "*", as the home relay does.
+    "ALLOWED_ORIGIN": "",
+  },
+}
