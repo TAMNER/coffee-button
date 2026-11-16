@@ -423,6 +423,7 @@ let plays = 0;
 onStart((ctx) => {
   const audio = deviceAudio();
   audio.unlockOnGestures(document);
+  audio.preload();
   wireCeremony(
     ctx.bus,
     {
