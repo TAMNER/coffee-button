@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Deploy Coffee Button to Cloudflare: the relay Worker first, then the app built with that
+# relay's address as its default. Run from a worktree, not the main tree: the main tree's
+# dist/ is what the tailnet preview serves.
+#
+# Needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in the environment (never printed).
+# Rollback: npx wrangler rollback [-c relay-worker/wrangler.jsonc]; remove: npx wrangler delete [...].
+set -euo pipefail
+cd "$(dirname "$0")/.."
+: "${CLOUDFLARE_API_TOKEN:?set CLOUDFLARE_API_TOKEN first (read -rs CLOUDFLARE_API_TOKEN && export CLOUDFLARE_API_TOKEN)}"
+: "${CLOUDFLARE_ACCOUNT_ID:?set CLOUDFLARE_ACCOUNT_ID first}"
+export WRANGLER_SEND_METRICS=false
+
+if [[ "$(pwd)" == "$HOME/projects/coffee-button" ]]; then
+  echo "cf-deploy: run this from a worktree (e.g. ~/projects/coffee-button-wt/cf-hosting), not the main tree" >&2
+  exit 2
+fi
+
+echo "== 1/3 relay Worker"
+out=$(npx wrangler deploy -c relay-worker/wrangler.jsonc 2>&1) || { echo "$out"; exit 1; }
+echo "$out" | tail -8
+relay=$(echo "$out" | grep -o 'https://coffee-button-relay\.[a-z0-9-]*\.workers\.dev' | head -1)
+[[ -n "$relay" ]] || { echo "cf-deploy: could not read the relay address from wrangler's output" >&2; exit 1; }
+
+echo "== 2/3 build the app with relay $relay"
+BUILD_ID="$(git rev-parse --short HEAD)" VITE_DEFAULT_RELAY_URL="$relay" npm run build >/dev/null
+if grep -rq "black-box" dist; then echo "cf-deploy: the build mentions black-box; not deploying" >&2; exit 1; fi
+
+echo "== 3/3 app"
+out=$(npx wrangler deploy 2>&1) || { echo "$out"; exit 1; }
+echo "$out" | tail -8
+app=$(echo "$out" | grep -o 'https://coffee-button\.[a-z0-9-]*\.workers\.dev' | head -1)
+
+echo
+echo "relay: $relay"
+echo "app:   ${app:-see above}"
+echo "checks (expect 204, then 403):"
+curl -s -o /dev/null -w "  OPTIONS %{http_code}\n" -X OPTIONS "$relay/api/v2/accounts" || true
+curl -s -o /dev/null -w "  blocked path %{http_code}\n" "$relay/api/v2/account-holder" || true
+[[ -n "${app:-}" ]] && curl -s -o /dev/null -w "  app %{http_code}\n" "$app/" || true

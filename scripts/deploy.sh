@@ -24,7 +24,8 @@ if [ ! -d node_modules ] || [ package-lock.json -nt node_modules/.package-lock.j
   npm ci
 fi
 
-BUILD_ID="$(git rev-parse --short HEAD)" npm run build
+# The tailnet build keeps a relay address built in; a build without the variable ships none.
+BUILD_ID="$(git rev-parse --short HEAD)" VITE_DEFAULT_RELAY_URL="${VITE_DEFAULT_RELAY_URL:-https://black-box.<tailnet>.ts.net:8443}" npm run build
 
 mkdir -p "$UNIT_DIR"
 cat > "$UNIT" <<UNIT
