@@ -13,11 +13,15 @@ function dayNumber(d: Date): number {
  *  - The window starts on the local day of the earliest press at or before
  *    `now`; if that day is in an earlier year, it starts on 1 January.
  *  - Saved = presses this calendar year at or before `now`.
- *  - Pace = saved / days from window start to today (both counted)
- *    * days from window start to 31 December (both counted). Rounded to pence.
+ *  - Pace = saved / elapsed days * days from window start to 31 December
+ *    (both counted), rounded to pence. Elapsed days run from window start to
+ *    today (both counted) but count as at least MIN_ELAPSED_DAYS, so a first
+ *    day's taps are not stretched over the whole year.
  *  - No presses: 0. Undone presses are deleted from the ledger, so they never
  *    count, not even as the first press.
  */
+export const MIN_ELAPSED_DAYS = 7;
+
 export function paceToYearEnd(presses: Press[], now: Date): number {
   const year = now.getFullYear();
   const past = presses.filter((p) => p.at <= now.getTime());
@@ -27,7 +31,7 @@ export function paceToYearEnd(presses: Press[], now: Date): number {
     .reduce((sum, p) => sum + p.pricePence, 0);
   const firstDay = dayNumber(new Date(Math.min(...past.map((p) => p.at))));
   const start = Math.max(firstDay, dayNumber(new Date(year, 0, 1)));
-  const daysElapsed = dayNumber(now) - start + 1;
+  const daysElapsed = Math.max(dayNumber(now) - start + 1, MIN_ELAPSED_DAYS);
   const daysInWindow = dayNumber(new Date(year + 1, 0, 1)) - start;
   return Math.round((yearToDate / daysElapsed) * daysInWindow);
 }
