@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { Ledger } from "./ledger";
 import { compound, paceToYearEnd } from "./projections";
+import { MemoryStore } from "./store";
 
 const press = (pricePence: number, at: Date) => ({ id: String(at.getTime()), itemId: "coffee", pricePence, at: at.getTime() });
 
@@ -27,6 +29,35 @@ describe("paceToYearEnd from the first press", () => {
   it("5 coffees on 12 to 16 Nov (£17.50) project over the 50 days 12 Nov to 31 Dec: £175.00, not £19.96", () => {
     const presses = [12, 13, 14, 15, 16].map((d) => press(350, new Date(2026, 10, d, 8)));
     expect(paceToYearEnd(presses, new Date(2026, 10, 16, 12))).toBe(17500);
+  });
+
+  it("no presses at all is £0.00", () => {
+    expect(paceToYearEnd([], new Date(2026, 10, 16, 12))).toBe(0);
+  });
+
+  it("a first press today (16 Nov, £3.50) counts as one day of 46 to 31 December: £161.00", () => {
+    expect(paceToYearEnd([press(350, new Date(2026, 10, 16, 8))], new Date(2026, 10, 16, 12))).toBe(16100);
+  });
+
+  it("a first press in a previous year starts this year's window on 1 January (£17.50 by 16 Nov is £19.96)", () => {
+    const presses = [press(350, new Date(2025, 5, 1, 8)), ...[12, 13, 14, 15, 16].map((d) => press(350, new Date(2026, 10, d, 8)))];
+    // 1750 / 320 days * 365; last year's £3.50 is not part of this year's total
+    expect(paceToYearEnd(presses, new Date(2026, 10, 16, 12))).toBe(1996);
+  });
+
+  it("an undone press is gone from the ledger, so it neither counts nor starts the window", async () => {
+    let n = 0;
+    const ledger = new Ledger(new MemoryStore(), () => `p${++n}`);
+    const early = await ledger.addPress("coffee", new Date(2026, 10, 1, 8));
+    await ledger.undo(early.id);
+    await ledger.addPress("coffee", new Date(2026, 10, 16, 8));
+    // As if the 16 Nov press were the first: £3.50 over 1 of 46 days
+    expect(paceToYearEnd(await ledger.presses(), new Date(2026, 10, 16, 12))).toBe(16100);
+  });
+
+  it("a press dated after now (clock moved back) neither counts nor starts the window", () => {
+    const presses = [press(350, new Date(2026, 10, 16, 8)), press(350, new Date(2026, 10, 20, 8))];
+    expect(paceToYearEnd(presses, new Date(2026, 10, 16, 12))).toBe(16100);
   });
 });
 
