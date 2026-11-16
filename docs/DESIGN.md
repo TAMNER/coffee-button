@@ -87,7 +87,10 @@ you clear into your Stocks and Shares ISA once a month.
 
 ## Motivation screen ("the shelf")
 
-- **Pace line.** "At this rate you'll have £X by December."
+- **Pace line.** "At this rate you'll have £X by the end of the year."
+  Measured from the first press (counting at least 7 days) and projected
+  through 31 December. Before the first press the shelf shows "Tap the cup
+  every time you walk past the café." instead of the sums (2026-11-16).
 - **Compounding line.** "£X at 5% for 10 years is £Y." Rate fixed at 5%.
 - **Shelf.** Four drawn big-ticket items spread across the price range
   (weekend away £300, espresso machine £400, laptop £1000, ski week £1500;

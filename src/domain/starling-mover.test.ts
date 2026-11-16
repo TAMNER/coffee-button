@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { StarlingAuthError, StarlingError, StarlingNetworkError, StarlingRateLimited } from "./starling";
 import { moverFor, StarlingMover, waitingCount, waitingLine, waitingTotal, type StarlingTransfers, type Timers } from "./starling-mover";
 import { LedgerMover } from "./money-mover";
+import { DEFAULT_RELAY_URL } from "./starling-link";
 import { MemoryStore, type Press, type StarlingLink } from "./store";
 
 const LINK: StarlingLink = {
@@ -302,5 +303,26 @@ describe("StarlingMover: retry queue", () => {
     await mover.drain();
 
     expect(calls).toHaveLength(1);
+  });
+});
+
+describe("an install linked before the relay default became a build variable", () => {
+  it("with no default relay in this build, presses still move through the relay saved in the link", async () => {
+    expect(DEFAULT_RELAY_URL).toBe(""); // this test build sets no VITE_DEFAULT_RELAY_URL
+    const store = new MemoryStore();
+    await store.putSettings({ ...(await store.getSettings()), starling: LINK });
+    const timers = new FakeTimers();
+    const { client, calls } = fakeClient();
+    const relaysUsed: string[] = [];
+    const mover = new StarlingMover(store, (link) => (relaysUsed.push(link.relayUrl), client), { timers, undoMs: 5000 });
+    await store.presses.put({ id: "p1", itemId: "coffee", pricePence: 350, at: 0 });
+
+    await mover.move(350, { pressId: "p1" });
+    timers.advance(5000);
+    await mover.idle();
+
+    expect(relaysUsed).toEqual(["https://relay.example"]);
+    expect(calls.map((c) => c.amountPence)).toEqual([350]);
+    expect((await store.presses.get("p1"))?.transfer?.state).toBe("moved");
   });
 });

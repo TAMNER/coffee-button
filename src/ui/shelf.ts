@@ -17,6 +17,7 @@ import {
   type ShelfEntry,
 } from "../domain/shelf";
 import { weeklyOverdueLine } from "../domain/settle";
+import { shelfHint } from "../domain/shelf-hint";
 import { HOME_SCREEN, onStart, registerScreen, registerSettingsSection, type AppContext } from "./app";
 import { goalArt, itemArt } from "./art/items";
 import { shelfRows } from "./shelf-layout";
@@ -68,9 +69,10 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
       <p class="shelf-pace">
         <span class="shelf-pace-lead">At this rate you'll have</span>
         <span class="shelf-pace-figure" data-role="pace"></span>
-        <span class="shelf-pace-tail">by December</span>
+        <span class="shelf-pace-tail">by the end of the year</span>
       </p>
       <p class="shelf-card" data-role="compound"></p>
+      <p class="shelf-hint" data-role="hint" hidden></p>
       <p class="shelf-overdue" data-role="overdue" hidden></p>
       <div class="shelf" data-role="shelf"></div>
       <form class="goal-form" data-role="goal-form">
@@ -81,6 +83,8 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
     </section>`;
   const pace = el.querySelector<HTMLElement>("[data-role=pace]")!;
   const compounded = el.querySelector<HTMLElement>("[data-role=compound]")!;
+  const paceLine = el.querySelector<HTMLElement>(".shelf-pace")!;
+  const hint = el.querySelector<HTMLElement>("[data-role=hint]")!;
   const overdue = el.querySelector<HTMLElement>("[data-role=overdue]")!;
   const shelf = el.querySelector<HTMLElement>("[data-role=shelf]")!;
   const form = el.querySelector<HTMLFormElement>("[data-role=goal-form]")!;
@@ -92,7 +96,13 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
   const overdueLine = (now: Date) => (visitLine ??= weeklyOverdueLine(ctx.store, now));
   const refresh = async () => {
     const view = await shelfView({ store: ctx.store, ledger: ctx.ledger, now: ctx.clock.now(), overdueLine });
+    const hintText = shelfHint(await ctx.ledger.presses());
     if (!alive) return;
+    // Until the first press: the hint instead of "£0.00" sums (domain/shelf-hint.ts decides).
+    hint.textContent = hintText ?? "";
+    hint.hidden = hintText === null;
+    paceLine.hidden = hintText !== null;
+    compounded.hidden = hintText !== null;
     const paceText = formatPounds(view.pacePence);
     pace.textContent = paceText;
     // 76px holds "£999.99" at 390px; longer figures step down so they stay on one line.

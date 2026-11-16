@@ -1,6 +1,8 @@
 import "./style.css";
 import { registerSW } from "virtual:pwa-register";
+import { browserFacts } from "./adapters/browser";
 import { systemClock } from "./adapters/clock";
+import { installCopy } from "./domain/install-copy";
 import { ensureDefaultItems } from "./domain/items";
 import { Ledger } from "./domain/ledger";
 import { LedgerMover } from "./domain/money-mover";
@@ -29,12 +31,8 @@ function isInstalled(): boolean {
 async function boot(): Promise<void> {
   // DESIGN.md: the app insists on Home Screen installation, because Safari
   // evicts site data of non-installed sites after 7 days without a visit.
-  if (!isInstalled()) {
-    showBanner(
-      "Add Coffee Button to your Home Screen (Share, then Add to Home Screen). " +
-        "In a Safari tab your savings are deleted after 7 days without a visit.",
-    );
-  }
+  // The wording (Safari steps and warning on iOS Safari only) is domain/install-copy.ts.
+  if (!isInstalled()) showBanner(installCopy(browserFacts()).banner);
 
   let store: Store;
   try {

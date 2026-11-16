@@ -15,8 +15,28 @@ import {
 } from "./starling";
 import type { StarlingLink, Store } from "./store";
 
-/** The author's relay; a friend may point the Settings field at their own. */
-export const DEFAULT_RELAY_URL = "https://black-box.<tailnet>.ts.net:8443";
+/** The build's relay address from VITE_DEFAULT_RELAY_URL, trimmed; absent or blank means none. */
+export function defaultRelayUrl(env: { readonly VITE_DEFAULT_RELAY_URL?: string; readonly [key: string]: unknown }): string {
+  return (env.VITE_DEFAULT_RELAY_URL ?? "").trim();
+}
+
+/**
+ * What the Settings relay field starts with. Set at build time
+ * (VITE_DEFAULT_RELAY_URL), so a public build ships with no relay address and
+ * the author's own deploy can pass his. Only read when linking: a saved link
+ * keeps the relay it was made with (StarlingLink.relayUrl).
+ */
+export const DEFAULT_RELAY_URL = defaultRelayUrl(import.meta.env);
+
+/** Connect was tapped with no relay address: nothing was sent anywhere. */
+export class StarlingRelayMissing extends StarlingError {
+  constructor() {
+    super("No relay address");
+    this.name = "StarlingRelayMissing";
+  }
+}
+
+export const RELAY_MISSING_MESSAGE = "Add a relay address first. Starling cannot be reached from this app without one.";
 
 /** The part of StarlingClient linking needs. */
 export type StarlingApi = Pick<StarlingClient, "listSpaces" | "createSpace"> & {
@@ -46,6 +66,7 @@ export async function connect(
 ): Promise<StarlingConnection> {
   const cleanToken = token.trim();
   const cleanRelay = relayUrl.trim();
+  if (!cleanRelay) throw new StarlingRelayMissing();
   const api = factory(cleanRelay, cleanToken);
   const [account] = await api.accounts();
   if (!account) throw new StarlingError("No Starling account found for this token");
@@ -104,6 +125,7 @@ export async function disconnect(store: Store): Promise<void> {
 
 /** One line for the Settings screen. Never echoes the error's own text, which could carry request details. */
 export function linkErrorMessage(err: unknown): string {
+  if (err instanceof StarlingRelayMissing) return RELAY_MISSING_MESSAGE;
   if (err instanceof StarlingAuthError) return "Starling rejected the token";
   if (err instanceof StarlingNetworkError) return "Could not reach the relay";
   if (err instanceof StarlingRateLimited) return "Starling is busy. Try again in a minute.";

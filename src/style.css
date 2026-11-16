@@ -747,3 +747,17 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .cheer-banner { opacity: 1; }
 }
+
+/* Tester round 1: the shelf's empty-state hint, and the sums it replaces stay hidden. */
+.shelf-pace[hidden],
+.shelf-card[hidden],
+.shelf-hint[hidden] {
+  display: none;
+}
+.shelf-hint {
+  margin: 0;
+  padding-left: 4px;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.15;
+}

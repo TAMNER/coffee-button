@@ -5,7 +5,9 @@ declare const __BUILD_ID__: string;
  * DOM glue only. The sheet closes on the Close button, a tap on the backdrop,
  * Escape, or a downward drag of at least SWIPE_DOWN_PX.
  */
+import { browserFacts } from "../adapters/browser";
 import { INFO_SECTIONS, homeScreenHintNeeded, markInfoSeen, shouldShowInfoOnLaunch } from "../domain/info";
+import { installCopy } from "../domain/install-copy";
 import { registerCupExtra, type CupContext } from "./cup";
 
 const SWIPE_DOWN_PX = 60;
@@ -26,8 +28,10 @@ function escapeHtml(text: string): string {
 
 function sheetHtml(id: number): string {
   const hintNeeded = homeScreenHintNeeded(isStandalone());
-  // All four sections always show; the Home Screen one is flagged only while the app is still in Safari.
-  const sections = INFO_SECTIONS.map(
+  // All four sections always show; the Home Screen one is flagged only while the app is not installed.
+  // Its body is Safari's steps on iOS Safari and neutral wording elsewhere (domain/install-copy.ts).
+  const homeScreenBody = installCopy(browserFacts()).infoBody;
+  const sections = INFO_SECTIONS.map((s) => (s.heading === HOME_SCREEN_HEADING ? { ...s, body: homeScreenBody } : s)).map(
       (s) => `<section class="info-section"${s.heading === HOME_SCREEN_HEADING && hintNeeded ? ' data-needed="true"' : ""}>
         <h3>${escapeHtml(s.heading)}</h3>
         <p>${escapeHtml(s.body)}</p>
