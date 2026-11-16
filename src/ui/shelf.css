@@ -53,7 +53,7 @@
   filter: drop-shadow(3px 3px 0 var(--shadow, #8e2f25));
 }
 
-/* Pace line: "At this rate you'll have / £312 / by December". */
+/* Pace line: "At this rate you'll have / £312 / by the end of the year". */
 .shelf-pace {
   margin: 0;
   display: flex;
