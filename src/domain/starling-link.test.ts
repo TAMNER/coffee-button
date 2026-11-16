@@ -129,3 +129,16 @@ describe("starling link: the relay default comes from the build", () => {
     expect(defaultRelayUrl({})).toBe("");
   });
 });
+
+describe("starling link: no relay address", () => {
+  it("Connect with a blank relay is refused before any call, and the line says a relay address is needed", async () => {
+    const { factory, made } = fakeStarling();
+
+    const err = await connect(new MemoryStore(), factory, "tok-1", "  ").catch((e: unknown) => e);
+
+    expect(made).toEqual([]);
+    expect(linkErrorMessage(err)).toBe(
+      "Add a relay address first. Starling cannot be reached from this app without one.",
+    );
+  });
+});
