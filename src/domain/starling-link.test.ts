@@ -4,6 +4,7 @@ import {
   chooseSpace,
   connect,
   createAndChooseSpace,
+  defaultRelayUrl,
   disconnect,
   linkErrorMessage,
   starlingLink,
@@ -118,5 +119,13 @@ describe("starling link: what the user is told", () => {
     expect(linkErrorMessage(new StarlingNetworkError(502))).toBe("Could not reach the relay");
     expect(linkErrorMessage(new StarlingRateLimited(3000))).toBe("Starling is busy. Try again in a minute.");
     expect(linkErrorMessage(new Error("tok-1 leaked?"))).toBe("Starling did not accept that. Try again.");
+  });
+});
+
+describe("starling link: the relay default comes from the build", () => {
+  it("VITE_DEFAULT_RELAY_URL sets it (trimmed); absent or blank means no relay address", () => {
+    expect(defaultRelayUrl({ VITE_DEFAULT_RELAY_URL: " https://relay.example:8443 " })).toBe("https://relay.example:8443");
+    expect(defaultRelayUrl({ VITE_DEFAULT_RELAY_URL: "  " })).toBe("");
+    expect(defaultRelayUrl({})).toBe("");
   });
 });
