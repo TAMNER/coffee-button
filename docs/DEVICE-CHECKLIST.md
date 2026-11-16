@@ -66,7 +66,7 @@ Settings > Sounds & Haptics > System Haptics on.
 
 - [ ] On the cup screen, tap the month total briefly.
   - Expected: the shelf opens with the "At this rate you'll have £X by
-    December." line, the compound line, and the shelf items with progress bars.
+    the end of the year." line, the compound line, and the shelf items with progress bars.
 - [ ] Tap the down arrow (or swipe down).
   - Expected: back on the cup screen. Swiping up on the cup screen opens the
     shelf too, and the swipe does not count as a press.
