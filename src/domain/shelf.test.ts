@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
 import { addGoal, addStarter, ensureTargets, migrateTargets, removeGoal, removeTarget, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView, starterChips } from "./shelf";
+import { EMPTY_SHELF_HINT, shelfHint } from "./shelf-hint";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -131,6 +132,14 @@ describe("shelfView", () => {
     expect(view.graph?.glasses).toHaveLength(7);
     expect(view.graph?.savedLabel).toBe("£28 saved");
     expect(view.graph?.investedLabel).toBe("£10 invested");
+  });
+
+  it("ticket 33: with no presses the graph is absent and the first-press hint still shows", async () => {
+    const store = new MemoryStore();
+    const ledger = new Ledger(store);
+    const view = await shelfView({ store, ledger, now: new Date(2026, 10, 17, 12), overdueLine: () => null });
+    expect(view.graph).toBeNull();
+    expect(shelfHint(await ledger.presses())).toBe(EMPTY_SHELF_HINT);
   });
 });
 
