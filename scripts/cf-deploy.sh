@@ -23,6 +23,10 @@ relay=$(echo "$out" | grep -o 'https://coffee-button-relay\.[a-z0-9-]*\.workers\
 [[ -n "$relay" ]] || { echo "cf-deploy: could not read the relay address from wrangler's output" >&2; exit 1; }
 
 echo "== 2/3 build the app with relay $relay"
+# VITE_DRAWING_REQUEST_URL (ticket 38): where "Request a drawing" in Settings goes, a mailto:
+# address or an https: form link. Not set here; export it before running to build one in.
+# With none, the line and button are not shown.
+# A built-in email address is visible to anyone who opens the app.
 BUILD_ID="$(git rev-parse --short HEAD)" VITE_DEFAULT_RELAY_URL="$relay" npm run build >/dev/null
 if grep -rq "black-box" dist; then echo "cf-deploy: the build mentions black-box; not deploying" >&2; exit 1; fi
 
