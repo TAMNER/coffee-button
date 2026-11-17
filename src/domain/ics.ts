@@ -92,7 +92,7 @@ export function generateIcs({ payday, appUrl, now, tz }: IcsOptions): string {
     london ? `DTSTART;TZID=Europe/London:${dtstart}` : `DTSTART:${dtstart}`,
     `RRULE:FREQ=MONTHLY;BYMONTHDAY=${settleDay}`,
     "SUMMARY:Coffee Button: invest",
-    `DESCRIPTION:Settle day. Open ${appUrl} and invest what you saved.`,
+    `DESCRIPTION:Open ${appUrl} and invest what you saved.`,
     `URL:${appUrl}`,
     "END:VEVENT",
     "END:VCALENDAR",

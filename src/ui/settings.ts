@@ -173,7 +173,7 @@ function mountPayday(el: HTMLElement, ctx: AppContext): void {
   input.addEventListener("change", async () => {
     try {
       await setPayday(ctx.store, Number(input.value));
-      say(`Payday is the ${input.value}; settle day is the day after.`);
+      say(`Payday is the ${input.value}; Invest £X appears the day after.`);
     } catch {
       say("Payday must be a day from 1 to 28.", true);
       input.value = String((await ctx.store.getSettings()).paydayDay);

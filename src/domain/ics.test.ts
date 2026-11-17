@@ -18,6 +18,14 @@ describe("generateIcs", () => {
     expect(lines).toContain("DTSTART;TZID=Europe/London:20261126T090000");
   });
 
+  it("the description never says settle day (ticket 24): it reads 'Open <app> and invest what you saved.'", () => {
+    const unfolded = generateIcs({ payday: 25, appUrl, now: new Date(2026, 10, 3, 10, 0), tz: "Europe/London" })
+      .replace(/\r\n /g, "")
+      .split("\r\n");
+
+    expect(unfolded).toContain(`DESCRIPTION:Open ${appUrl} and invest what you saved.`);
+  });
+
   it("is identical for identical input, with a UID tied to the app URL so re-adding updates rather than duplicates", () => {
     const options = { payday: 25, appUrl, now: new Date(2026, 10, 3, 10, 0), tz: "Europe/London" };
     const first = generateIcs(options);

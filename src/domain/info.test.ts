@@ -1,19 +1,64 @@
 import { describe, expect, it } from "vitest";
 import { INFO_SECTIONS, homeScreenHintNeeded, markInfoSeen, shouldShowInfoOnLaunch } from "./info";
+import { installCopy } from "./install-copy";
 import { exportData, importData } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("info sheet copy", () => {
-  it("has exactly four sections: The idea, The money, Swipe, Add to Home Screen", () => {
-    expect(INFO_SECTIONS.map((s) => s.heading)).toEqual(["The idea", "The money", "Swipe", "Add to Home Screen"]);
+  it("has the four agreed sections, then Swipe and Add to Home Screen, in that order", () => {
+    expect(INFO_SECTIONS.map((s) => s.heading)).toEqual([
+      "The idea",
+      "The money",
+      "How does saving work?",
+      "How does investment work?",
+      "Swipe",
+      "Add to Home Screen",
+    ]);
   });
 
-  it("sells the idea and explains the two money paths in plain words", () => {
-    const body = (heading: string) => INFO_SECTIONS.find((s) => s.heading === heading)!.body;
-    expect(body("The idea")).toMatch(/^Want to cut down on frivolous spending\?/);
-    expect(body("The idea")).toContain("Skip and Save!");
-    expect(body("The money")).toContain("Set up Starling");
-    expect(body("The money")).toContain("monthly");
+  it("uses Tom's agreed wording verbatim for the four new sections", () => {
+    expect(INFO_SECTIONS.slice(0, 4)).toEqual([
+      {
+        heading: "The idea",
+        body: "Skip a coffee, Press the cup and Save the money. Build good habits whilst investing in future you.",
+      },
+      {
+        heading: "The money",
+        body: "Click the cup and set money aside. Once a month the app shows Invest £X and prompts you to invest your savings.",
+      },
+      {
+        heading: "How does saving work?",
+        body:
+          "For Starling bank users, your savings will grow in your Coffee Button Space every time you click. " +
+          "For other users, the app keeps a tally of your savings until Invest £X appears.",
+      },
+      {
+        heading: "How does investment work?",
+        body:
+          "When Invest £X appears, the app will prompt you to invest your savings with your chosen investment service. " +
+          "Follow the instructions to invest in future you.",
+      },
+    ]);
+  });
+
+  it("keeps the Swipe and Add to Home Screen sections unchanged after the new ones", () => {
+    expect(INFO_SECTIONS.slice(4)).toEqual([
+      {
+        heading: "Swipe",
+        body: "Swipe sideways to change what you skipped: coffee, beer, lunch. Swipe up for the shelf.",
+      },
+      {
+        heading: "Add to Home Screen",
+        body: "In Safari, tap the share button, then Add to Home Screen. The app needs it to keep your data.",
+      },
+    ]);
+  });
+
+  it("the install wording still follows the browser: Safari's steps on iOS Safari, neutral wording elsewhere", () => {
+    const stored = INFO_SECTIONS.find((s) => s.heading === "Add to Home Screen")!.body;
+    expect(installCopy({ iosSafari: true }).infoBody).toBe(stored);
+    expect(installCopy({ iosSafari: false }).infoBody).not.toContain("Safari");
+    expect(installCopy({ iosSafari: false }).infoBody).toContain("browser's menu");
   });
 
   it("marks the Add to Home Screen section needed only when not running standalone", () => {
