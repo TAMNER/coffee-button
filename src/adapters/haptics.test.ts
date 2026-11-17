@@ -23,4 +23,20 @@ describe("SwitchHaptics.vibrate", () => {
     expect(vibrate).toHaveBeenCalledWith([15, 1285, 60]);
     expect(tap).not.toHaveBeenCalled();
   });
+
+  it("falls back to the switch's single tick where there is no navigator.vibrate (iPhone)", () => {
+    const haptics = new SwitchHaptics(noDocument, {});
+    const tap = vi.spyOn(haptics, "tap").mockImplementation(() => {});
+    haptics.vibrate([15, 1285, 60]);
+    expect(tap).toHaveBeenCalledTimes(1);
+  });
+
+  it("falls back to the tick when navigator.vibrate refuses or throws", () => {
+    for (const vibrate of [() => false, () => { throw new Error("blocked"); }]) {
+      const haptics = new SwitchHaptics(noDocument, { vibrate });
+      const tap = vi.spyOn(haptics, "tap").mockImplementation(() => {});
+      haptics.vibrate([15]);
+      expect(tap).toHaveBeenCalledTimes(1);
+    }
+  });
 });
