@@ -5,6 +5,8 @@
  * from tests.
  */
 import { BASE, CUP_VIEWBOX, cupSvg, LIQUID_DROP, RIM } from "../cup-art";
+import { pictureFor } from "../../domain/pictures";
+import * as jar from "../jar-art";
 import * as pint from "../pint-art";
 import * as sandwich from "../sandwich-art";
 
@@ -72,14 +74,31 @@ export const SANDWICH_VESSEL: VesselArt = {
   pour: false,
 };
 
-const VESSELS: Record<string, VesselArt> = {
-  coffee: COFFEE_VESSEL,
-  beer: BEER_VESSEL,
-  pint: BEER_VESSEL,
-  sandwich: SANDWICH_VESSEL,
+export const JAR_VESSEL: VesselArt = {
+  viewBox: jar.CUP_VIEWBOX,
+  svg: jar.cupSvg,
+  rim: jar.RIM,
+  base: jar.BASE,
+  liquidDrop: jar.LIQUID_DROP,
+  // Drops of honey: what flies off the cloth where the coin lands.
+  liquidClass: "cp-mustard-deep",
+  pour: false,
 };
 
-/** The vessel for an item icon; any icon without its own art gets the coffee cup. */
+/** The drawing per picture id (src/domain/pictures.ts PICTURES). A new picture adds one line here. */
+const VESSELS: Record<string, VesselArt> = {
+  cup: COFFEE_VESSEL,
+  pint: BEER_VESSEL,
+  plate: SANDWICH_VESSEL,
+  jar: JAR_VESSEL,
+};
+
+/**
+ * The vessel for an item icon, through the domain's picture names (so the
+ * built-in "coffee", "beer" and "sandwich" keep theirs); any icon the app
+ * does not recognise gets the jar (ticket 28).
+ */
 export function vesselFor(icon: string): VesselArt {
-  return Object.hasOwn(VESSELS, icon) ? VESSELS[icon] : COFFEE_VESSEL;
+  const id = pictureFor(icon).id;
+  return Object.hasOwn(VESSELS, id) ? VESSELS[id] : JAR_VESSEL;
 }
