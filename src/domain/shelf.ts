@@ -146,6 +146,12 @@ export async function starterChips(store: Store): Promise<ShelfItem[]> {
   return (await shelfItems(store)).filter((item) => !ids.includes(item.id)).sort(cheapestFirst);
 }
 
+/** Ticket 31: a tapped chip puts that built-in back on the plank, at its remembered or default price. */
+export async function addStarter(store: Store, id: string): Promise<void> {
+  const settings = await store.getSettings();
+  await store.putSettings({ ...settings, shelfBuiltInIds: [...(settings.shelfBuiltInIds ?? []), id] });
+}
+
 export const COMPOUND_RATE = 0.05;
 export const COMPOUND_YEARS = 10;
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addGoal, ensureTargets, migrateTargets, removeGoal, removeTarget, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView, starterChips } from "./shelf";
+import { addGoal, addStarter, ensureTargets, migrateTargets, removeGoal, removeTarget, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView, starterChips } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -263,6 +263,22 @@ describe("starter chips (ticket 31)", () => {
     const store = new MemoryStore();
     await ensureTargets(store);
 
+    expect(await starterChips(store)).toEqual([]);
+  });
+
+  it("adding the removed Laptop back puts it on the plank as a built-in at the £1200 it was given, and its chip goes", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+    await setShelfPrice(store, "laptop", 120000);
+    await removeTarget(store, "laptop");
+
+    await addStarter(store, "laptop");
+
+    expect((await shelfTargets(store)).map((t) => [t.id, t.pricePence, t.builtIn])).toEqual([
+      ["weekend-away", 30000, true],
+      ["laptop", 120000, true],
+      ["ski-week", 150000, true],
+    ]);
     expect(await starterChips(store)).toEqual([]);
   });
 });
