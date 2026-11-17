@@ -35,4 +35,17 @@ describe("glassPeriods (ticket 33)", () => {
       { from: "2026-11-16", to: "2026-11-17", savedPence: 800, investedPence: 80 },
     ]);
   });
+
+  it("exactly seven weeks touched (Mon 5 Oct to Tue 17 Nov, 44 days): seven weekly glasses", () => {
+    const glasses = glassPeriods(series("2026-10-05", 44));
+    expect(glasses.map((g) => [g.from, g.to, g.savedPence])).toEqual([
+      ["2026-10-05", "2026-10-11", 700],
+      ["2026-10-12", "2026-10-18", 1400],
+      ["2026-10-19", "2026-10-25", 2100],
+      ["2026-10-26", "2026-11-01", 2800],
+      ["2026-11-02", "2026-11-08", 3500],
+      ["2026-11-09", "2026-11-15", 4200],
+      ["2026-11-16", "2026-11-17", 4400],
+    ]);
+  });
 });
