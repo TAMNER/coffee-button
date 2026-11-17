@@ -3,6 +3,7 @@ import { FakeAudio } from "../adapters/audio";
 import { Ledger } from "../domain/ledger";
 import { MemoryStore, type Press } from "../domain/store";
 import { createBus } from "./app";
+import { vesselFor } from "./art/vessels";
 import { Ceremony, instantStage, wireCeremony, type Stage } from "./ceremony";
 
 describe("Ceremony.play", () => {
@@ -43,6 +44,20 @@ describe("Ceremony.play", () => {
     await new Ceremony(recording, { pour: false }).play({ audio });
 
     expect(events).toEqual(["coin 500ms", "clink", "woohoo", "cheer 700ms"]);
+  });
+
+  it("for the jar (ticket 28) plays coin, the clink, then cheer, and no pour sound", async () => {
+    const events: string[] = [];
+    const recording: Stage = { step: async (step) => void events.push(step.name) };
+    const audio = {
+      playPour: () => void events.push("pour-sound"),
+      playCoin: () => void events.push("clink"),
+      playCheer: () => void events.push("woohoo"),
+    };
+
+    await new Ceremony(recording, { pour: vesselFor("jar").pour }).play({ audio });
+
+    expect(events).toEqual(["coin", "clink", "woohoo", "cheer"]);
   });
 
   it("still resolves when audio throws", async () => {

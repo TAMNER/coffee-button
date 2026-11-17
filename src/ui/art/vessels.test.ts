@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PICTURES } from "../../domain/pictures";
 import { COFFEE_VESSEL, vesselFor } from "./vessels";
 
 describe("vessel registry", () => {
@@ -13,5 +14,11 @@ describe("vessel registry", () => {
     expect(vesselFor("teapot")).toBe(jar);
     expect(jar).not.toBe(COFFEE_VESSEL);
     expect(jar.pour).toBe(false);
+  });
+
+  it("every choosable picture has its own drawing, which pours exactly when the picture does", () => {
+    const drawings = new Set(PICTURES.map((p) => vesselFor(p.id)));
+    expect(drawings.size).toBe(PICTURES.length);
+    for (const p of PICTURES) expect(vesselFor(p.id).pour !== false).toBe(p.pour);
   });
 });
