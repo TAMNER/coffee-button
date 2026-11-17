@@ -55,4 +55,20 @@ describe("glassPeriods (ticket 33)", () => {
       { from: "2026-11-01", to: "2026-11-17", savedPence: 4500, investedPence: 450 },
     ]);
   });
+
+  it("more than seven months (15 Jan to 17 Nov): only the most recent seven, May to November", () => {
+    const s = series("2026-01-15", 307); // 15 Jan to 17 Nov 2026
+    expect(s.days[s.days.length - 1].day).toBe("2026-11-17");
+    const glasses = glassPeriods(s);
+    expect(glasses.map((g) => [g.from, g.to])).toEqual([
+      ["2026-05-01", "2026-05-31"],
+      ["2026-06-01", "2026-06-30"],
+      ["2026-07-01", "2026-07-31"],
+      ["2026-08-01", "2026-08-31"],
+      ["2026-09-01", "2026-09-30"],
+      ["2026-10-01", "2026-10-31"],
+      ["2026-11-01", "2026-11-17"],
+    ]);
+    expect(glasses[6].savedPence).toBe(30700);
+  });
 });

@@ -55,5 +55,5 @@ export function glassPeriods(series: SavingsSeries): GlassPeriod[] {
   if (series.days.length <= DAILY_DAYS) return group(series, (day) => day);
   const weekly = group(series, weekOf);
   if (weekly.length <= MAX_GLASSES) return weekly;
-  return group(series, (day) => day.slice(0, 7));
+  return group(series, (day) => day.slice(0, 7)).slice(-MAX_GLASSES);
 }
