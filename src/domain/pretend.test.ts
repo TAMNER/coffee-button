@@ -3,7 +3,7 @@ import { FakeClipboard } from "../adapters/clipboard";
 import { FakeClock } from "../adapters/clock";
 import { FakeUrlOpener } from "../adapters/open-url";
 import { Ledger } from "./ledger";
-import { LookOnlyMover, lookOnlyStore, parsePretendDate, pretendClock } from "./pretend";
+import { LookOnlyMover, lookOnlyStore, parsePretendDate, pretendClock, pretendNotice } from "./pretend";
 import { moverFor, type StarlingMover } from "./starling-mover";
 import { formatPounds } from "./money";
 import { InvestFlow, isSettleWindow, owed, owedSince } from "./settle";
@@ -20,6 +20,14 @@ describe("parsePretendDate", () => {
       expect(parsePretendDate(raw)).toBeNull();
     },
   );
+});
+
+describe("pretendNotice", () => {
+  it("names the pretend date in full and says nothing is saved", () => {
+    expect(pretendNotice(new Date(2026, 10, 26))).toBe(
+      "Pretending today is Thursday 26 November 2026. Nothing you press or invest is saved and no money moves.",
+    );
+  });
 });
 
 describe("pretendClock", () => {

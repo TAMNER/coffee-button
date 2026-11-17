@@ -65,3 +65,12 @@ export class LookOnlyMover implements MoneyMover {
     return { ok: true };
   }
 }
+
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/** The line shown on every screen while a pretend date is on. */
+export function pretendNotice(day: Date): string {
+  const date = `${DAYS[day.getDay()]} ${day.getDate()} ${MONTHS[day.getMonth()]} ${day.getFullYear()}`;
+  return `Pretending today is ${date}. Nothing you press or invest is saved and no money moves.`;
+}
