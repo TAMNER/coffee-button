@@ -118,7 +118,10 @@ you clear into your Stocks and Shares ISA once a month.
   Vite, Web Animations API + CSS, Web Audio for the coin sound, IndexedDB for
   storage, service worker for offline.
 - Haptics: iOS 18 `<input type="checkbox" switch>` toggle trick. Verify on
-  device; degrade silently.
+  device; degrade silently. On iPhone a web app gets one light tick, and only
+  inside the tap itself, so no pattern or stronger buzz is possible there
+  (ticket 36). Where `navigator.vibrate` exists (Android), the tap requests one
+  pattern timed to the ceremony, and a longer one for a settle.
 - Known losses vs native: no scheduled local notifications. The ringer
   switch mutes the sounds by choice (ticket 23): on silent a press gives its
   vibration tick only, and sounds never pause other apps' music. A web app

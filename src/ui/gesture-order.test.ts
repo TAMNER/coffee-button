@@ -17,14 +17,17 @@ function beforeFirstAwait(source: string, opening: string): string {
 }
 
 describe("vibration ticks fire inside the gesture, before any await", () => {
-  it("the cup press ticks before its first await, and before audio is touched", () => {
+  // Ticket 36: the call became vibrate(pattern), which is the tick on iPhone and
+  // the whole ceremony-timed pattern on Android; the ordering rule is the same.
+  it("the cup press vibrates before its first await, and before audio is touched", () => {
     const head = beforeFirstAwait(cupSource, 'cup.addEventListener("click", async () => {');
-    expect(head).toContain("deviceHaptics().tap();");
-    expect(head.indexOf("deviceHaptics().tap();")).toBeLessThan(head.indexOf("deviceAudio()"));
+    const call = "deviceHaptics().vibrate(pressVibration(";
+    expect(head).toContain(call);
+    expect(head.indexOf(call)).toBeLessThan(head.indexOf("deviceAudio()"));
   });
 
-  it("the settle Yes ticks before its first await", () => {
+  it("the settle Yes vibrates before its first await", () => {
     const head = beforeFirstAwait(settleSource, 'yesButton.addEventListener("click", async () => {');
-    expect(head).toContain("deviceHaptics().tap();");
+    expect(head).toContain("deviceHaptics().vibrate(settleVibration());");
   });
 });

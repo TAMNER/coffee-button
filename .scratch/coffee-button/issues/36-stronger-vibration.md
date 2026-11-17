@@ -8,12 +8,12 @@ No one on the project has an Android phone today; the device check waits for a t
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** built, awaiting device checks (Android tester; Tom on iPhone)
 
-- [ ] The press pattern is derived from the ceremony timeline (press, coin landing, cheer) as a pure function; unit tested, failing first
-- [ ] The item's ceremony decides the pattern: no-pour items land their coin earlier, and the pattern follows (unit tested)
-- [ ] The haptics interface gains a pattern call; the fake records it; the real one uses patterned vibration when present and falls back to the single tick otherwise
-- [ ] Press and settle call it before their first await (guard on the existing ordering rule; DOM glue declared untested)
-- [ ] The design doc states the iPhone limit
+- [x] The press pattern is derived from the ceremony timeline (press, coin landing, cheer) as a pure function; unit tested, failing first
+- [x] The item's ceremony decides the pattern: no-pour items land their coin earlier, and the pattern follows (unit tested)
+- [x] The haptics interface gains a pattern call; the fake records it; the real one uses patterned vibration when present and falls back to the single tick otherwise
+- [x] Press and settle call it before their first await (guard on the existing ordering rule; DOM glue declared untested)
+- [x] The design doc states the iPhone limit
 - [ ] Device check (an Android tester): press and settle patterns are felt and line up with the ceremony
 - [ ] Device check (Tom): the iPhone tick is unchanged

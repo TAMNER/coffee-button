@@ -7,6 +7,7 @@ import { formatPounds } from "../domain/money";
 import { InvestFlow, isSettleWindow, owed, owedSince } from "../domain/settle";
 import { spaceLine } from "../domain/settle-space";
 import { waitingTotal } from "../domain/starling-mover";
+import { settleVibration } from "../domain/vibration";
 import type { AppContext } from "./app";
 import { registerBelowTotal } from "./cup";
 
@@ -89,7 +90,7 @@ function mountInvest(el: HTMLElement, ctx: AppContext): () => void {
   yesButton.addEventListener("click", async () => {
     // Inside the gesture, before any await, or iOS drops the haptic (the settle
     // ceremony runs later, after the settlement is persisted).
-    deviceHaptics().tap();
+    deviceHaptics().vibrate(settleVibration());
     prompt.hidden = true;
     await flow.yes();
     closePrompt();

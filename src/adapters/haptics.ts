@@ -1,16 +1,32 @@
 export interface Haptics {
   /** One light tap, where the device supports it. */
   tap(): void;
+  /**
+   * A vibration pattern (alternating vibrate and pause ms, as
+   * `navigator.vibrate` takes it) where the device can play one; one tap
+   * otherwise. Call it inside the user's tap, before any await.
+   */
+  vibrate(pattern: readonly number[]): void;
 }
 
 /** For tests: counts calls; set `fail` to make it throw. */
 export class FakeHaptics implements Haptics {
   taps = 0;
+  patterns: number[][] = [];
   fail = false;
   tap(): void {
     this.taps++;
     if (this.fail) throw new Error("haptics unavailable");
   }
+  vibrate(pattern: readonly number[]): void {
+    this.patterns.push([...pattern]);
+    if (this.fail) throw new Error("haptics unavailable");
+  }
+}
+
+/** The part of `navigator` that vibrates; absent on iOS Safari. */
+export interface Vibrator {
+  vibrate?(pattern: number[]): boolean;
 }
 
 /**
@@ -21,7 +37,11 @@ export class FakeHaptics implements Haptics {
 export class SwitchHaptics implements Haptics {
   private label: HTMLLabelElement | null = null;
 
-  constructor(private doc: Document) {}
+  /** `vibrator` is `navigator` in the app: Android Chrome has `vibrate`, iOS Safari does not. */
+  constructor(
+    private doc: Document,
+    private vibrator: Vibrator = {},
+  ) {}
 
   tap(): void {
     try {
@@ -29,6 +49,16 @@ export class SwitchHaptics implements Haptics {
     } catch {
       // unsupported; degrade silently
     }
+  }
+
+  /** The whole pattern through `navigator.vibrate` where it exists; the switch's one tick otherwise. */
+  vibrate(pattern: readonly number[]): void {
+    try {
+      if (this.vibrator.vibrate?.([...pattern])) return;
+    } catch {
+      // fall through to the tick
+    }
+    this.tap();
   }
 
   private ensureLabel(): HTMLLabelElement {
@@ -52,5 +82,5 @@ let shared: Haptics | undefined;
 
 /** One switch for the whole page, created on first use (needs `document`). */
 export function deviceHaptics(): Haptics {
-  return (shared ??= new SwitchHaptics(document));
+  return (shared ??= new SwitchHaptics(document, navigator));
 }
