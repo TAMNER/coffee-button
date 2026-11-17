@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addGoal, removeGoal, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView } from "./shelf";
+import { addGoal, ensureTargets, removeGoal, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -113,6 +113,18 @@ describe("targets (ticket 30)", () => {
       ["g1", "Guitar", 45000, false],
       ["ski-week", "Ski week", 150000, true],
       ["laptop", "Laptop", 160000, true],
+    ]);
+  });
+
+  it("a new install starts with exactly Weekend away £300, Laptop £1000 and Ski week £1500", async () => {
+    const store = new MemoryStore();
+
+    await ensureTargets(store);
+
+    expect((await shelfTargets(store)).map((t) => [t.id, t.name, t.pricePence, t.builtIn])).toEqual([
+      ["weekend-away", "Weekend away", 30000, true],
+      ["laptop", "Laptop", 100000, true],
+      ["ski-week", "Ski week", 150000, true],
     ]);
   });
 });

@@ -63,6 +63,16 @@ export async function shelfTargets(store: Store): Promise<ShelfTarget[]> {
   ].sort(cheapestFirst);
 }
 
+/** What a new install's plank starts with (ticket 30). */
+export const STARTER_TARGET_IDS: readonly string[] = ["weekend-away", "laptop", "ski-week"];
+
+/** Run at launch, before anything else writes: settles which built-ins stand on the plank. */
+export async function ensureTargets(store: Store): Promise<void> {
+  const settings = await store.getSettings();
+  if (settings.shelfBuiltInIds) return;
+  await store.putSettings({ ...settings, shelfBuiltInIds: [...STARTER_TARGET_IDS] });
+}
+
 export const MAX_GOALS = 3;
 
 /** Adds a personal goal; throws once there are already three. */
