@@ -4,8 +4,9 @@ import { FakeClock } from "../adapters/clock";
 import { FakeUrlOpener } from "../adapters/open-url";
 import { Ledger } from "./ledger";
 import { lookOnlyStore, parsePretendDate, pretendClock } from "./pretend";
-import { InvestFlow, owed } from "./settle";
-import { MemoryStore, type Settlement } from "./store";
+import { formatPounds } from "./money";
+import { InvestFlow, isSettleWindow, owed, owedSince } from "./settle";
+import { MemoryStore, type Settlement, type Store } from "./store";
 
 describe("parsePretendDate", () => {
   it('reads "2026-11-26" (what a date field gives) as 26 November 2026, local midnight', () => {
@@ -58,5 +59,20 @@ describe("lookOnlyStore: money is look-only on a pretend date", () => {
     expect(await store.presses.list()).toEqual(before.presses);
     expect(await store.settlements.list()).toEqual(before.settlements);
     expect(await owed(store, clock.now())).toBe(350);
+  });
+});
+
+describe("settle rules on a pretend date", () => {
+  it("on a pretend 26 November with £3.50 owed, offer Invest £3.50 exactly as on the real 26 November", async () => {
+    const { store, clock, view } = await pretending();
+    const realDay = new Date(2026, 10, 26, 9, 0);
+    const offer = async (s: Store, now: Date) => {
+      const pence = await owed(s, now);
+      return isSettleWindow(now, 25, await owedSince(s, now), pence) ? `Invest ${formatPounds(pence)}` : null;
+    };
+
+    expect(await offer(view, clock.now())).toBe("Invest £3.50");
+    expect(await offer(view, clock.now())).toBe(await offer(store, realDay));
+    expect(await offer(store, new Date(2026, 10, 17, 9, 0))).toBeNull(); // the real 17th offers nothing
   });
 });
