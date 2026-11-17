@@ -6,7 +6,9 @@
 <title>Coffee Button Pictures</title>
 <!--
   Ticket 27: mockup of the new pictures (pastry, takeaway bag, jar) and the
-  latte graph, two options each, for Tom to pick from. Standalone like
+  latte graph. Round 2 (after Tom's picks): only the picked Pastry B, Bag B
+  (moved up) and Jar B remain; Graphs A and B were rejected and replaced by
+  Graphs C and D. Standalone like
   mockups/directions.html: not part of the Vite build or the service worker
   precache (Vite builds index.html only). Open it straight from disk, or serve
   the mockups/ folder with any static server.
@@ -21,7 +23,7 @@
 -->
 <style>
 /* Tokens copied from src/style.css (both theme blocks), plus the ticket 13
-   bread/lettuce tokens. New token for this mockup: --latte. */
+   bread/lettuce tokens. New token for this mockup: --milk. */
 :root {
   --paper: #f6cdc1; --paper-2: #efb9aa; --cobalt: #2443b0; --mustard: #f5b335;
   --mustard-deep: #d48e12; --tomato: #e5533c; --cream: #fff9ef; --shadow: #8e2f25;
@@ -29,8 +31,8 @@
   --beer: #b8641a; --beer-foam: #fff3d6; --dark: #1d2a6e; --off: #e3ada0;
   --off-hi: #ecc4b9; --off-shadow: #cc9283;
   --bread: #f9dc9a; --lettuce: #3f9a4a;
-  /* NEW (ticket 27): the lighter "saved, still waiting" layer of the latte graph. */
-  --latte: #c98f5e;
+  /* NEW (ticket 27, round 2): the pale milky "saved, still waiting" layer of the latte graph. */
+  --milk: #ecc89c;
   --font-display: Futura, "Century Gothic", "Avenir Next", "Trebuchet MS", sans-serif;
   color-scheme: light;
 }
@@ -42,7 +44,7 @@
     --beer: #cc7524; --beer-foam: #fff3d6; --dark: #0f1440; --off: #2f3772;
     --off-hi: #3b4483; --off-shadow: #10143a;
     --bread: #f6d58c; --lettuce: #56b862;
-    --latte: #d39d6c;
+    --milk: #e6bf8e;
     color-scheme: dark;
   }
 }
@@ -53,7 +55,7 @@
   --beer: #cc7524; --beer-foam: #fff3d6; --dark: #0f1440; --off: #2f3772;
   --off-hi: #3b4483; --off-shadow: #10143a;
   --bread: #f6d58c; --lettuce: #56b862;
-  --latte: #d39d6c;
+  --milk: #e6bf8e;
   color-scheme: dark;
 }
 
@@ -72,7 +74,7 @@
 .cp-bread { fill: var(--bread); }
 .cp-lettuce { fill: var(--lettuce); }
 .cp-dark { fill: var(--dark); }
-.cp-latte { fill: var(--latte); }
+.cp-milk { fill: var(--milk); }
 .cp-shadow, .cp-shadow * { fill: var(--shadow); }
 .cp-coin-mark { font: 800 22px var(--font-display); }
 .art { display: block; overflow: visible; }
@@ -128,6 +130,10 @@ h2 small { font-size: 13px; font-weight: 600; letter-spacing: 0; }
   background: var(--mustard); color: #1d2a6e; box-shadow: 4px 4px 0 var(--mustard-deep);
   font-size: 18px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
 }
+.picked {
+  display: inline-block; margin-left: 8px; padding: 4px 9px; border-radius: 3px; vertical-align: 2px;
+  background: var(--cobalt); color: var(--on-dark); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+}
 .what { margin: 8px 0 0; font-size: 14px; line-height: 1.35; font-weight: 600; }
 .main-size { display: flex; justify-content: center; margin-top: 10px; }
 .main-size .cup { width: 300px; max-width: 100%; height: auto; overflow: visible; display: block; }
@@ -163,6 +169,10 @@ h2 small { font-size: 13px; font-weight: 600; letter-spacing: 0; }
 .graph svg { display: block; width: 100%; height: auto; overflow: visible; margin-top: 6px; }
 .graph-ends { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; }
 .data-note { font-size: 12px; line-height: 1.35; font-weight: 600; opacity: 0.8; margin: 4px 0 0; }
+/* Graphs C and D */
+.g-air { fill: var(--mustard); }
+.sw-coffee { fill: var(--foam); }
+.sw-milk { fill: var(--cream); }
 .sub { margin-top: 22px; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
 </style>
 </head>
@@ -176,12 +186,12 @@ h2 small { font-size: 13px; font-weight: 600; letter-spacing: 0; }
   </div>
 </div>
 <main>
-  <h1>New pictures and the latte graph</h1>
-  <p class="lede">Two options for each of four new drawings, in Cut Paper. Each picture is shown at main-screen size and at picker size, in a row of six beside the real cup, pint and plate. Flip Light and Dark at the top.</p>
-  <p class="answer">Reply with one line, for example: Pastry A, Bag B, Jar A, Graph B.</p>
+  <h1>The latte graph, round two</h1>
+  <p class="lede">Your three picks are below as they will be drawn (the bag moved up, as asked). Further down are two new latte graphs: a sea of foam on top, milk swirled through the coffee, and the invested layer smoothed so it trails the saved line. Flip Light and Dark at the top.</p>
+  <p class="answer">Reply with one line: Graph C or Graph D.</p>
   <div id="pieces"></div>
   <h2>Latte graph <small>on the shelf, under the plank</small></h2>
-  <p class="what">Espresso at the bottom is money invested (steps up once a month). The lighter coffee above it is saved and still waiting. The froth on top is the running total saved. Made-up numbers; the plank shows the three starting targets.</p>
+  <p class="what">Read it like a layered latte glass, dark to light. The rich coffee at the bottom is money invested: it rises with a soft shoulder each month and reaches the invested total exactly on invest day. The pale milk above it is saved and still waiting. The foam floats on the running total saved, which never dips and ends on today's total. Made-up numbers; the plank shows the three starting targets.</p>
   <div id="graphs"></div>
 </main>
 
@@ -215,27 +225,6 @@ function vessel(name, rim, silhouette, details, defs = "") {
 }
 const SAUCER = `<rect class="cp-cobalt" x="96" y="488" width="198" height="18" rx="9"/>`;
 
-/** Pastry A: a croissant, seven overlapping rolls along an arch so the horns curl down onto the cup's cobalt bar. */
-function pastryA() {
-  // [angle from upright, roll half-width, roll half-height]; tips first, middle last.
-  const spec = [[-72, 13, 17], [72, 13, 17], [-50, 22, 28], [50, 22, 28], [-25, 30, 40], [25, 30, 40], [0, 36, 50]];
-  const rolls = spec.map(([a, rx, ry]) => {
-    const t = (a * Math.PI) / 180;
-    return [195 + 100 * Math.sin(t), 518 - 100 * Math.cos(t), rx, ry, a];
-  });
-  // The belly the rolls are wrapped round: fills the hollow under the arch so it lies flat on the bar.
-  rolls.unshift([195, 470, 84, 18, 0]);
-  const f = (n) => n.toFixed(1);
-  const el = ([cx, cy, rx, ry, r], grow, cls, dy = 0, k = 1) =>
-    `<ellipse class="${cls}" cx="${f(cx)}" cy="${f(cy + dy)}" rx="${f(rx * k + grow)}" ry="${f(ry * k + grow)}" transform="rotate(${r} ${f(cx)} ${f(cy)})"/>`;
-  const sil = SAUCER + rolls.map((l) => el(l, 5, "cp-mustard-deep")).join("");
-  // Each roll: crust, then bread, then a mustard bake across its crown, so
-  // the crust shows as the line where one roll tucks under the next.
-  const det = rolls.map((l) =>
-    el(l, 5, "cp-mustard-deep") + el(l, 0, "cp-mustard") + el(l, 0, "cp-bread", l[3] * 0.28, 0.78)).join("");
-  return vessel("Pastry A", { x: 195, y: 382 }, sil, det);
-}
-
 /** Pastry B: an iced muffin in a pleated cobalt case, with a tomato cherry. */
 function pastryB() {
   const caseP = "M142 420 H248 L236 506 H154Z";
@@ -255,23 +244,9 @@ function pastryB() {
   return vessel("Pastry B", { x: 195, y: 312 }, sil, det);
 }
 
-/** Bag A: a tall cream paper bag, its top folded over with a pinked edge and sealed with a sticker. */
-function bagA() {
-  const teeth = Array.from({ length: 17 }, (_, i) => `L${(134 + i * (122 / 17) + 61 / 17).toFixed(1)} 333 L${(134 + (i + 1) * (122 / 17)).toFixed(1)} 342`).join(" ");
-  const fold = `M134 376 V342 ${teeth} V376Z`;
-  const body = "M140 360 H250 L256 500 Q256 508 248 508 H142 Q134 508 134 500Z";
-  const sil = `<path class="cp-cream" d="${body}"/><path class="cp-tomato" d="${fold}"/>`;
-  const det =
-    `<path class="cp-foam" d="M140 376 H152 L150 508 H142 Q134 508 134 500Z"/>` +
-    `<path class="cp-foam" d="M238 376 H250 L256 500 Q256 508 248 508 H240Z"/>` +
-    `<rect class="cp-shadow" x="134" y="376" width="122" height="5" opacity="0.35"/>` +
-    `<circle class="cp-cobalt" cx="195" cy="378" r="17"/>` +
-    `<circle class="cp-mustard" cx="195" cy="378" r="8"/>` +
-    `<rect class="cp-tomato" x="134" y="470" width="122" height="10"/>`;
-  return vessel("Bag A", { x: 195, y: 336 }, sil, det);
-}
-
-/** Bag B: a wide tomato carrier bag with two cobalt handles and a cream order slip. */
+/** Bag B: a wide tomato carrier bag with two cobalt handles and a cream order slip.
+ *  Tom's change: the whole bag sits 10 higher, so the figure (handle tops 308 to
+ *  bag bottom 492) is centred on the disc at y 400. */
 function bagB() {
   const handle = (x, y, cls) =>
     `<path class="${cls}" fill-rule="evenodd" d="M${x} ${y + 64} V${y + 30} Q${x} ${y} ${x + 32} ${y} Q${x + 64} ${y} ${x + 64} ${y + 30} V${y + 64} H${x + 52} V${y + 30} Q${x + 52} ${y + 12} ${x + 32} ${y + 12} Q${x + 12} ${y + 12} ${x + 12} ${y + 30} V${y + 64}Z"/>`;
@@ -285,26 +260,8 @@ function bagB() {
     `<rect class="cp-cobalt" x="214" y="448" width="28" height="5" rx="2"/>` +
     `<circle class="cp-mustard" cx="148" cy="460" r="16"/>` +
     `<circle class="cp-mustard-deep" cx="148" cy="460" r="10"/>`;
-  return vessel("Bag B", { x: 195, y: 380 }, sil, det);
-}
-
-/** Jar A: a straight-sided jar with a ridged cobalt screw lid, half full of coins, tomato label. */
-function jarA() {
-  const id = `jarA-${++uid}`;
-  const body = "M152 344 H238 V354 Q262 362 262 386 V484 Q262 506 240 506 H150 Q128 506 128 484 V386 Q128 362 152 354Z";
-  const lid = `<rect class="cp-cobalt" x="142" y="316" width="106" height="34" rx="6"/>`;
-  const sil = `<path class="cp-cream" d="${body}"/>` + lid;
-  const coins = [
-    [150, 490], [182, 492], [214, 490], [244, 488],
-    [164, 464], [198, 466], [230, 462], [146, 440], [214, 440], [180, 442], [244, 438],
-    [196, 418], [162, 416],
-  ].map(([x, y]) => `<g transform="translate(${x} ${y})"><circle class="cp-shadow" cx="2" cy="2" r="15"/><circle class="cp-mustard" r="15"/><circle class="cp-mustard-deep" r="9.5"/></g>`).join("");
-  const det = `<g clip-path="url(#${id})">${coins}</g>` +
-    `<rect class="cp-tomato" x="128" y="380" width="134" height="24"/>` +
-    `<text class="cp-on-dark cp-coin-mark" x="195" y="400" text-anchor="middle">£</text>` +
-    [324, 333, 342].map((y) => `<rect class="cp-dark" x="146" y="${y}" width="98" height="3"/>`).join("") +
-    `<rect class="cp-foam" x="238" y="410" width="8" height="70" rx="4"/>`;
-  return vessel("Jar A", { x: 195, y: 316 }, sil, det, `<clipPath id="${id}"><path d="${body}"/></clipPath>`);
+  const up = (svg) => `<g transform="translate(0 -10)">${svg}</g>`;
+  return vessel("Bag B", { x: 195, y: 370 }, up(sil), up(det));
 }
 
 /** Jar B: a round-bellied jar of honey under a spotted tomato cloth, tied with a cobalt band and bow. */
@@ -332,46 +289,33 @@ function jarB() {
   return vessel("Jar B", { x: 195, y: 320 }, sil, det, `<clipPath id="${id}"><path d="${body}"/></clipPath>`);
 }
 
-const NEW = {
-  pastry: { A: pastryA, B: pastryB },
-  bag: { A: bagA, B: bagB },
-  jar: { A: jarA, B: jarB },
-};
+const NEW = { pastry: pastryB, bag: bagB, jar: jarB };
 const WHAT = {
-  pastry: {
-    A: "A croissant: seven rolls of baked card, biggest in the middle, lying low and wide on the cup's cobalt bar.",
-    B: "An iced muffin: tall and upright, mustard dome over a pleated cobalt case, cream icing and a tomato cherry.",
-  },
-  bag: {
-    A: "A tall cream paper bag, the top folded over in tomato with a pinked edge and sealed with a cobalt sticker.",
-    B: "A wide tomato carrier bag with two loop handles (cobalt in front, navy behind) and a torn-off order slip.",
-  },
-  jar: {
-    A: "A straight jar with a ridged cobalt screw lid, a tomato £ label, and coins piled inside.",
-    B: "A round-bellied honey jar under a spotted tomato cloth, tied with a cobalt band and bow.",
-  },
+  pastry: "An iced muffin: tall and upright, mustard dome over a pleated cobalt case, cream icing and a tomato cherry.",
+  bag: "A wide tomato carrier bag with two loop handles (cobalt in front, navy behind) and a torn-off order slip. Changed as you asked: the whole bag now sits a little higher, so handles and bag together are centred on the disc.",
+  jar: "A round-bellied honey jar under a spotted tomato cloth, tied with a cobalt band and bow.",
 };
 const TITLES = { pastry: "Pastry <small>for snack items</small>", bag: "Takeaway bag <small>for delivery items</small>", jar: "Jar <small>the “anything else” picture</small>" };
 
-function pickerRow(letter, current) {
+function pickerRow(current) {
   const slots = [
     ["cup", () => real("cup")], ["pint", () => real("pint")], ["plate", () => real("plate")],
-    ["jar", NEW.jar[letter]], ["pastry", NEW.pastry[letter]], ["bag", NEW.bag[letter]],
+    ["jar", NEW.jar], ["pastry", NEW.pastry], ["bag", NEW.bag],
   ];
   return `<div class="picker">${slots.map(([k, f]) =>
     `<div class="pick${k === current ? " on" : ""}"><div class="tile">${f()}</div><span>${k}</span></div>`).join("")}</div>`;
 }
 
 document.getElementById("pieces").innerHTML = ["pastry", "bag", "jar"].map((k) => {
-  const name = k === "bag" ? "Bag" : k[0].toUpperCase() + k.slice(1);
-  return `<h2>${TITLES[k]}</h2>` + ["A", "B"].map((L) => `
-    <section class="option" id="${k}-${L}">
-      <span class="tag">${name} ${L}</span>
-      <p class="what">${WHAT[k][L]}</p>
-      <div class="main-size">${NEW[k][L]()}</div>
-      <p class="caption">Picker size, beside the real cup, pint and plate (all the ${L} drawings)</p>
-      ${pickerRow(L, k)}
-    </section>`).join("");
+  const name = k[0].toUpperCase() + k.slice(1);
+  return `<h2>${TITLES[k]}</h2>
+    <section class="option" id="${k}-B">
+      <span class="tag">${name} B</span><span class="picked">Picked</span>
+      <p class="what">${WHAT[k]}</p>
+      <div class="main-size">${NEW[k]()}</div>
+      <p class="caption">Picker size, beside the real cup, pint and plate</p>
+      ${pickerRow(k)}
+    </section>`;
 }).join("");
 
 /* ---------- Latte graph ---------- */
@@ -438,95 +382,226 @@ function monotone(pts) {
   return { d, at };
 }
 
-/** Shared geometry: x per day, y per pound, froth curve, espresso steps. */
+/** Shared geometry: x per day, y per pound, the saved curve, and the invested curve smoothed so it trails it. */
+const SHOULDER = 16; // px: how far before an invest day the invested layer starts to rise
 function shapes(s, box) {
   const { x0, x1, yBottom, yTop } = box;
-  const max = s.saved[s.days - 1] * 1.1 || 1;
+  const max = s.saved[s.days - 1] || 1;
   const X = (d) => x0 + (s.days === 1 ? 0 : (d / (s.days - 1)) * (x1 - x0));
   const Y = (v) => yBottom - (v / max) * (yBottom - yTop);
   // Sample the running total every few days, always including each invest day,
-  // the day before it, and the last day, so the curve meets each step and ends on the total.
+  // the day before it, and the last day, so the curve passes through them and ends on the total.
   const step = Math.max(1, Math.round(s.days / 24));
   const keep = new Set([0, s.days - 1]);
   for (let d = 0; d < s.days; d += step) keep.add(d);
   for (const d of s.investDays) { keep.add(d); keep.add(d - 1); }
   const idx = [...keep].sort((a, b) => a - b);
   const curve = monotone(idx.map((d) => [X(d), Y(s.saved[d])]));
-  // Espresso: a staircase that steps up on each invest day.
-  const steps = [];
-  let v = 0;
-  for (const d of s.investDays) { steps.push([X(d), Y(v)], [X(d), Y(s.invested[d])]); v = s.invested[d]; }
-  return { X, Y, curve, steps, endY: Y(v), max };
+
+  // Invested: flat at each invest total; in the SHOULDER px before an invest day it
+  // eases (smoothstep) from the previous total up to the new one, arriving exactly on
+  // the invest day. It is clamped so it never rises above the saved curve. Before the
+  // first shoulder it is absent.
+  const events = [];
+  let px = x0 - SHOULDER, prev = 0;
+  for (const d of s.investDays) {
+    const xk = X(d);
+    events.push({ xk, w: Math.min(SHOULDER, (xk - px) * 0.7), from: prev, to: s.invested[d] });
+    px = xk; prev = s.invested[d];
+  }
+  const invVal = (x) => {
+    let v = null;
+    for (const e of events) {
+      if (x >= e.xk) v = e.to;
+      else if (x >= e.xk - e.w - 1e-6) { const t = (x - (e.xk - e.w)) / e.w; return e.from + (e.to - e.from) * t * t * (3 - 2 * t); }
+      else return v;
+    }
+    return v;
+  };
+  const invY = (x) => { const v = invVal(x); return v === null ? null : Math.max(Y(v), curve.at(x)); };
+  let inv = null;
+  if (events.length) {
+    const xs = [];
+    const xs0 = Math.max(x0, events[0].xk - events[0].w);
+    for (let x = xs0; x < x1; x += 1.5) xs.push(x);
+    for (const e of events) xs.push(e.xk, e.xk - e.w);
+    xs.push(x1);
+    const pts = [...new Set(xs.filter((x) => x >= xs0 && x <= x1))].sort((a, b) => a - b);
+    inv = `M${xs0.toFixed(1)} ${yBottom + 20} ` + pts.map((x) => `L${x.toFixed(1)} ${invY(x).toFixed(1)}`).join(" ") + ` L${x1} ${yBottom + 20}Z`;
+  }
+  const body = `${curve.d} L${x1} ${yBottom + 20} L${x0} ${yBottom + 20}Z`;
+  return { X, Y, curve, invY, inv, body, events };
 }
 
+const f1 = (n) => n.toFixed(1);
 function money(v) { return "£" + (Math.round(v * 100) % 100 === 0 ? Math.round(v) : v.toFixed(2)); }
 
-/** Graph A: a cream glass with a cobalt rim and foot; thick bubbly froth. */
-function graphA(s) {
-  const W = 358, H = 158;
-  const gid = `ga-${++uid}`;
-  const glass = `M6 14 H344 V134 Q344 148 330 148 H20 Q6 148 6 134Z`;
-  const g = shapes(s, { x0: 6, x1: 344, yBottom: 148, yTop: 34 });
-  const left = 6, right = 344;
-  const latte = `${g.curve.d} L${right} 160 L${left} 160Z`;
-  const esp = `M${left} 160 ${g.steps.length ? g.steps.map(([x, y]) => `L${x.toFixed(1)} ${y.toFixed(1)}`).join(" ") : `L${left} 160`} L${right} ${g.endY.toFixed(1)} L${right} 160Z`;
-  const bubbles = [];
-  const rnd = mulberry32(s.days * 7 + 1);
-  for (let x = 14; x < right - 4; x += 15 + rnd() * 8) {
-    const y = g.curve.at(x);
-    bubbles.push(`<circle cx="${x.toFixed(1)}" cy="${(y - 6 - rnd() * 2).toFixed(1)}" r="${(5 + rnd() * 4).toFixed(1)}"/>`);
+/** A foam sea riding on the saved curve: its lower edge is the curve, its top a row of
+ *  trochoid waves (narrow rounded crests, broad troughs, like a stage-set sea cut from card). */
+function seaFoam(curve, x0, x1, { h, P, A, phase = 0, k = 0.7 }) {
+  const top = [], bot = [];
+  for (let x = x0; x <= x1 + 0.01; x += 2) bot.push(`${f1(x)} ${f1(curve.at(x) + 1)}`);
+  // Trochoid: x = (P/2pi)(th - k sin th), height (1 + cos th)/2, crest at th = 0.
+  const pts = [];
+  const th0 = Math.floor(((x0 - phase - P) / P)) * 2 * Math.PI;
+  for (let th = th0; ; th += 0.08) {
+    const x = phase + (P / (2 * Math.PI)) * (th - k * Math.sin(th));
+    if (x < x0 - 1) continue;
+    const cx = Math.min(x1, x);
+    pts.push(`${f1(cx)} ${f1(curve.at(cx) - h - (A * (1 + Math.cos(th))) / 2)}`);
+    if (x >= x1) break;
   }
-  const froth = `<path d="${g.curve.d}" fill="none" stroke-width="14" stroke-linecap="round"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Latte graph, option A">
-  <defs><clipPath id="${gid}"><path d="${glass}"/></clipPath></defs>
-  <g class="cp-shadow" transform="translate(6 6)"><path d="${glass}"/></g>
-  <path class="cp-cream" d="${glass}"/>
-  <g clip-path="url(#${gid})">
-    <path class="cp-latte" d="${latte}"/>
-    <path class="cp-coffee" d="${esp}"/>
-    <g transform="translate(3 -3)" style="stroke:var(--shadow);fill:var(--shadow)">${froth}<g>${bubbles.join("")}</g></g>
-    <g transform="translate(0 -6)" style="stroke:var(--foam);fill:var(--foam)">${froth}<g>${bubbles.join("")}</g></g>
+  return `M${bot.join(" L")} L${pts.reverse().join(" L")}Z`;
+}
+
+/** A plain band on the curve with a flat top h above it (the base the curling crests sit on). */
+function band(curve, x0, x1, h) {
+  const bot = [], top = [];
+  for (let x = x0; x <= x1 + 0.01; x += 2) { bot.push(`${f1(x)} ${f1(curve.at(x) + 1)}`); top.unshift(`${f1(x)} ${f1(curve.at(x) - h)}`); }
+  return `M${bot.join(" L")} L${top.join(" L")}Z`;
+}
+
+/** Curling crests: each one rises gently, rolls over and hooks down, like a cut-paper wave. */
+function curlCrests(curve, x0, x1, { h, P, H, phase = 0 }) {
+  const out = [];
+  for (let xa = x0 - phase; xa < x1 - P * 0.6; xa += P) {
+    const m = (u, v) => { const x = Math.min(x1, Math.max(x0, xa + u * P)); return `${f1(xa + u * P)} ${f1(curve.at(x) - h - v * H)}`; };
+    out.push(`M${m(0, -0.3)} C${m(0.3, -0.1)} ${m(0.4, 1)} ${m(0.66, 1)} C${m(0.9, 1)} ${m(1.04, 0.62)} ${m(0.9, 0.34)} ` +
+      `C${m(0.86, 0.5)} ${m(0.78, 0.56)} ${m(0.74, 0.42)} C${m(0.72, 0.3)} ${m(0.78, 0.1)} ${m(0.9, -0.3)}Z`);
+  }
+  return out.join(" ");
+}
+
+/** A cut-paper ribbon along a polyline: a filled shape whose width swells in the middle and tapers to both ends. */
+const SWELL = (t) => Math.sin(Math.PI * Math.pow(t, 0.8));
+/** Spiral profile: thin at the centre, full width through the outer turn, tapering off the end of the tail. */
+const CURL = (t) => Math.min(1, 0.3 + t * 2) * Math.min(1, (1 - t) * 3.5);
+function ribbon(pts, wmax, profile = SWELL, wmin = 0.8) {
+  const n = pts.length, L = [], R = [];
+  for (let i = 0; i < n; i++) {
+    const [ax, ay] = pts[Math.max(0, i - 1)], [bx, by] = pts[Math.min(n - 1, i + 1)];
+    const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
+    const t = i / (n - 1);
+    const w = Math.max(wmin, wmax * profile(t)) / 2;
+    const [x, y] = pts[i];
+    L.push(`${f1(x - (dy / len) * w)} ${f1(y + (dx / len) * w)}`);
+    R.unshift(`${f1(x + (dy / len) * w)} ${f1(y - (dx / len) * w)}`);
+  }
+  return `M${L.join(" L")} L${R.join(" L")}Z`;
+}
+
+/** Latte-art spiral: an Archimedean curl from the centre outward, flicking off into a long S-shaped tail. */
+function spiralPts(cx, cy, R, dir = 1, turns = 1.25) {
+  const T = turns * 2 * Math.PI, pts = [];
+  for (let a = 0.9; a <= T + 1e-6; a += 0.1) {
+    const r = R * Math.pow(a / T, 0.85);
+    pts.push([cx + dir * r * Math.cos(a), cy + r * Math.sin(a)]);
+  }
+  // Leave the curl along its own tangent, bending one way and then the other: an S-shaped flick.
+  let [x, y] = pts[pts.length - 1];
+  const [px, py] = pts[pts.length - 2];
+  let phi = Math.atan2(y - py, x - px);
+  const n = 34, ds = (R * 3.4) / n;
+  for (let i = 1; i <= n; i++) {
+    const t = i / n;
+    phi += dir * (ds / R) * 1.5 * (0.7 - t * 1.6);
+    x += ds * Math.cos(phi); y += ds * Math.sin(phi);
+    pts.push([x, y]);
+  }
+  return pts;
+}
+
+/** Points of an S-wave of length L along the middle of a layer, following the layer as it rises. */
+function sWavePts(mid, xs, L, amp) {
+  const pts = [];
+  for (let x = xs; x <= xs + L + 1e-6; x += 2) pts.push([x, mid(x) + amp * Math.sin((2 * Math.PI * (x - xs)) / L)]);
+  return pts;
+}
+
+/** Where a swirl fits: the thicker of the two layers at x, or null if neither is thick enough. */
+function slot(g, x, yBottom, minT) {
+  const top = g.curve.at(x), iy = g.invY(x) ?? yBottom;
+  const milk = iy - top, coffee = yBottom - iy;
+  if (coffee >= minT && coffee >= milk) return { layer: "coffee", y: (iy + yBottom) / 2, t: coffee };
+  if (milk >= minT) return { layer: "milk", y: (top + iy) / 2 + 3, t: milk };
+  return null;
+}
+
+/** Graph C: a latte glass on mustard. Pale milk over rich coffee, cream latte-art swirls, a two-row trochoid foam sea. */
+function graphC(s) {
+  const W = 358, H = 180;
+  const left = 10, right = 336, bottom = 160;
+  const g = shapes(s, { x0: left, x1: right, yBottom: bottom, yTop: 46 });
+  const id = `gc-${++uid}`;
+  const glass = `M${left} 14 H${right} V${bottom - 14} Q${right} ${bottom} ${right - 14} ${bottom} H${left + 14} Q${left} ${bottom} ${left} ${bottom - 14}Z`;
+  const back = seaFoam(g.curve, left, right, { h: 15, P: 34, A: 10, phase: 17 });
+  const front = seaFoam(g.curve, left, right, { h: 8, P: 34, A: 9, phase: 0 });
+  const swirls = [];
+  for (const [fx, dir] of [[0.2, 1], [0.54, -1], [0.82, 1]]) {
+    const x = left + fx * (right - left);
+    const sl = slot(g, x, bottom, 30);
+    if (!sl) continue;
+    // Fit the swirl (about 5R wide, 2.4R tall) inside its layer across its whole width.
+    let hi = -Infinity, lo = Infinity;
+    for (let u = x - 40; u <= x + 40; u += 4) {
+      const xc = Math.min(right, Math.max(left, u)), iy = g.invY(xc) ?? bottom;
+      hi = Math.max(hi, sl.layer === "coffee" ? iy : g.curve.at(xc) + 4);
+      lo = Math.min(lo, sl.layer === "coffee" ? bottom : iy);
+    }
+    const R = Math.min(16, (lo - hi - 10) / 2.6);
+    if (R < 7) continue;
+    const cy = (hi + lo) / 2;
+    // The curl ends at its bottom heading back the other way, so the tail sweeps sideways under it.
+    swirls.push(`<path class="sw-${sl.layer}" d="${ribbon(spiralPts(x + dir * R * 1.2, cy - R * 0.45, R, dir), 6, CURL)}"/>`);
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Latte graph, option C">
+  <defs><clipPath id="${id}"><path d="${glass}"/></clipPath></defs>
+  <g class="cp-shadow" transform="translate(7 7)"><path d="${glass}"/></g>
+  <path class="g-air" d="${glass}"/>
+  <g clip-path="url(#${id})">
+    <path class="cp-milk" d="${g.body}"/>
+    ${g.inv ? `<path class="cp-coffee" d="${g.inv}"/>` : ""}
+    ${swirls.join("")}
+    <path class="cp-foam" d="${back}"/>
+    <path class="cp-cream" d="${front}"/>
   </g>
-  <rect class="cp-cobalt" x="0" y="6" width="${W - 8}" height="14" rx="7"/>
+  <rect class="cp-tomato" x="${left - 6}" y="8" width="${right - left + 12}" height="14" rx="7"/>
 </svg>`;
 }
 
-/** Graph B: no glass; layers cut from card and stuck on the paper, espresso with a torn top; a thin froth ribbon with one dollop at today. */
-function graphB(s) {
-  const W = 358, H = 158;
-  const left = 4, right = 346, bottom = 140;
-  const g = shapes(s, { x0: left, x1: right, yBottom: bottom, yTop: 22 });
-  const latte = `${g.curve.d} L${right} ${bottom} L${left} ${bottom}Z`;
-  // Torn top edge: each flat tread of the staircase is cut with small uneven teeth.
-  const rnd = mulberry32(s.days * 3 + 5);
-  const torn = (xa, xb, y) => {
-    let p = "";
-    for (let x = xa + 5; x < xb; x += 5 + rnd() * 4) p += ` L${x.toFixed(1)} ${(y + (rnd() < 0.5 ? -2.5 : 2) * (0.6 + rnd() * 0.6)).toFixed(1)}`;
-    return p + ` L${xb.toFixed(1)} ${y.toFixed(1)}`;
-  };
-  let esp = "";
-  if (g.steps.length) {
-    esp = `M${left} ${bottom}`;
-    for (let i = 0; i < g.steps.length; i += 2) {
-      const [xa] = g.steps[i], [, ya] = g.steps[i + 1];
-      const xb = i + 2 < g.steps.length ? g.steps[i + 2][0] : right;
-      esp += ` L${xa.toFixed(1)} ${bottom} L${xa.toFixed(1)} ${ya.toFixed(1)}` + torn(xa, xb, ya);
-    }
-    esp += ` L${right} ${bottom}Z`;
-    // Start the shape at the first step rather than the left edge.
-    esp = esp.replace(`M${left} ${bottom} L`, "M");
+/** Graph D: free-standing cut card on a cobalt tray. Curling cream wave crests over a foam sea; S-shaped milk ribbons through the coffee. */
+function graphD(s) {
+  const W = 358, H = 180;
+  const left = 4, right = 340, bottom = 154;
+  const g = shapes(s, { x0: left, x1: right, yBottom: bottom, yTop: 52 });
+  const id = `gd-${++uid}`;
+  const backBand = band(g.curve, left, right, 22);
+  const backCrests = curlCrests(g.curve, left, right, { h: 12, P: 38, H: 15, phase: 19 });
+  const frontBand = band(g.curve, left, right, 7);
+  const frontCrests = curlCrests(g.curve, left, right, { h: 5, P: 38, H: 16, phase: 0 });
+  const waves = [];
+  for (const fx of [0.1, 0.4, 0.7]) {
+    const xs = left + fx * (right - left), L = 76;
+    const sl = slot(g, xs + L / 2, bottom, 20);
+    if (!sl) continue;
+    const mid = sl.layer === "coffee"
+      ? (x) => ((g.invY(x) ?? bottom) + bottom) / 2
+      : (x) => (g.curve.at(x) + (g.invY(x) ?? bottom)) / 2 + 3;
+    waves.push(`<path class="sw-${sl.layer}" d="${ribbon(sWavePts(mid, xs, L, Math.min(8, sl.t * 0.18)), 6)}"/>`);
   }
-  const endY = g.curve.at(right);
-  const ribbon = (cls) => `<path d="${g.curve.d}" fill="none" style="stroke:var(--${cls})" stroke-width="6" stroke-linecap="round"/>`;
-  const dollop = `<circle cx="${right - 4}" cy="${(endY - 8).toFixed(1)}" r="11"/><circle cx="${right - 18}" cy="${(g.curve.at(right - 18) - 5).toFixed(1)}" r="7"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Latte graph, option B">
-  <g class="cp-shadow" transform="translate(5 5)"><path d="${latte}"/></g>
-  <path class="cp-latte" d="${latte}"/>
-  ${esp ? `<path class="cp-coffee" d="${esp}"/>` : ""}
-  <g transform="translate(3 0)">${ribbon("shadow")}<g class="cp-shadow">${dollop}</g></g>
-  <g transform="translate(0 -3)">${ribbon("foam")}<g class="cp-foam">${dollop}</g></g>
-  <g class="cp-shadow" transform="translate(5 5)"><rect x="0" y="${bottom}" width="${W - 8}" height="12" rx="6"/></g>
-  <rect class="cp-cobalt" x="0" y="${bottom}" width="${W - 8}" height="12" rx="6"/>
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Latte graph, option D">
+  <defs><clipPath id="${id}"><rect x="${left}" y="0" width="${right - left}" height="${bottom}"/></clipPath></defs>
+  <g class="cp-shadow" transform="translate(5 5)"><g clip-path="url(#${id})"><path d="${g.body}"/><path d="${backBand}"/></g></g>
+  <g clip-path="url(#${id})">
+    <path class="cp-milk" d="${g.body}"/>
+    ${g.inv ? `<path class="cp-coffee" d="${g.inv}"/>` : ""}
+    ${waves.join("")}
+    <g class="cp-foam"><path d="${backBand}"/><path d="${backCrests}"/></g>
+    <g class="cp-cream"><path d="${frontBand}"/><path d="${frontCrests}"/></g>
+  </g>
+  <g class="cp-shadow" transform="translate(5 5)"><rect x="0" y="${bottom}" width="${W - 12}" height="12" rx="6"/></g>
+  <rect class="cp-cobalt" x="0" y="${bottom}" width="${W - 12}" height="12" rx="6"/>
+  <circle class="cp-mustard" cx="${W - 30}" cy="${bottom + 6}" r="3"/><circle class="cp-mustard" cx="${W - 42}" cy="${bottom + 6}" r="3"/>
 </svg>`;
 }
 
@@ -543,26 +618,26 @@ function graphBlock(draw, data, label) {
   return `<p class="sub">${label}</p>
     ${plank(saved)}
     <div class="graph">
-      <div class="graph-labels"><span class="saved"><i class="sw" style="background:var(--foam);box-shadow:2px 2px 0 var(--shadow)"></i>${money(saved)} saved</span><span class="inv"><i class="sw" style="background:var(--coffee)"></i>${money(inv)} invested</span></div>
+      <div class="graph-labels"><span class="saved"><i class="sw" style="background:var(--cream);box-shadow:2px 2px 0 var(--shadow)"></i>${money(saved)} saved</span><span class="inv"><i class="sw" style="background:var(--coffee)"></i>${money(inv)} invested</span></div>
       ${draw(s)}
       <div class="graph-ends"><span>${first}</span><span>today</span></div>
     </div>`;
 }
 
 const GRAPH_WHAT = {
-  A: "A cream glass with a cobalt rim. Smooth layers; a thick froth band with a row of bubbles riding the curve.",
-  B: "No glass: the layers are cut from card and stuck on the paper. The espresso has a torn top edge; the froth is a thin ribbon with one dollop at today.",
+  C: "Inside a glass with a tomato rim, on mustard like the disc behind every picture. The foam is a cut-paper sea, two rows of cream waves; latte-art swirls curl through the milk and the coffee.",
+  D: "Free-standing, cut from card and stood on a cobalt tray. The foam is a row of curling cream breakers over a second row behind; S-shaped ribbons of milk run through the coffee.",
 };
 const week = weekData(), months = monthsData();
-document.getElementById("graphs").innerHTML = ["A", "B"].map((L) => {
-  const draw = L === "A" ? graphA : graphB;
+document.getElementById("graphs").innerHTML = ["C", "D"].map((L) => {
+  const draw = L === "C" ? graphC : graphD;
   return `<section class="option" id="graph-${L}">
     <span class="tag">Graph ${L}</span>
     <p class="what">${GRAPH_WHAT[L]}</p>
     ${graphBlock(draw, week, "One week of data")}
     ${graphBlock(draw, months, "About five months of data")}
   </section>`;
-}).join("") + `<p class="data-note">Made-up data: about three presses a week at £3.50 to £8 from 15 June; on the 26th of each month everything saved to the end of the 25th is invested. With one week there has been no invest day yet, so the espresso layer is empty.</p>`;
+}).join("") + `<p class="data-note">Made-up data: about three presses a week at £3.50 to £8 from 15 June; on the 26th of each month everything saved to the end of the 25th is invested. With one week there has been no invest day yet, so there is no coffee layer, only milk under the foam.</p>`;
 
 /* ---------- Theme switch ---------- */
 function setTheme(t) {
