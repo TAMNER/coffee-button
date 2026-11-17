@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addGoal, ensureTargets, removeGoal, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView } from "./shelf";
+import { addGoal, ensureTargets, migrateTargets, removeGoal, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -126,5 +126,37 @@ describe("targets (ticket 30)", () => {
       ["laptop", "Laptop", 100000, true],
       ["ski-week", "Ski week", 150000, true],
     ]);
+  });
+});
+
+describe("targets: migrating a phone from before ticket 30", () => {
+  const GOALS = [
+    { id: "g1", name: "Guitar", pricePence: 45000 },
+    { id: "g2", name: "Sofa", pricePence: 180000 },
+    { id: "g3", name: "Tent", pricePence: 20000 },
+  ];
+
+  /** Four built-ins; the espresso machine repriced to £1200, so cheapest-first must use edited prices. */
+  async function oldPhone(goalCount: number): Promise<MemoryStore> {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfPrices: { "espresso-machine": 120000 } });
+    for (const goal of GOALS.slice(0, goalCount)) await store.goals.put(goal);
+    return store;
+  }
+
+  it.each([
+    [0, ["weekend-away", "laptop", "espresso-machine"]],
+    [1, ["weekend-away", "laptop"]],
+    [2, ["weekend-away"]],
+    [3, []],
+  ])("with %i goals the plank keeps every goal and fills up with the cheapest built-ins: %j", async (n, builtIns) => {
+    const store = await oldPhone(n);
+
+    await migrateTargets(store);
+
+    const targets = await shelfTargets(store);
+    expect(targets.filter((t) => !t.builtIn).map((t) => t.id).sort()).toEqual(GOALS.slice(0, n).map((g) => g.id).sort());
+    expect(targets.filter((t) => t.builtIn).map((t) => t.id)).toEqual(builtIns);
+    expect(targets.find((t) => t.id === "espresso-machine")?.pricePence ?? 120000).toBe(120000);
   });
 });

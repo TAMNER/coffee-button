@@ -73,6 +73,17 @@ export async function ensureTargets(store: Store): Promise<void> {
   await store.putSettings({ ...settings, shelfBuiltInIds: [...STARTER_TARGET_IDS] });
 }
 
+/** A phone from before ticket 30: every goal stays, the cheapest built-ins (edited prices) fill the places left. */
+export async function migrateTargets(store: Store): Promise<void> {
+  const settings = await store.getSettings();
+  const places = Math.max(0, MAX_TARGETS - (await store.goals.list()).length);
+  const builtIns = (await shelfItems(store)).sort(cheapestFirst).slice(0, places);
+  await store.putSettings({ ...settings, shelfBuiltInIds: builtIns.map((item) => item.id) });
+}
+
+/** The plank holds at most three targets, built-in and typed together. */
+export const MAX_TARGETS = 3;
+
 export const MAX_GOALS = 3;
 
 /** Adds a personal goal; throws once there are already three. */
