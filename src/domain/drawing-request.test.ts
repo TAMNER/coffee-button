@@ -35,4 +35,19 @@ describe("drawing request link (ticket 38)", () => {
     expect(drawingRequestLink(form, "Bubble tea & cake")).toBe(form);
     expect(drawingRequestLink("https://example.invalid", "")).toBe("https://example.invalid");
   });
+
+  it("nothing configured, another scheme, or an unparseable value gives no link", () => {
+    for (const destination of [
+      "",
+      "http://forms.example.invalid/f",
+      "javascript:alert(1)",
+      "data:text/html,hi",
+      "tel:+440000000000",
+      "drawings@example.invalid",
+      "https://",
+      "mailto:",
+    ]) {
+      expect(drawingRequestLink(destination, "Matcha"), destination).toBeNull();
+    }
+  });
 });
