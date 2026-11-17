@@ -6,11 +6,11 @@ Agreed in the grilling session of 2026-11-17 (Q8, Q17, Q18).
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done (branch worktree-agent-a1d98ac78ac7d090f, awaiting merge). `savingsSeries(presses, settlements, now)` in src/domain/savings-series.ts, unit tested; no UI.
 
-- [ ] No presses gives no series; unit tested, failing first
-- [ ] One press today gives a seven-day series ending today, with saved stepping up on the day of the press
-- [ ] Saved is cumulative per day across items and months; invested steps up on the day of each settlement by its amount
-- [ ] An undone press does not appear in the series (guard test)
-- [ ] The last point's saved figure equals the ledger's lifetime total, and its invested figure equals the sum of settlements (guard tests)
-- [ ] Days are the phone's local days; a press at 23:59 and one at 00:01 fall on different days (unit tested with the fake clock)
+- [x] No presses gives no series; unit tested, failing first
+- [x] One press today gives a seven-day series ending today, with saved stepping up on the day of the press
+- [x] Saved is cumulative per day across items and months; invested steps up on the day of each settlement by its amount
+- [x] An undone press does not appear in the series (guard test)
+- [x] The last point's saved figure equals the ledger's lifetime total, and its invested figure equals the sum of settlements (guard tests)
+- [x] Days are the phone's local days; a press at 23:59 and one at 00:01 fall on different days (unit tested with the fake clock)
