@@ -33,4 +33,13 @@ describe("pressVibration", () => {
     // The whole pattern ends inside the ceremony.
     expect(pattern.reduce((a, b) => a + b, 0)).toBeLessThanOrEqual(2000);
   });
+
+  it("follows the item's ceremony: with no pour the coin lands at 500 ms, and the buzz with it", () => {
+    const pouring = pressVibration(ceremonyTimeline());
+    const plate = pressVibration(ceremonyTimeline({ pour: false }));
+    expect(buzzStarts(plate)[1]).toBe(500);
+    // Same tick, buzz and flutter; only the wait for the coin is shorter, by the pour's 800 ms.
+    expect(plate[1]).toBe(pouring[1] - 800);
+    expect([plate[0], ...plate.slice(2)]).toEqual([pouring[0], ...pouring.slice(2)]);
+  });
 });
