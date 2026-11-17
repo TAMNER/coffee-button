@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coffee Button Pictures</title>
+<!--
+  Ticket 27: mockup of the new pictures (pastry, takeaway bag, jar) and the
+  latte graph, two options each, for Tom to pick from. Standalone like
+  mockups/directions.html: not part of the Vite build or the service worker
+  precache (Vite builds index.html only). Open it straight from disk, or serve
+  the mockups/ folder with any static server.
+
+  The cup, pint, plate and shelf items are the real artwork: their markup was
+  generated from src/ui/art/vessels.ts and src/ui/art/items.ts (round-2,
+  4f2b24a) and pasted below as REAL. The new drawings use the vessel
+  conventions: viewBox 40 245 320 320 of the 390x844 frame, mustard disc r150
+  at (195,400) with a 10,10 shadow, the figure in .cup-figure with an 8,8
+  shadow copy of its silhouette, details on top. data-rim on each new vessel is
+  where the coin would land (none of them pours).
+-->
+<style>
+/* Tokens copied from src/style.css (both theme blocks), plus the ticket 13
+   bread/lettuce tokens. New token for this mockup: --latte. */
+:root {
+  --paper: #f6cdc1; --paper-2: #efb9aa; --cobalt: #2443b0; --mustard: #f5b335;
+  --mustard-deep: #d48e12; --tomato: #e5533c; --cream: #fff9ef; --shadow: #8e2f25;
+  --ink: #1d2a6e; --on-dark: #fff9ef; --coffee: #6b3a22; --foam: #f3ddbb;
+  --beer: #b8641a; --beer-foam: #fff3d6; --dark: #1d2a6e; --off: #e3ada0;
+  --off-hi: #ecc4b9; --off-shadow: #cc9283;
+  --bread: #f9dc9a; --lettuce: #3f9a4a;
+  /* NEW (ticket 27): the lighter "saved, still waiting" layer of the latte graph. */
+  --latte: #c98f5e;
+  --font-display: Futura, "Century Gothic", "Avenir Next", "Trebuchet MS", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1b2150; --paper-2: #232a62; --cobalt: #4f6df0; --mustard: #f5b335;
+    --mustard-deep: #c9870f; --tomato: #f0705a; --cream: #fff4e2; --shadow: #090b24;
+    --ink: #fff4e2; --on-dark: #fff9ef; --coffee: #8a4e2c; --foam: #f3ddbb;
+    --beer: #cc7524; --beer-foam: #fff3d6; --dark: #0f1440; --off: #2f3772;
+    --off-hi: #3b4483; --off-shadow: #10143a;
+    --bread: #f6d58c; --lettuce: #56b862;
+    --latte: #d39d6c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1b2150; --paper-2: #232a62; --cobalt: #4f6df0; --mustard: #f5b335;
+  --mustard-deep: #c9870f; --tomato: #f0705a; --cream: #fff4e2; --shadow: #090b24;
+  --ink: #fff4e2; --on-dark: #fff9ef; --coffee: #8a4e2c; --foam: #f3ddbb;
+  --beer: #cc7524; --beer-foam: #fff3d6; --dark: #0f1440; --off: #2f3772;
+  --off-hi: #3b4483; --off-shadow: #10143a;
+  --bread: #f6d58c; --lettuce: #56b862;
+  --latte: #d39d6c;
+  color-scheme: dark;
+}
+
+/* Fill classes as in src/style.css and src/ui/art/items.css. */
+.cp-paper-2 { fill: var(--paper-2); }
+.cp-cobalt { fill: var(--cobalt); }
+.cp-mustard { fill: var(--mustard); }
+.cp-mustard-deep { fill: var(--mustard-deep); }
+.cp-tomato { fill: var(--tomato); }
+.cp-cream { fill: var(--cream); }
+.cp-coffee { fill: var(--coffee); }
+.cp-foam { fill: var(--foam); }
+.cp-beer { fill: var(--beer); }
+.cp-beer-foam { fill: var(--beer-foam); }
+.cp-on-dark { fill: var(--on-dark); }
+.cp-bread { fill: var(--bread); }
+.cp-lettuce { fill: var(--lettuce); }
+.cp-dark { fill: var(--dark); }
+.cp-latte { fill: var(--latte); }
+.cp-shadow, .cp-shadow * { fill: var(--shadow); }
+.cp-coin-mark { font: 800 22px var(--font-display); }
+.art { display: block; overflow: visible; }
+.art .c-cobalt { fill: var(--cobalt); }
+.art .c-mustard { fill: var(--mustard); }
+.art .c-mustard-deep { fill: var(--mustard-deep); }
+.art .c-tomato { fill: var(--tomato); }
+.art .c-cream { fill: var(--cream); }
+.art .art-sh * { fill: var(--shadow); }
+.art-off .art * { fill: var(--off); }
+.art-off .art .c-cream { fill: var(--off-hi); }
+.art-off .art .art-sh * { fill: var(--off-shadow); }
+
+/* Page */
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  overflow-x: hidden;
+}
+main { max-width: 32rem; margin: 0 auto; padding: 0 16px 48px; }
+.top {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 16px; background: var(--paper-2);
+}
+.top b { font-size: 15px; letter-spacing: 0.04em; }
+.theme { display: flex; gap: 4px; }
+.theme button {
+  font: 800 12px var(--font-display); letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 6px 8px; border: 0; border-radius: 4px; cursor: pointer;
+  background: var(--paper); color: var(--ink);
+}
+.theme button[aria-pressed="true"] { background: var(--cobalt); color: var(--on-dark); }
+h1 { font-size: 28px; line-height: 1.05; margin: 20px 0 8px; }
+.lede { font-size: 15px; line-height: 1.4; margin: 0 0 8px; font-weight: 600; }
+.answer {
+  margin: 14px 6px 6px 0; padding: 10px 14px; border-radius: 4px;
+  background: var(--cobalt); color: var(--on-dark); box-shadow: 6px 6px 0 var(--shadow);
+  font-size: 15px; font-weight: 800; line-height: 1.4;
+}
+h2 {
+  margin: 40px -16px 0; padding: 10px 16px; background: var(--paper-2);
+  font-size: 20px; letter-spacing: 0.02em;
+}
+h2 small { font-size: 13px; font-weight: 600; letter-spacing: 0; }
+.option { margin-top: 26px; }
+.tag {
+  display: inline-block; padding: 5px 10px; border-radius: 3px;
+  background: var(--mustard); color: #1d2a6e; box-shadow: 4px 4px 0 var(--mustard-deep);
+  font-size: 18px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.what { margin: 8px 0 0; font-size: 14px; line-height: 1.35; font-weight: 600; }
+.main-size { display: flex; justify-content: center; margin-top: 10px; }
+.main-size .cup { width: 300px; max-width: 100%; height: auto; overflow: visible; display: block; }
+.caption { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 800; opacity: 0.75; margin: 10px 0 6px; }
+.picker { display: flex; justify-content: space-between; gap: 4px; }
+.pick { flex: 0 0 auto; width: 52px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.pick .tile {
+  width: 52px; height: 52px; border-radius: 10px; background: var(--paper-2);
+  display: flex; align-items: center; justify-content: center;
+}
+.pick .tile .cup { width: 44px; height: 44px; display: block; }
+.pick.on .tile { outline: 3px solid var(--cobalt); outline-offset: 1px; }
+.pick span { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 800; }
+.pick.on span { color: var(--cobalt); }
+
+/* Graph */
+.plank { position: relative; display: flex; margin-top: 12px; }
+.plank::before {
+  content: ""; position: absolute; left: -4px; right: -4px; top: 64px; height: 12px;
+  background: var(--tomato); box-shadow: 6px 6px 0 var(--shadow);
+}
+.plank li { list-style: none; flex: 0 0 calc(100% / 3); display: flex; flex-direction: column; align-items: center; font-weight: 800; }
+.plank ul { display: contents; }
+.plank .shelf-art { position: relative; width: 76px; height: 64px; margin-bottom: 24px; }
+.plank .shelf-art .art { width: 100%; height: 100%; }
+.plank .nm { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.plank .pr { font-size: 13px; }
+.graph { margin-top: 18px; }
+.graph-labels { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; font-weight: 800; }
+.graph-labels .saved { font-size: 22px; }
+.graph-labels .inv { font-size: 16px; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: 1px; }
+.graph svg { display: block; width: 100%; height: auto; overflow: visible; margin-top: 6px; }
+.graph-ends { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; }
+.data-note { font-size: 12px; line-height: 1.35; font-weight: 600; opacity: 0.8; margin: 4px 0 0; }
+.sub { margin-top: 22px; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="top">
+  <b>Ticket 27</b>
+  <div class="theme" role="group" aria-label="Theme">
+    <button type="button" data-set="light">Light</button>
+    <button type="button" data-set="dark">Dark</button>
+    <button type="button" data-set="auto">Phone</button>
+  </div>
+</div>
+<main>
+  <h1>New pictures and the latte graph</h1>
+  <p class="lede">Two options for each of four new drawings, in Cut Paper. Each picture is shown at main-screen size and at picker size, in a row of six beside the real cup, pint and plate. Flip Light and Dark at the top.</p>
+  <p class="answer">Reply with one line, for example: Pastry A, Bag B, Jar A, Graph B.</p>
+  <div id="pieces"></div>
+  <h2>Latte graph <small>on the shelf, under the plank</small></h2>
+  <p class="what">Espresso at the bottom is money invested (steps up once a month). The lighter coffee above it is saved and still waiting. The froth on top is the running total saved. Made-up numbers; the plank shows the three starting targets.</p>
+  <div id="graphs"></div>
+</main>
+
+<script>
+/* Real artwork, generated from src/ui/art/vessels.ts and src/ui/art/items.ts. */
+const REAL = {
+ "cup": "<svg class=\"cup\" viewBox=\"40 245 320 320\" aria-hidden=\"true\"> <defs><clipPath id=\"CLIP\"><path d=\"M128 318 H262 V462 Q262 490 234 490 H156 Q128 490 128 462Z\"/></clipPath></defs> <g class=\"cp-shadow\" transform=\"translate(10 10)\"><circle cx=\"195\" cy=\"400\" r=\"150\"/></g> <circle class=\"cp-mustard cup-disc\" cx=\"195\" cy=\"400\" r=\"150\"/> <g class=\"cup-figure\"> <g class=\"cp-shadow\" transform=\"translate(8 8)\"> <rect class=\"cp-cobalt\" x=\"96\" y=\"488\" width=\"198\" height=\"18\" rx=\"9\"/> <path class=\"cp-tomato\" fill-rule=\"evenodd\" d=\"M258 350 H304 V436 H258 V414 H282 V372 H258Z\"/> <path class=\"cp-cream\" d=\"M128 318 H262 V462 Q262 490 234 490 H156 Q128 490 128 462Z\"/><rect class=\"cp-cobalt\" x=\"120\" y=\"308\" width=\"150\" height=\"18\" rx=\"9\"/></g> <rect class=\"cp-cobalt\" x=\"96\" y=\"488\" width=\"198\" height=\"18\" rx=\"9\"/> <path class=\"cp-tomato\" fill-rule=\"evenodd\" d=\"M258 350 H304 V436 H258 V414 H282 V372 H258Z\"/> <path class=\"cp-cream\" d=\"M128 318 H262 V462 Q262 490 234 490 H156 Q128 490 128 462Z\"/> <g clip-path=\"url(#CLIP)\"> <g class=\"cup-liquid\"> <rect class=\"cp-coffee\" x=\"120\" y=\"336\" width=\"150\" height=\"170\"/> <rect class=\"cp-foam\" x=\"120\" y=\"336\" width=\"150\" height=\"16\"/> <circle class=\"cp-foam\" cx=\"150\" cy=\"352\" r=\"9\"/> <circle class=\"cp-foam\" cx=\"190\" cy=\"354\" r=\"11\"/> <circle class=\"cp-foam\" cx=\"232\" cy=\"351\" r=\"8\"/> </g> </g> <rect class=\"cp-cobalt\" x=\"120\" y=\"308\" width=\"150\" height=\"18\" rx=\"9\"/> </g> </svg>",
+ "pint": "<svg class=\"cup\" viewBox=\"40 245 320 320\" aria-hidden=\"true\"> <defs><clipPath id=\"CLIP\"><path d=\"M136 318 H254 L241 498 Q240 510 228 510 H162 Q150 510 149 498Z\"/></clipPath></defs> <g class=\"cp-shadow\" transform=\"translate(10 10)\"><circle cx=\"195\" cy=\"400\" r=\"150\"/></g> <circle class=\"cp-mustard cup-disc\" cx=\"195\" cy=\"400\" r=\"150\"/> <g class=\"cup-figure\"> <g class=\"cp-shadow\" transform=\"translate(8 8)\"> <path class=\"cp-cream\" d=\"M136 318 H254 L241 498 Q240 510 228 510 H162 Q150 510 149 498Z\"/> <rect class=\"cp-cobalt\" x=\"130\" y=\"504\" width=\"130\" height=\"26\" rx=\"10\"/><rect class=\"cp-cobalt\" x=\"128\" y=\"310\" width=\"134\" height=\"14\" rx=\"7\"/></g> <path class=\"cp-cream\" d=\"M136 318 H254 L241 498 Q240 510 228 510 H162 Q150 510 149 498Z\"/> <rect class=\"cp-cobalt\" x=\"130\" y=\"504\" width=\"130\" height=\"26\" rx=\"10\"/> <g clip-path=\"url(#CLIP)\"> <g class=\"cup-liquid\"> <rect class=\"cp-beer\" x=\"128\" y=\"332\" width=\"134\" height=\"190\"/> <circle class=\"cp-mustard\" cx=\"172\" cy=\"468\" r=\"6\"/> <circle class=\"cp-mustard\" cx=\"218\" cy=\"432\" r=\"5\"/> <circle class=\"cp-mustard\" cx=\"190\" cy=\"400\" r=\"4\"/> <rect class=\"cp-beer-foam\" x=\"128\" y=\"324\" width=\"134\" height=\"30\"/> <circle class=\"cp-beer-foam\" cx=\"160\" cy=\"354\" r=\"13\"/> <circle class=\"cp-beer-foam\" cx=\"196\" cy=\"357\" r=\"15\"/> <circle class=\"cp-beer-foam\" cx=\"232\" cy=\"353\" r=\"12\"/> </g> </g> <rect class=\"cp-cobalt\" x=\"128\" y=\"310\" width=\"134\" height=\"14\" rx=\"7\"/> </g> </svg>",
+ "plate": "<svg class=\"cup\" viewBox=\"40 245 320 320\" aria-hidden=\"true\"> <g class=\"cp-shadow\" transform=\"translate(10 10)\"><circle cx=\"195\" cy=\"400\" r=\"150\"/></g> <circle class=\"cp-mustard cup-disc\" cx=\"195\" cy=\"400\" r=\"150\"/> <g class=\"cup-figure\"> <g class=\"cp-shadow\" transform=\"translate(8 8)\"> <ellipse class=\"cp-cobalt\" cx=\"195\" cy=\"468\" rx=\"132\" ry=\"22\"/> <ellipse class=\"cp-cream\" cx=\"195\" cy=\"464\" rx=\"114\" ry=\"14\"/> <g transform=\"rotate(-5 145 462)\"> <path class=\"cp-mustard-deep\" d=\"M108 462 V402 Q108 380 145 380 Q182 380 182 402 V462Z\"/></g> <g transform=\"rotate(5 245 462)\"> <path class=\"cp-mustard-deep\" d=\"M208 462 V402 Q208 380 245 380 Q282 380 282 402 V462Z\"/></g></g> <ellipse class=\"cp-cobalt\" cx=\"195\" cy=\"468\" rx=\"132\" ry=\"22\"/> <ellipse class=\"cp-cream\" cx=\"195\" cy=\"464\" rx=\"114\" ry=\"14\"/> <g transform=\"rotate(-5 145 462)\"> <path class=\"cp-mustard-deep\" d=\"M108 462 V402 Q108 380 145 380 Q182 380 182 402 V462Z\"/> <path class=\"cp-bread\" d=\"M113 418 V404 Q113 386 145 386 Q177 386 177 404 V418Z\"/> <path class=\"cp-lettuce\" d=\"M104 432 V420 L106 420 Q115 412 122 420 Q131 412 138 420 Q147 412 154 420 Q163 412 170 420 Q179 412 186 420 L186 420 V432Z\"/> <rect class=\"cp-tomato\" x=\"106\" y=\"430\" width=\"78\" height=\"12\" rx=\"4\"/> <rect class=\"cp-bread\" x=\"113\" y=\"442\" width=\"64\" height=\"15\" rx=\"3\"/></g> <g transform=\"rotate(5 245 462)\"> <path class=\"cp-mustard-deep\" d=\"M208 462 V402 Q208 380 245 380 Q282 380 282 402 V462Z\"/> <path class=\"cp-bread\" d=\"M213 418 V404 Q213 386 245 386 Q277 386 277 404 V418Z\"/> <path class=\"cp-lettuce\" d=\"M204 432 V420 L206 420 Q215 412 222 420 Q231 412 238 420 Q247 412 254 420 Q263 412 270 420 Q279 412 286 420 L286 420 V432Z\"/> <rect class=\"cp-tomato\" x=\"206\" y=\"430\" width=\"78\" height=\"12\" rx=\"4\"/> <rect class=\"cp-bread\" x=\"213\" y=\"442\" width=\"64\" height=\"15\" rx=\"3\"/></g> </g> </svg>",
+ "weekend": "<svg class=\"art\" viewBox=\"0 0 105 90\" role=\"img\" aria-label=\"Weekend away\"><g class=\"art-sh\" transform=\"translate(5 5)\"><path class=\"c-cobalt\" d=\"M36 32 V14 H64 V32 H57 V21 H43 V32Z\"/><rect class=\"c-mustard\" x=\"12\" y=\"30\" width=\"76\" height=\"50\" rx=\"6\"/></g><path class=\"c-cobalt\" d=\"M36 32 V14 H64 V32 H57 V21 H43 V32Z\"/><rect class=\"c-mustard\" x=\"12\" y=\"30\" width=\"76\" height=\"50\" rx=\"6\"/><rect class=\"c-tomato\" x=\"12\" y=\"48\" width=\"76\" height=\"10\"/><circle class=\"c-cream\" cx=\"72\" cy=\"69\" r=\"6\"/></svg>",
+ "laptop": "<svg class=\"art\" viewBox=\"0 0 105 90\" role=\"img\" aria-label=\"Laptop\"><g class=\"art-sh\" transform=\"translate(5 5)\"><rect class=\"c-cobalt\" x=\"16\" y=\"16\" width=\"68\" height=\"50\" rx=\"4\"/><rect class=\"c-tomato\" x=\"4\" y=\"66\" width=\"92\" height=\"12\" rx=\"3\"/></g><rect class=\"c-cobalt\" x=\"16\" y=\"16\" width=\"68\" height=\"50\" rx=\"4\"/><rect class=\"c-tomato\" x=\"4\" y=\"66\" width=\"92\" height=\"12\" rx=\"3\"/><rect class=\"c-cream\" x=\"23\" y=\"23\" width=\"54\" height=\"36\"/><rect class=\"c-mustard\" x=\"23\" y=\"23\" width=\"54\" height=\"10\"/></svg>",
+ "ski": "<svg class=\"art\" viewBox=\"0 0 105 90\" role=\"img\" aria-label=\"Ski week\"><g class=\"art-sh\" transform=\"translate(5 5)\"><path class=\"c-cobalt\" d=\"M2 82 L38 18 L58 50 L70 36 L98 82Z\"/></g><path class=\"c-cobalt\" d=\"M2 82 L38 18 L58 50 L70 36 L98 82Z\"/><path class=\"c-cream\" d=\"M29 34 L38 18 L48 36 L42 31 L38 38 L33 31Z\"/><path class=\"c-tomato\" d=\"M60 82 L84 44 L88 46 L66 82Z\"/><path class=\"c-mustard\" d=\"M70 82 L90 50 L94 52 L76 82Z\"/></svg>"
+};
+
+let uid = 0;
+const real = (key) => REAL[key].replaceAll("CLIP", `real-${key}-${++uid}`);
+
+/* ---------- New vessels, in the vessel system's coordinates ---------- */
+
+/** Disc, shadowed silhouette, then details: the same layering as cup-art.ts. */
+function vessel(name, rim, silhouette, details, defs = "") {
+  return `<svg class="cup" viewBox="40 245 320 320" role="img" aria-label="${name}" data-rim="${rim.x},${rim.y}">
+  ${defs ? `<defs>${defs}</defs>` : ""}
+  <g class="cp-shadow" transform="translate(10 10)"><circle cx="195" cy="400" r="150"/></g>
+  <circle class="cp-mustard cup-disc" cx="195" cy="400" r="150"/>
+  <g class="cup-figure">
+    <g class="cp-shadow" transform="translate(8 8)">${silhouette}</g>
+    ${silhouette}${details}
+  </g>
+</svg>`;
+}
+const SAUCER = `<rect class="cp-cobalt" x="96" y="488" width="198" height="18" rx="9"/>`;
+
+/** Pastry A: a croissant, seven overlapping rolls along an arch so the horns curl down onto the cup's cobalt bar. */
+function pastryA() {
+  // [angle from upright, roll half-width, roll half-height]; tips first, middle last.
+  const spec = [[-72, 13, 17], [72, 13, 17], [-50, 22, 28], [50, 22, 28], [-25, 30, 40], [25, 30, 40], [0, 36, 50]];
+  const rolls = spec.map(([a, rx, ry]) => {
+    const t = (a * Math.PI) / 180;
+    return [195 + 100 * Math.sin(t), 518 - 100 * Math.cos(t), rx, ry, a];
+  });
+  // The belly the rolls are wrapped round: fills the hollow under the arch so it lies flat on the bar.
+  rolls.unshift([195, 470, 84, 18, 0]);
+  const f = (n) => n.toFixed(1);
+  const el = ([cx, cy, rx, ry, r], grow, cls, dy = 0, k = 1) =>
+    `<ellipse class="${cls}" cx="${f(cx)}" cy="${f(cy + dy)}" rx="${f(rx * k + grow)}" ry="${f(ry * k + grow)}" transform="rotate(${r} ${f(cx)} ${f(cy)})"/>`;
+  const sil = SAUCER + rolls.map((l) => el(l, 5, "cp-mustard-deep")).join("");
+  // Each roll: crust, then bread, then a mustard bake across its crown, so
+  // the crust shows as the line where one roll tucks under the next.
+  const det = rolls.map((l) =>
+    el(l, 5, "cp-mustard-deep") + el(l, 0, "cp-mustard") + el(l, 0, "cp-bread", l[3] * 0.28, 0.78)).join("");
+  return vessel("Pastry A", { x: 195, y: 382 }, sil, det);
+}
+
+/** Pastry B: an iced muffin in a pleated cobalt case, with a tomato cherry. */
+function pastryB() {
+  const caseP = "M142 420 H248 L236 506 H154Z";
+  const dome = "M122 422 Q116 344 195 334 Q274 344 268 422 Q268 434 256 434 H134 Q122 434 122 422Z";
+  const sil = `<path class="cp-cobalt" d="${caseP}"/><path class="cp-mustard-deep" d="${dome}"/>` +
+    `<circle class="cp-tomato" cx="198" cy="326" r="14"/>`;
+  const pleats = [0, 1, 2, 3, 4].map((i) => {
+    const xt = 158 + i * 19, xb = 166 + i * 14.5;
+    return `<path class="cp-dark" d="M${xt} 434 H${xt + 6} L${xb + 4} 506 H${xb}Z"/>`;
+  }).join("");
+  const icing = "M140 372 Q150 340 195 338 Q240 340 250 372 Q246 388 236 378 Q230 398 218 382 Q208 394 198 380 Q188 396 176 382 Q166 392 158 378 Q148 388 140 372Z";
+  const det = pleats + `<path class="cp-cream" d="${icing}"/>` +
+    `<circle class="cp-mustard" cx="146" cy="404" r="5"/><circle class="cp-mustard" cx="244" cy="402" r="5"/>` +
+    `<circle class="cp-mustard" cx="172" cy="414" r="4"/><circle class="cp-mustard" cx="222" cy="416" r="4"/>` +
+    `<path class="cp-cobalt" d="M200 314 Q204 298 216 292 L219 297 Q209 302 206 315Z"/>` +
+    `<circle class="cp-cream" cx="192" cy="321" r="4"/>`;
+  return vessel("Pastry B", { x: 195, y: 312 }, sil, det);
+}
+
+/** Bag A: a tall cream paper bag, its top folded over with a pinked edge and sealed with a sticker. */
+function bagA() {
+  const teeth = Array.from({ length: 17 }, (_, i) => `L${(134 + i * (122 / 17) + 61 / 17).toFixed(1)} 333 L${(134 + (i + 1) * (122 / 17)).toFixed(1)} 342`).join(" ");
+  const fold = `M134 376 V342 ${teeth} V376Z`;
+  const body = "M140 360 H250 L256 500 Q256 508 248 508 H142 Q134 508 134 500Z";
+  const sil = `<path class="cp-cream" d="${body}"/><path class="cp-tomato" d="${fold}"/>`;
+  const det =
+    `<path class="cp-foam" d="M140 376 H152 L150 508 H142 Q134 508 134 500Z"/>` +
+    `<path class="cp-foam" d="M238 376 H250 L256 500 Q256 508 248 508 H240Z"/>` +
+    `<rect class="cp-shadow" x="134" y="376" width="122" height="5" opacity="0.35"/>` +
+    `<circle class="cp-cobalt" cx="195" cy="378" r="17"/>` +
+    `<circle class="cp-mustard" cx="195" cy="378" r="8"/>` +
+    `<rect class="cp-tomato" x="134" y="470" width="122" height="10"/>`;
+  return vessel("Bag A", { x: 195, y: 336 }, sil, det);
+}
+
+/** Bag B: a wide tomato carrier bag with two cobalt handles and a cream order slip. */
+function bagB() {
+  const handle = (x, y, cls) =>
+    `<path class="${cls}" fill-rule="evenodd" d="M${x} ${y + 64} V${y + 30} Q${x} ${y} ${x + 32} ${y} Q${x + 64} ${y} ${x + 64} ${y + 30} V${y + 64} H${x + 52} V${y + 30} Q${x + 52} ${y + 12} ${x + 32} ${y + 12} Q${x + 12} ${y + 12} ${x + 12} ${y + 30} V${y + 64}Z"/>`;
+  const body = `<rect class="cp-tomato" x="112" y="378" width="166" height="124" rx="6"/>`;
+  const sil = handle(176, 318, "cp-dark") + handle(150, 322, "cp-cobalt") + body;
+  const det =
+    `<rect class="cp-shadow" x="112" y="378" width="166" height="8" opacity="0.35"/>` +
+    `<path class="cp-cream" d="M206 412 H254 V470 L246 465 L238 470 L230 465 L222 470 L214 465 L206 470Z"/>` +
+    `<rect class="cp-cobalt" x="214" y="424" width="32" height="5" rx="2"/>` +
+    `<rect class="cp-cobalt" x="214" y="436" width="24" height="5" rx="2"/>` +
+    `<rect class="cp-cobalt" x="214" y="448" width="28" height="5" rx="2"/>` +
+    `<circle class="cp-mustard" cx="148" cy="460" r="16"/>` +
+    `<circle class="cp-mustard-deep" cx="148" cy="460" r="10"/>`;
+  return vessel("Bag B", { x: 195, y: 380 }, sil, det);
+}
+
+/** Jar A: a straight-sided jar with a ridged cobalt screw lid, half full of coins, tomato label. */
+function jarA() {
+  const id = `jarA-${++uid}`;
+  const body = "M152 344 H238 V354 Q262 362 262 386 V484 Q262 506 240 506 H150 Q128 506 128 484 V386 Q128 362 152 354Z";
+  const lid = `<rect class="cp-cobalt" x="142" y="316" width="106" height="34" rx="6"/>`;
+  const sil = `<path class="cp-cream" d="${body}"/>` + lid;
+  const coins = [
+    [150, 490], [182, 492], [214, 490], [244, 488],
+    [164, 464], [198, 466], [230, 462], [146, 440], [214, 440], [180, 442], [244, 438],
+    [196, 418], [162, 416],
+  ].map(([x, y]) => `<g transform="translate(${x} ${y})"><circle class="cp-shadow" cx="2" cy="2" r="15"/><circle class="cp-mustard" r="15"/><circle class="cp-mustard-deep" r="9.5"/></g>`).join("");
+  const det = `<g clip-path="url(#${id})">${coins}</g>` +
+    `<rect class="cp-tomato" x="128" y="380" width="134" height="24"/>` +
+    `<text class="cp-on-dark cp-coin-mark" x="195" y="400" text-anchor="middle">£</text>` +
+    [324, 333, 342].map((y) => `<rect class="cp-dark" x="146" y="${y}" width="98" height="3"/>`).join("") +
+    `<rect class="cp-foam" x="238" y="410" width="8" height="70" rx="4"/>`;
+  return vessel("Jar A", { x: 195, y: 316 }, sil, det, `<clipPath id="${id}"><path d="${body}"/></clipPath>`);
+}
+
+/** Jar B: a round-bellied jar of honey under a spotted tomato cloth, tied with a cobalt band and bow. */
+function jarB() {
+  const id = `jarB-${++uid}`;
+  const body = "M160 352 H230 V372 Q278 386 278 444 Q278 506 195 506 Q112 506 112 444 Q112 386 160 372Z";
+  // Cloth: dome over the lid, pinked hem across the bottom.
+  const hem = Array.from({ length: 14 }, (_, i) => {
+    const x0 = 246 - i * (102 / 14);
+    return `L${(x0 - 102 / 28).toFixed(1)} 384 L${(x0 - 102 / 14).toFixed(1)} 374`;
+  }).join(" ");
+  const clothPath = `M144 374 Q140 324 195 320 Q250 324 246 374 ${hem}Z`;
+  const sil = `<path class="cp-cream" d="${body}"/><path class="cp-tomato" d="${clothPath}"/>`;
+  const det = `<g clip-path="url(#${id})"><rect class="cp-mustard-deep" x="100" y="404" width="190" height="110"/>` +
+      `<rect class="cp-mustard" x="100" y="404" width="190" height="8"/></g>` +
+      `<path class="cp-foam" d="M250 410 Q262 426 260 452 L252 452 Q254 428 244 414Z"/>` +
+      `<rect class="cp-cream" x="160" y="432" width="70" height="38" rx="5"/>` +
+      `<rect class="cp-tomato" x="168" y="440" width="54" height="5" rx="2"/>` +
+      `<rect class="cp-tomato" x="174" y="452" width="42" height="5" rx="2"/>` +
+      [[168, 340], [195, 334], [222, 340], [180, 358], [210, 358], [158, 362], [234, 362]]
+        .map(([x, y]) => `<circle class="cp-cream" cx="${x}" cy="${y}" r="4"/>`).join("") +
+      `<rect class="cp-cobalt" x="146" y="364" width="98" height="9" rx="4"/>` +
+      `<path class="cp-cobalt" d="M240 368 L262 356 L262 380Z M240 368 L250 392 L240 394Z"/>` +
+      `<circle class="cp-dark" cx="241" cy="368" r="5"/>`;
+  return vessel("Jar B", { x: 195, y: 320 }, sil, det, `<clipPath id="${id}"><path d="${body}"/></clipPath>`);
+}
+
+const NEW = {
+  pastry: { A: pastryA, B: pastryB },
+  bag: { A: bagA, B: bagB },
+  jar: { A: jarA, B: jarB },
+};
+const WHAT = {
+  pastry: {
+    A: "A croissant: seven rolls of baked card, biggest in the middle, lying low and wide on the cup's cobalt bar.",
+    B: "An iced muffin: tall and upright, mustard dome over a pleated cobalt case, cream icing and a tomato cherry.",
+  },
+  bag: {
+    A: "A tall cream paper bag, the top folded over in tomato with a pinked edge and sealed with a cobalt sticker.",
+    B: "A wide tomato carrier bag with two loop handles (cobalt in front, navy behind) and a torn-off order slip.",
+  },
+  jar: {
+    A: "A straight jar with a ridged cobalt screw lid, a tomato £ label, and coins piled inside.",
+    B: "A round-bellied honey jar under a spotted tomato cloth, tied with a cobalt band and bow.",
+  },
+};
+const TITLES = { pastry: "Pastry <small>for snack items</small>", bag: "Takeaway bag <small>for delivery items</small>", jar: "Jar <small>the “anything else” picture</small>" };
+
+function pickerRow(letter, current) {
+  const slots = [
+    ["cup", () => real("cup")], ["pint", () => real("pint")], ["plate", () => real("plate")],
+    ["jar", NEW.jar[letter]], ["pastry", NEW.pastry[letter]], ["bag", NEW.bag[letter]],
+  ];
+  return `<div class="picker">${slots.map(([k, f]) =>
+    `<div class="pick${k === current ? " on" : ""}"><div class="tile">${f()}</div><span>${k}</span></div>`).join("")}</div>`;
+}
+
+document.getElementById("pieces").innerHTML = ["pastry", "bag", "jar"].map((k) => {
+  const name = k === "bag" ? "Bag" : k[0].toUpperCase() + k.slice(1);
+  return `<h2>${TITLES[k]}</h2>` + ["A", "B"].map((L) => `
+    <section class="option" id="${k}-${L}">
+      <span class="tag">${name} ${L}</span>
+      <p class="what">${WHAT[k][L]}</p>
+      <div class="main-size">${NEW[k][L]()}</div>
+      <p class="caption">Picker size, beside the real cup, pint and plate (all the ${L} drawings)</p>
+      ${pickerRow(L, k)}
+    </section>`).join("");
+}).join("");
+
+/* ---------- Latte graph ---------- */
+
+function mulberry32(a) {
+  return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const DAY = 86400000;
+const TODAY = Date.UTC(2026, 10, 17);
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** Presses as [dayIndex, price]; the first day is day 0, today is the last day. */
+function weekData() {
+  const start = TODAY - 6 * DAY;
+  return { start, days: 7, presses: [[0, 3.5], [1, 3.5], [3, 8], [4, 3.5], [5, 6], [6, 3.5]] };
+}
+function monthsData() {
+  const start = Date.UTC(2026, 5, 15);
+  const days = Math.round((TODAY - start) / DAY) + 1;
+  const rnd = mulberry32(27);
+  const prices = [3.5, 3.5, 3.5, 3.5, 4.2, 6, 8];
+  const presses = [[0, 3.5]];
+  for (let d = 1; d < days; d++) if (rnd() < 0.45) presses.push([d, prices[Math.floor(rnd() * prices.length)]]);
+  return { start, days, presses };
+}
+
+/** Daily running totals and invested amounts. Invest day is the 26th: it clears what was saved to the end of the 25th. */
+function series({ start, days, presses }) {
+  const saved = [], invested = [], investDays = [];
+  let total = 0, inv = 0;
+  for (let d = 0; d < days; d++) {
+    const date = new Date(start + d * DAY);
+    if (date.getUTCDate() === 26 && d > 0) { inv = saved[d - 1]; investDays.push(d); }
+    for (const [pd, p] of presses) if (pd === d) total += p;
+    saved.push(total); invested.push(inv);
+  }
+  return { saved, invested, investDays, days, start };
+}
+
+/** Fritsch-Carlson monotone cubic through the points: smooth, never dips, passes through each point. */
+function monotone(pts) {
+  const n = pts.length, dx = [], m = [], t = [];
+  for (let i = 0; i < n - 1; i++) { dx[i] = pts[i + 1][0] - pts[i][0]; m[i] = (pts[i + 1][1] - pts[i][1]) / dx[i]; }
+  t[0] = m[0]; t[n - 1] = m[n - 2];
+  for (let i = 1; i < n - 1; i++) t[i] = m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (m[i] === 0) { t[i] = 0; t[i + 1] = 0; continue; }
+    const a = t[i] / m[i], b = t[i + 1] / m[i], s = a * a + b * b;
+    if (s > 9) { const k = 3 / Math.sqrt(s); t[i] = k * a * m[i]; t[i + 1] = k * b * m[i]; }
+  }
+  const segs = [];
+  for (let i = 0; i < n - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], h = dx[i];
+    segs.push({ x0, y0, x1, y1, c1: [x0 + h / 3, y0 + (t[i] * h) / 3], c2: [x1 - h / 3, y1 - (t[i + 1] * h) / 3] });
+  }
+  const d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}` +
+    segs.map((s) => ` C${s.c1[0].toFixed(1)} ${s.c1[1].toFixed(1)} ${s.c2[0].toFixed(1)} ${s.c2[1].toFixed(1)} ${s.x1.toFixed(1)} ${s.y1.toFixed(1)}`).join("");
+  const at = (x) => {
+    const s = segs.find((q) => x <= q.x1) ?? segs[segs.length - 1];
+    const u = Math.min(1, Math.max(0, (x - s.x0) / (s.x1 - s.x0)));
+    const v = 1 - u;
+    return v * v * v * s.y0 + 3 * v * v * u * s.c1[1] + 3 * v * u * u * s.c2[1] + u * u * u * s.y1;
+  };
+  return { d, at };
+}
+
+/** Shared geometry: x per day, y per pound, froth curve, espresso steps. */
+function shapes(s, box) {
+  const { x0, x1, yBottom, yTop } = box;
+  const max = s.saved[s.days - 1] * 1.1 || 1;
+  const X = (d) => x0 + (s.days === 1 ? 0 : (d / (s.days - 1)) * (x1 - x0));
+  const Y = (v) => yBottom - (v / max) * (yBottom - yTop);
+  // Sample the running total every few days, always including each invest day,
+  // the day before it, and the last day, so the curve meets each step and ends on the total.
+  const step = Math.max(1, Math.round(s.days / 24));
+  const keep = new Set([0, s.days - 1]);
+  for (let d = 0; d < s.days; d += step) keep.add(d);
+  for (const d of s.investDays) { keep.add(d); keep.add(d - 1); }
+  const idx = [...keep].sort((a, b) => a - b);
+  const curve = monotone(idx.map((d) => [X(d), Y(s.saved[d])]));
+  // Espresso: a staircase that steps up on each invest day.
+  const steps = [];
+  let v = 0;
+  for (const d of s.investDays) { steps.push([X(d), Y(v)], [X(d), Y(s.invested[d])]); v = s.invested[d]; }
+  return { X, Y, curve, steps, endY: Y(v), max };
+}
+
+function money(v) { return "£" + (Math.round(v * 100) % 100 === 0 ? Math.round(v) : v.toFixed(2)); }
+
+/** Graph A: a cream glass with a cobalt rim and foot; thick bubbly froth. */
+function graphA(s) {
+  const W = 358, H = 158;
+  const gid = `ga-${++uid}`;
+  const glass = `M6 14 H344 V134 Q344 148 330 148 H20 Q6 148 6 134Z`;
+  const g = shapes(s, { x0: 6, x1: 344, yBottom: 148, yTop: 34 });
+  const left = 6, right = 344;
+  const latte = `${g.curve.d} L${right} 160 L${left} 160Z`;
+  const esp = `M${left} 160 ${g.steps.length ? g.steps.map(([x, y]) => `L${x.toFixed(1)} ${y.toFixed(1)}`).join(" ") : `L${left} 160`} L${right} ${g.endY.toFixed(1)} L${right} 160Z`;
+  const bubbles = [];
+  const rnd = mulberry32(s.days * 7 + 1);
+  for (let x = 14; x < right - 4; x += 15 + rnd() * 8) {
+    const y = g.curve.at(x);
+    bubbles.push(`<circle cx="${x.toFixed(1)}" cy="${(y - 6 - rnd() * 2).toFixed(1)}" r="${(5 + rnd() * 4).toFixed(1)}"/>`);
+  }
+  const froth = `<path d="${g.curve.d}" fill="none" stroke-width="14" stroke-linecap="round"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Latte graph, option A">
+  <defs><clipPath id="${gid}"><path d="${glass}"/></clipPath></defs>
+  <g class="cp-shadow" transform="translate(6 6)"><path d="${glass}"/></g>
+  <path class="cp-cream" d="${glass}"/>
+  <g clip-path="url(#${gid})">
+    <path class="cp-latte" d="${latte}"/>
+    <path class="cp-coffee" d="${esp}"/>
+    <g transform="translate(3 -3)" style="stroke:var(--shadow);fill:var(--shadow)">${froth}<g>${bubbles.join("")}</g></g>
+    <g transform="translate(0 -6)" style="stroke:var(--foam);fill:var(--foam)">${froth}<g>${bubbles.join("")}</g></g>
+  </g>
+  <rect class="cp-cobalt" x="0" y="6" width="${W - 8}" height="14" rx="7"/>
+</svg>`;
+}
+
+/** Graph B: no glass; layers cut from card and stuck on the paper, espresso with a torn top; a thin froth ribbon with one dollop at today. */
+function graphB(s) {
+  const W = 358, H = 158;
+  const left = 4, right = 346, bottom = 140;
+  const g = shapes(s, { x0: left, x1: right, yBottom: bottom, yTop: 22 });
+  const latte = `${g.curve.d} L${right} ${bottom} L${left} ${bottom}Z`;
+  // Torn top edge: each flat tread of the staircase is cut with small uneven teeth.
+  const rnd = mulberry32(s.days * 3 + 5);
+  const torn = (xa, xb, y) => {
+    let p = "";
+    for (let x = xa + 5; x < xb; x += 5 + rnd() * 4) p += ` L${x.toFixed(1)} ${(y + (rnd() < 0.5 ? -2.5 : 2) * (0.6 + rnd() * 0.6)).toFixed(1)}`;
+    return p + ` L${xb.toFixed(1)} ${y.toFixed(1)}`;
+  };
+  let esp = "";
+  if (g.steps.length) {
+    esp = `M${left} ${bottom}`;
+    for (let i = 0; i < g.steps.length; i += 2) {
+      const [xa] = g.steps[i], [, ya] = g.steps[i + 1];
+      const xb = i + 2 < g.steps.length ? g.steps[i + 2][0] : right;
+      esp += ` L${xa.toFixed(1)} ${bottom} L${xa.toFixed(1)} ${ya.toFixed(1)}` + torn(xa, xb, ya);
+    }
+    esp += ` L${right} ${bottom}Z`;
+    // Start the shape at the first step rather than the left edge.
+    esp = esp.replace(`M${left} ${bottom} L`, "M");
+  }
+  const endY = g.curve.at(right);
+  const ribbon = (cls) => `<path d="${g.curve.d}" fill="none" style="stroke:var(--${cls})" stroke-width="6" stroke-linecap="round"/>`;
+  const dollop = `<circle cx="${right - 4}" cy="${(endY - 8).toFixed(1)}" r="11"/><circle cx="${right - 18}" cy="${(g.curve.at(right - 18) - 5).toFixed(1)}" r="7"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Latte graph, option B">
+  <g class="cp-shadow" transform="translate(5 5)"><path d="${latte}"/></g>
+  <path class="cp-latte" d="${latte}"/>
+  ${esp ? `<path class="cp-coffee" d="${esp}"/>` : ""}
+  <g transform="translate(3 0)">${ribbon("shadow")}<g class="cp-shadow">${dollop}</g></g>
+  <g transform="translate(0 -3)">${ribbon("foam")}<g class="cp-foam">${dollop}</g></g>
+  <g class="cp-shadow" transform="translate(5 5)"><rect x="0" y="${bottom}" width="${W - 8}" height="12" rx="6"/></g>
+  <rect class="cp-cobalt" x="0" y="${bottom}" width="${W - 8}" height="12" rx="6"/>
+</svg>`;
+}
+
+function plank(saved) {
+  const t = [["weekend", "Weekend away", 300], ["laptop", "Laptop", 1000], ["ski", "Ski week", 1500]];
+  return `<div class="plank"><ul>${t.map(([k, n, p]) =>
+    `<li class="${saved >= p ? "" : "art-off"}"><span class="shelf-art">${real(k)}</span><span class="nm">${n}</span><span class="pr">£${p.toLocaleString("en-GB")}</span></li>`).join("")}</ul></div>`;
+}
+
+function graphBlock(draw, data, label) {
+  const s = series(data);
+  const saved = s.saved[s.days - 1], inv = s.invested[s.days - 1];
+  const first = MONTHS[new Date(s.start).getUTCMonth()];
+  return `<p class="sub">${label}</p>
+    ${plank(saved)}
+    <div class="graph">
+      <div class="graph-labels"><span class="saved"><i class="sw" style="background:var(--foam);box-shadow:2px 2px 0 var(--shadow)"></i>${money(saved)} saved</span><span class="inv"><i class="sw" style="background:var(--coffee)"></i>${money(inv)} invested</span></div>
+      ${draw(s)}
+      <div class="graph-ends"><span>${first}</span><span>today</span></div>
+    </div>`;
+}
+
+const GRAPH_WHAT = {
+  A: "A cream glass with a cobalt rim. Smooth layers; a thick froth band with a row of bubbles riding the curve.",
+  B: "No glass: the layers are cut from card and stuck on the paper. The espresso has a torn top edge; the froth is a thin ribbon with one dollop at today.",
+};
+const week = weekData(), months = monthsData();
+document.getElementById("graphs").innerHTML = ["A", "B"].map((L) => {
+  const draw = L === "A" ? graphA : graphB;
+  return `<section class="option" id="graph-${L}">
+    <span class="tag">Graph ${L}</span>
+    <p class="what">${GRAPH_WHAT[L]}</p>
+    ${graphBlock(draw, week, "One week of data")}
+    ${graphBlock(draw, months, "About five months of data")}
+  </section>`;
+}).join("") + `<p class="data-note">Made-up data: about three presses a week at £3.50 to £8 from 15 June; on the 26th of each month everything saved to the end of the 25th is invested. With one week there has been no invest day yet, so the espresso layer is empty.</p>`;
+
+/* ---------- Theme switch ---------- */
+function setTheme(t) {
+  if (t === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", t);
+  for (const b of document.querySelectorAll(".theme button")) b.setAttribute("aria-pressed", String(b.dataset.set === t));
+}
+for (const b of document.querySelectorAll(".theme button")) b.addEventListener("click", () => setTheme(b.dataset.set));
+setTheme(new URLSearchParams(location.search).get("theme") || "auto");
+</script>
+</body>
+</html>
