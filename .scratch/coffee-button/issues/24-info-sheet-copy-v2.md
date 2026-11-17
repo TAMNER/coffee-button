@@ -10,17 +10,27 @@
 >
 > **How does investment work?** On investment day, the app will prompt you to invest your savings with your chosen investment service. Follow the instructions to invest in future you.
 
-Three wording questions are Tom's to answer before this is built:
+Tom's wording decisions (2026-11-17):
 
-1. The draft says "investment day"; the app's button says "Invest £X" and the code and docs say "settle day". One name should be used everywhere a user can see it.
-2. The draft says "'coffee button' account"; the app and Starling call it a Space.
-3. The draft has no Swipe or Add to Home Screen section. Recommendation: keep both after the four new sections, since nothing else tells a new user about the swipes, and the app loses its data unless installed.
+1. The user-visible name is "Invest £X", as on the button. "Investment day" is not used in the app.
+2. It is a "Space", not an account.
+3. The Swipe and Add to Home Screen sections stay, unchanged, after the four new sections.
 
-**Blocked by:** None, but waits on Tom's answers to the three questions above.
+The draft with those decisions applied, for Tom to read before it is pushed:
 
-**Status:** blocked (waiting on Tom's wording decisions)
+> **The idea.** Skip a coffee, Press the cup and Save the money. Build good habits whilst investing in future you.
+>
+> **The money.** Click the cup and set money aside. Once a month the app shows Invest £X and prompts you to invest your savings.
+>
+> **How does saving work?** For Starling bank users, your savings will grow in your Coffee Button Space every time you click. For other users, the app keeps a tally of your savings until Invest £X appears.
+>
+> **How does investment work?** When Invest £X appears, the app will prompt you to invest your savings with your chosen investment service. Follow the instructions to invest in future you.
 
-- [ ] Tom has answered the three wording questions; answers recorded here
+**Blocked by:** None (can start immediately).
+
+**Status:** ready-for-agent
+
+- [x] Tom has answered the three wording questions; answers recorded here
 - [ ] The info sheet's sections are exactly the agreed headings and bodies, in the agreed order; the existing copy test is changed first and fails
 - [ ] The install wording still follows the browser (iOS Safari wording versus neutral wording), as it does today (guard test)
 - [ ] Any other user-visible place that names investment day or the Space uses the agreed words

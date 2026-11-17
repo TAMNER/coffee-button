@@ -4,13 +4,14 @@
 
 Start by checking whether the clock can already be overridden; if it can, this ticket is only the on-screen notice and a line in the device checklist.
 
-Open question for Tom before building: should a press or a "Yes, I invested" made on a pretend date be saved (with the pretend timestamp), or should the pretend mode be look-only? Recommendation: look-only for money, so a test walk never clears a real owed balance.
+Decided by Tom (2026-11-17): the pretend mode is look-only for money. A press or a "Yes, I invested" made on a pretend date is not saved, so a test walk never clears a real owed balance or adds a press; the ceremonies still play.
 
 **Blocked by:** None (can start immediately).
 
 **Status:** ready-for-agent
 
-- [ ] Tom has answered the open question; answer recorded here
+- [x] Tom has answered the open question; answer recorded here
+- [ ] While a pretend date is active, a press and a settle confirmation leave the ledger and the owed balance unchanged; unit tested, failing first
 - [ ] A pure function reads the pretend date from where the tester sets it and rejects anything that is not a real date; unit tested, failing first
 - [ ] With a pretend date on or after settle day and money owed, the settle rules report "Invest £X" exactly as they would on that real date (guard test with the fake clock)
 - [ ] A notice naming the pretend date shows on every screen while it is active (DOM glue, declared untested)

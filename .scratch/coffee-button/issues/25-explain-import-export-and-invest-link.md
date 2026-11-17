@@ -5,9 +5,9 @@
 Proposed copy, for Tom to review:
 
 - Under Export and Import: "Export saves a backup file of your presses and settings. Import replaces everything on this phone with a backup. Your bank link is never in the file."
-- Under "Where do you invest?": "Paste the link to wherever you invest. On investment day, Invest copies the amount and opens this link. Nothing is sent to them."
+- Under "Where do you invest?": "Paste the link to wherever you invest. When Invest £X appears, tapping it copies the amount and opens this link. Nothing is sent to them."
 
-If ticket 24 settles a different name for investment day, this copy follows it.
+Tom approved this copy on 2026-11-17. The second line was then reworded from "On investment day, Invest copies…" to follow his ticket 24 decision that the app says "Invest £X", not "investment day"; that one phrase is still his to read before the push.
 
 **Blocked by:** None (can start immediately).
 
