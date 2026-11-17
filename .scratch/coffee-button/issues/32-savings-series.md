@@ -12,5 +12,5 @@ Agreed in the grilling session of 2026-11-17 (Q8, Q17, Q18).
 - [x] One press today gives a seven-day series ending today, with saved stepping up on the day of the press
 - [x] Saved is cumulative per day across items and months; invested steps up on the day of each settlement by its amount
 - [x] An undone press does not appear in the series (guard test)
-- [ ] The last point's saved figure equals the ledger's lifetime total, and its invested figure equals the sum of settlements (guard tests)
+- [x] The last point's saved figure equals the ledger's lifetime total, and its invested figure equals the sum of settlements (guard tests)
 - [ ] Days are the phone's local days; a press at 23:59 and one at 00:01 fall on different days (unit tested with the fake clock)

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
 import { savingsSeries } from "./savings-series";
+import { settle } from "./settle";
 import { MemoryStore } from "./store";
 
 let n = 0;
@@ -59,5 +60,43 @@ describe("savingsSeries", () => {
       "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15", "2026-11-16", "2026-11-17",
     ]);
     expect(series.savedPence).toBe(600);
+  });
+});
+
+describe("savingsSeries agrees with the ledger", () => {
+  const now = new Date(2026, 10, 17, 12);
+
+  async function history() {
+    const store = new MemoryStore();
+    let id = 0;
+    const ledger = new Ledger(store, () => `g${++id}`);
+    for (const [item, at] of [
+      ["coffee", new Date(2026, 7, 3, 8)],
+      ["lunch", new Date(2026, 7, 20, 13)],
+      ["beer", new Date(2026, 8, 12, 19)],
+      ["coffee", new Date(2026, 9, 30, 8)],
+      ["coffee", new Date(2026, 10, 17, 8)],
+    ] as const) {
+      await ledger.addPress(item, at);
+    }
+    await settle(store, 1150, new Date(2026, 7, 26, 9), () => "s1");
+    await settle(store, 950, new Date(2026, 9, 26, 9), () => "s2");
+    return { store, ledger };
+  }
+
+  it("the last point's saved figure, and the headline, equal the ledger's lifetime total", async () => {
+    const { store, ledger } = await history();
+    const series = savingsSeries(await ledger.presses(), await store.settlements.list(), now);
+    expect(series.days[series.days.length - 1].savedPence).toBe(await ledger.lifetime());
+    expect(series.savedPence).toBe(await ledger.lifetime());
+  });
+
+  it("the last point's invested figure, and the headline, equal the sum of settlements", async () => {
+    const { store, ledger } = await history();
+    const settlements = await store.settlements.list();
+    const series = savingsSeries(await ledger.presses(), settlements, now);
+    const sum = settlements.reduce((total, s) => total + s.amountPence, 0);
+    expect(series.days[series.days.length - 1].investedPence).toBe(sum);
+    expect(series.investedPence).toBe(sum);
   });
 });
