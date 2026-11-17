@@ -19,4 +19,14 @@ describe("drawing request link (ticket 38)", () => {
       expect(link).not.toContain("+");
     }
   });
+
+  it("an empty or blank name box ends the body after the colon and a space; a typed name is trimmed", () => {
+    const body = (name: string) => {
+      const link = drawingRequestLink("mailto:drawings@example.invalid", name);
+      return new URLSearchParams(link.slice(link.indexOf("?") + 1)).get("body");
+    };
+    expect(body("")).toBe("I'd like a drawing for: ");
+    expect(body("   ")).toBe("I'd like a drawing for: ");
+    expect(body("  Matcha  ")).toBe("I'd like a drawing for: Matcha");
+  });
 });
