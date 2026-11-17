@@ -8,11 +8,11 @@ Proposed copy, for Tom to review: the line "Want a picture that isn't here?", th
 
 **Blocked by:** None (can start immediately). Going live waits on Tom choosing the destination.
 
-**Status:** ready-for-agent
+**Status:** built, waiting on Tom (destination and copy review). Domain in `src/domain/drawing-request.ts`, glue in `src/ui/drawing-request.ts`; screenshots `shots/38-*`.
 
-- [ ] A pure function builds the request link from the configured destination and the item name: a `mailto:` destination gets the subject and body, correctly encoded; an `https:` destination is opened as it is; anything else, or nothing configured, gives no link; unit tested, failing first
-- [ ] An item name with spaces, an ampersand, a question mark or a pound sign survives into the message intact (unit tested)
-- [ ] With no destination built in, Settings shows no line and no button (guard test on the function; DOM glue declared untested)
-- [ ] The destination comes from a build-time variable, documented beside the relay variable in the deploy scripts' comments; no address is committed
-- [ ] The line and button sit under the add form's picture row and read well at 390px in both themes (screenshot, taken with a made-up destination)
+- [x] A pure function builds the request link from the configured destination and the item name: a `mailto:` destination gets the subject and body, correctly encoded; an `https:` destination is opened as it is; anything else, or nothing configured, gives no link; unit tested, failing first
+- [x] An item name with spaces, an ampersand, a question mark or a pound sign survives into the message intact (unit tested)
+- [x] With no destination built in, Settings shows no line and no button (guard test on the function; DOM glue declared untested)
+- [x] The destination comes from a build-time variable, documented beside the relay variable in the deploy scripts' comments; no address is committed
+- [x] The line and button sit under the add form's picture row and read well at 390px in both themes (screenshot, taken with a made-up destination)
 - [ ] Tom has chosen the destination and reviewed the copy
