@@ -6,6 +6,7 @@
  */
 import { BASE, CUP_VIEWBOX, cupSvg, LIQUID_DROP, RIM } from "../cup-art";
 import { pictureFor } from "../../domain/pictures";
+import * as bag from "../bag-art";
 import * as jar from "../jar-art";
 import * as pastry from "../pastry-art";
 import * as pint from "../pint-art";
@@ -108,6 +109,18 @@ export const PASTRY_VESSEL: VesselArt = {
   tileViewBox: "79 283 240 240",
 };
 
+export const BAG_VESSEL: VesselArt = {
+  viewBox: bag.CUP_VIEWBOX,
+  svg: bag.cupSvg,
+  rim: bag.RIM,
+  base: bag.BASE,
+  liquidDrop: bag.LIQUID_DROP,
+  // Scraps of the order slip: what flies off the bag where the coin lands.
+  liquidClass: "cp-cream",
+  pour: false,
+  tileViewBox: "84 289 230 230",
+};
+
 /** The drawing per picture id (src/domain/pictures.ts PICTURES). A new picture adds one line here. */
 const VESSELS: Record<string, VesselArt> = {
   cup: COFFEE_VESSEL,
@@ -115,6 +128,7 @@ const VESSELS: Record<string, VesselArt> = {
   plate: SANDWICH_VESSEL,
   jar: JAR_VESSEL,
   pastry: PASTRY_VESSEL,
+  bag: BAG_VESSEL,
 };
 
 /**
