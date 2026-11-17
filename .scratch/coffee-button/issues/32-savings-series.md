@@ -6,9 +6,9 @@ Agreed in the grilling session of 2026-11-17 (Q8, Q17, Q18).
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
-- [ ] No presses gives no series; unit tested, failing first
+- [x] No presses gives no series; unit tested, failing first
 - [ ] One press today gives a seven-day series ending today, with saved stepping up on the day of the press
 - [ ] Saved is cumulative per day across items and months; invested steps up on the day of each settlement by its amount
 - [ ] An undone press does not appear in the series (guard test)
