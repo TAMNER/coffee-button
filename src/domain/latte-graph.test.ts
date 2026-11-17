@@ -134,4 +134,14 @@ describe("latteGraph (ticket 33)", () => {
   it("no presses: no graph", () => {
     expect(latteGraph(savingsSeries([], [], new Date(2026, 10, 17, 12)))).toBeNull();
   });
+
+  it("labels from the series' figures, pence only when there are any; '£0 invested' before the first invest", () => {
+    const presses = [
+      { id: "a", itemId: "coffee", pricePence: 2450, at: new Date(2026, 10, 12, 8).getTime() },
+      { id: "b", itemId: "coffee", pricePence: 350, at: new Date(2026, 10, 17, 8).getTime() },
+    ];
+    const graph = latteGraph(savingsSeries(presses, [], new Date(2026, 10, 17, 12)))!;
+    expect(graph.savedLabel).toBe("£28 saved");
+    expect(graph.investedLabel).toBe("£0 invested");
+  });
 });

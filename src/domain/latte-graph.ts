@@ -3,6 +3,7 @@
  * oldest first; each carries the running totals at the end of its period.
  * Built on savingsSeries (ticket 32), whose days are local calendar days.
  */
+import { formatPoundsShort } from "./money";
 import type { SavingsSeries } from "./savings-series";
 
 /** One glass: the local days it covers ("YYYY-MM-DD", both counted) and the running totals at the end of `to`. */
@@ -61,12 +62,20 @@ export function glassPeriods(series: SavingsSeries): GlassPeriod[] {
 /** Everything the latte graph shows, ready to render. */
 export interface LatteGraph {
   glasses: GlassPeriod[];
+  /** "£381.30 saved": today's total. */
+  savedLabel: string;
+  /** "£0 invested" until the first invest. */
+  investedLabel: string;
 }
 
 /** The graph from the savings series; null before the first press (the shelf shows its hint instead). */
 export function latteGraph(series: SavingsSeries): LatteGraph | null {
   if (series.days.length === 0) return null;
-  return { glasses: glassPeriods(series) };
+  return {
+    glasses: glassPeriods(series),
+    savedLabel: `${formatPoundsShort(series.savedPence)} saved`,
+    investedLabel: `${formatPoundsShort(series.investedPence)} invested`,
+  };
 }
 
 /** How high each layer stands in a glass whose drink can reach `height`; they stack coffee, latte, froth from the bottom. */
