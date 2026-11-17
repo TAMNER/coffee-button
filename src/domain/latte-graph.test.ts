@@ -28,4 +28,11 @@ describe("glassPeriods (ticket 33)", () => {
       { from: "2026-11-17", to: "2026-11-17", savedPence: 700, investedPence: 70 },
     ]);
   });
+
+  it("day eight (Tue 10 to Tue 17 Nov): one glass per Monday-to-Sunday week, the last being this week so far", () => {
+    expect(glassPeriods(series("2026-11-10", 8))).toEqual([
+      { from: "2026-11-10", to: "2026-11-15", savedPence: 600, investedPence: 60 },
+      { from: "2026-11-16", to: "2026-11-17", savedPence: 800, investedPence: 80 },
+    ]);
+  });
 });
