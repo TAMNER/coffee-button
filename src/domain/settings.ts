@@ -1,4 +1,4 @@
-import { listItems } from "./items";
+import { listItems, nextItem } from "./items";
 import { DEFAULT_ITEM, DEFAULT_ITEMS, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
 
 export async function addItem(
@@ -27,14 +27,25 @@ export function repriceItem(store: Store, id: string, pricePence: number): Promi
   return updateItem(store, id, { pricePence });
 }
 
-/** Takes an item out of the swipe for good (ticket 26). Coffee is permanent. Presses keep their own price, so totals stay. */
+/**
+ * Takes an item out of the swipe for good (ticket 26). Coffee is permanent.
+ * Presses keep their own price, so totals stay. A removed Beer or Lunch is
+ * remembered so launch does not add it back; if the cup showed the removed
+ * item it moves to the next one in cycling order.
+ */
 export async function removeItem(store: Store, id: string): Promise<void> {
   if (id === DEFAULT_ITEM.id) throw new Error("Coffee cannot be removed");
+  const wasActive = (await activeItemId(store)) === id;
+  const next = nextItem(await listItems(store), id);
   await store.items.delete(id);
-  if (!DEFAULT_ITEMS.some((item) => item.id === id)) return;
   const settings = await store.getSettings();
   const removed = settings.removedItemIds ?? [];
-  if (!removed.includes(id)) await store.putSettings({ ...settings, removedItemIds: [...removed, id] });
+  const remember = DEFAULT_ITEMS.some((item) => item.id === id) && !removed.includes(id);
+  await store.putSettings({
+    ...settings,
+    ...(wasActive ? { activeItemId: next } : {}),
+    ...(remember ? { removedItemIds: [...removed, id] } : {}),
+  });
 }
 
 /** Payday must exist in every month, so 1 to 28. */

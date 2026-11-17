@@ -364,6 +364,17 @@ describe("settings: remove an item (ticket 26)", () => {
     expect([await ledger.monthToDate(now), await owed(store, now), await ledger.lifetime()]).toEqual(before);
   });
 
+  it("removing the active item moves the cup to the next item in cycling order: Beer to Lunch, then Lunch wraps to Coffee", async () => {
+    const store = new MemoryStore();
+    await setActiveItem(store, "beer");
+
+    await removeItem(store, "beer");
+    const afterBeer = await activeItemId(store);
+    await removeItem(store, "lunch");
+
+    expect([afterBeer, await activeItemId(store)]).toEqual(["lunch", "coffee"]);
+  });
+
   it("export then import keeps Beer removed: the file lists it and the next launch does not add it back", async () => {
     const source = await storeWithFixture();
     await removeItem(source, "beer");
