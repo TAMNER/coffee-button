@@ -6,6 +6,7 @@ import { installCopy } from "./domain/install-copy";
 import { ensureDefaultItems } from "./domain/items";
 import { Ledger } from "./domain/ledger";
 import { LedgerMover } from "./domain/money-mover";
+import { ensureTargets } from "./domain/shelf";
 import { MemoryStore, type Store } from "./domain/store";
 import { IndexedDbStore } from "./storage/idb";
 import { startApp } from "./ui/app";
@@ -48,6 +49,9 @@ async function boot(): Promise<void> {
 
   // Installs from before Beer was a default get it once; a failure only means no Beer yet.
   await ensureDefaultItems(store).catch((err) => console.error("Could not add default items", err));
+  // Ticket 30: settle the one plank of targets (starter three, or the once-only migration)
+  // before startApp, so the info sheet's first write cannot make a new install look used.
+  await ensureTargets(store).catch((err) => console.error("Could not set up the shelf targets", err));
 
   startApp(document.getElementById("app")!, {
     store,

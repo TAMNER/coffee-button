@@ -9,13 +9,14 @@ import {
   addGoal,
   COMPOUND_RATE,
   COMPOUND_YEARS,
-  MAX_GOALS,
-  removeGoal,
+  MAX_TARGETS,
+  removeTarget,
   setShelfPrice,
   shelfItems,
   shelfView,
-  type ShelfEntry,
+  type ShelfView,
 } from "../domain/shelf";
+import { confirmSheet } from "./confirm-sheet";
 import { weeklyOverdueLine } from "../domain/settle";
 import { shelfHint } from "../domain/shelf-hint";
 import { HOME_SCREEN, onStart, registerScreen, registerSettingsSection, type AppContext } from "./app";
@@ -39,7 +40,8 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 }
 
-function entryHtml(entry: ShelfEntry, isGoal: boolean): string {
+/** Ticket 30: every target, built-in or typed, has its × (the confirm sheet asks first). */
+function entryHtml(entry: ShelfView["targets"][number]): string {
   const percent = Math.floor(entry.progress * 100);
   const status = entry.lit
     ? `<span class="shelf-badge"><span>You could now</span> <span>buy this</span></span>`
@@ -47,11 +49,11 @@ function entryHtml(entry: ShelfEntry, isGoal: boolean): string {
       `<span style="width:${(entry.progress * 100).toFixed(1)}%"></span></span>`;
   return `
     <li class="shelf-item ${entry.lit ? "is-lit" : "art-off"}">
-      <span class="shelf-art" aria-hidden="true">${isGoal ? goalArt() : itemArt(entry.id)}</span>
+      <span class="shelf-art" aria-hidden="true">${entry.builtIn ? itemArt(entry.id) : goalArt()}</span>
       <span class="shelf-name">${escapeHtml(entry.name)}</span>
       <span class="shelf-price">${formatPounds(entry.pricePence)}</span>
       ${status}
-      ${isGoal ? `<button type="button" class="shelf-remove" data-goal="${entry.id}" aria-label="Remove ${escapeHtml(entry.name)}">×</button>` : ""}
+      <button type="button" class="shelf-remove" data-target="${escapeHtml(entry.id)}" data-name="${escapeHtml(entry.name)}" aria-label="Remove ${escapeHtml(entry.name)}">×</button>
     </li>`;
 }
 
@@ -112,13 +114,8 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
       `is ${formatPounds(view.compoundedPence)}.`;
     overdue.hidden = view.overdueLine === null;
     overdue.textContent = view.overdueLine ?? "";
-    shelf.innerHTML = shelvesHtml(
-      shelfRows(
-        view.goals.map((g) => entryHtml(g, true)),
-        view.items.map((i) => entryHtml(i, false)),
-      ),
-    );
-    form.hidden = view.goals.length >= MAX_GOALS;
+    shelf.innerHTML = shelvesHtml(shelfRows(view.targets.map(entryHtml)));
+    form.hidden = view.targets.length >= MAX_TARGETS;
   };
 
   form.addEventListener("submit", async (e) => {
@@ -131,15 +128,18 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
       await addGoal(ctx.store, name, price);
       form.reset();
     } catch {
-      // Already three goals; the form is hidden on refresh.
+      // Already three targets; the form is hidden on refresh.
     }
     await refresh();
   });
 
   shelf.addEventListener("click", async (e) => {
-    const id = (e.target as Element).closest<HTMLElement>("[data-goal]")?.dataset.goal;
+    const button = (e.target as Element).closest<HTMLElement>("[data-target]");
+    const id = button?.dataset.target;
     if (!id) return;
-    await removeGoal(ctx.store, id);
+    const sure = await confirmSheet({ title: `Remove ${button.dataset.name}?`, confirm: "Remove", cancel: "Keep" });
+    if (!sure || !alive) return;
+    await removeTarget(ctx.store, id);
     await refresh();
   });
 
