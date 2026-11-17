@@ -14,4 +14,10 @@ describe("pictureFor", () => {
     expect(pictureFor("").id).toBe("jar");
     expect(pictureFor("constructor").id).toBe("jar");
   });
+
+  it("keeps the names typed into the old free-text box: cup, pint and plate show their own pictures", () => {
+    expect(pictureFor("cup").id).toBe("cup");
+    expect(pictureFor("pint").id).toBe("pint");
+    expect(pictureFor("plate").id).toBe("plate");
+  });
 });
