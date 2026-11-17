@@ -159,4 +159,16 @@ describe("targets: migrating a phone from before ticket 30", () => {
     expect(targets.filter((t) => t.builtIn).map((t) => t.id)).toEqual(builtIns);
     expect(targets.find((t) => t.id === "espresso-machine")?.pricePence ?? 120000).toBe(120000);
   });
+
+  it("running the migration twice changes nothing, even after the plank was changed in between", async () => {
+    const store = await oldPhone(1);
+
+    await migrateTargets(store);
+    await store.putSettings({ ...(await store.getSettings()), shelfBuiltInIds: ["laptop"] });
+    const before = await store.getSettings();
+    await migrateTargets(store);
+
+    expect(await store.getSettings()).toEqual(before);
+    expect(await store.goals.list()).toEqual([GOALS[0]]);
+  });
 });

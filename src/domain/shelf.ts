@@ -76,7 +76,8 @@ export async function ensureTargets(store: Store): Promise<void> {
 /** A phone from before ticket 30: every goal stays, the cheapest built-ins (edited prices) fill the places left. */
 export async function migrateTargets(store: Store): Promise<void> {
   const settings = await store.getSettings();
-  const places = Math.max(0, MAX_TARGETS - (await store.goals.list()).length);
+  if (settings.shelfBuiltInIds) return; // already migrated: runs once
+  const places =Math.max(0, MAX_TARGETS - (await store.goals.list()).length);
   const builtIns = (await shelfItems(store)).sort(cheapestFirst).slice(0, places);
   await store.putSettings({ ...settings, shelfBuiltInIds: builtIns.map((item) => item.id) });
 }
