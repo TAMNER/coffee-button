@@ -3,7 +3,7 @@ import { FakeClipboard } from "../adapters/clipboard";
 import { FakeClock } from "../adapters/clock";
 import { FakeUrlOpener } from "../adapters/open-url";
 import { Ledger } from "./ledger";
-import { LookOnlyMover, lookOnlyStore, parsePretendDate, pretendClock, pretendNotice } from "./pretend";
+import { leavePretend, LookOnlyMover, lookOnlyStore, parsePretendDate, pretendClock, pretendNotice } from "./pretend";
 import { moverFor, type StarlingMover } from "./starling-mover";
 import { formatPounds } from "./money";
 import { InvestFlow, isSettleWindow, owed, owedSince } from "./settle";
@@ -83,6 +83,29 @@ describe("settle rules on a pretend date", () => {
     expect(await offer(view, clock.now())).toBe("Invest £3.50");
     expect(await offer(view, clock.now())).toBe(await offer(store, realDay));
     expect(await offer(store, new Date(2026, 10, 17, 9, 0))).toBeNull(); // the real 17th offers nothing
+  });
+});
+
+describe("leavePretend", () => {
+  it("drops an unanswered pretend Invest tap and a reminder stamp dated after the real now, so neither reaches the real clock", async () => {
+    const store = new MemoryStore();
+    const realNow = new Date(2026, 10, 17, 9, 0);
+    const pretendTap = new Date(2026, 10, 26, 9, 0).getTime();
+    await store.putSettings({ paydayDay: 25, investUrl: "https://example.com/isa", pendingInvest: { amountPence: 350, startedAt: pretendTap }, overdueShownAt: pretendTap });
+
+    await leavePretend(store, realNow);
+
+    expect(await store.getSettings()).toEqual({ paydayDay: 25, investUrl: "https://example.com/isa" });
+  });
+
+  it("keeps a reminder stamp from before the real now", async () => {
+    const store = new MemoryStore();
+    const earlier = new Date(2026, 10, 10).getTime();
+    await store.putSettings({ paydayDay: 25, overdueShownAt: earlier });
+
+    await leavePretend(store, new Date(2026, 10, 17, 9, 0));
+
+    expect(await store.getSettings()).toEqual({ paydayDay: 25, overdueShownAt: earlier });
   });
 });
 

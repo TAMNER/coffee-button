@@ -74,3 +74,15 @@ export function pretendNotice(day: Date): string {
   const date = `${DAYS[day.getDay()]} ${day.getDate()} ${MONTHS[day.getMonth()]} ${day.getFullYear()}`;
   return `Pretending today is ${date}. Nothing you press or invest is saved and no money moves.`;
 }
+
+/**
+ * Run when the pretend date is switched on or off. An unanswered Invest tap is
+ * dropped (a "Yes" to a pretend question must never settle for real; a real
+ * one only stays owed), and so is a weekly-reminder stamp from a pretend day
+ * after the real now, which would otherwise hold back the real reminder.
+ */
+export async function leavePretend(store: Store, realNow: Date): Promise<void> {
+  const { pendingInvest: _dropped, overdueShownAt, ...settings } = await store.getSettings();
+  const keepStamp = overdueShownAt !== undefined && overdueShownAt <= realNow.getTime();
+  await store.putSettings(keepStamp ? { ...settings, overdueShownAt } : settings);
+}
