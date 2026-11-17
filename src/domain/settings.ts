@@ -144,6 +144,10 @@ function parseExport(json: string): ExportFile {
   if (removed !== undefined && !(Array.isArray(removed) && removed.every((id) => typeof id === "string"))) {
     throw new Error(`${NOT_EXPORT} (removed items must be a list of item ids)`);
   }
+  const plank: unknown = settings?.shelfBuiltInIds;
+  if (plank !== undefined && !(Array.isArray(plank) && plank.every((id) => typeof id === "string"))) {
+    throw new Error(`${NOT_EXPORT} (shelf targets must be a list of ids)`);
+  }
   const investUrl: unknown = settings?.investUrl;
   if (investUrl !== undefined && (typeof investUrl !== "string" || validateInvestUrl(investUrl) === null)) {
     throw new Error(`${NOT_EXPORT} (where you invest must be an http or https link)`);

@@ -175,6 +175,17 @@ describe("settings: export and import", () => {
     ]);
   });
 
+  it("a file whose plank is not a list of ids is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { ...FIXTURE, settings: { paydayDay: 20, shelfBuiltInIds: "laptop" } };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow(
+      "This file is not a Coffee Button export (shelf targets must be a list of ids)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
+
   it("importData replaces what was there: a stale press and an extra item are gone afterwards", async () => {
     const store = new MemoryStore();
     await store.items.put({ id: "tea", name: "Tea", icon: "mug", pricePence: 200 });
