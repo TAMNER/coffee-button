@@ -23,4 +23,26 @@ describe("savingsSeries", () => {
     expect(series.savedPence).toBe(350);
     expect(series.investedPence).toBe(0);
   });
+
+  it("saved runs on across items and months; invested steps up on each settlement's day by its amount", () => {
+    const presses = [
+      press(350, new Date(2026, 9, 30, 8), "coffee"),
+      press(600, new Date(2026, 9, 30, 19), "beer"),
+      press(800, new Date(2026, 10, 2, 13), "lunch"),
+      press(350, new Date(2026, 10, 3, 8), "coffee"),
+    ];
+    const settlements = [
+      { id: "s1", amountPence: 950, at: new Date(2026, 10, 1, 10).getTime() },
+      { id: "s2", amountPence: 800, at: new Date(2026, 10, 3, 9).getTime() },
+    ];
+    expect(savingsSeries(presses, settlements, new Date(2026, 10, 3, 12)).days).toEqual([
+      { day: "2026-10-28", savedPence: 0, investedPence: 0 },
+      { day: "2026-10-29", savedPence: 0, investedPence: 0 },
+      { day: "2026-10-30", savedPence: 950, investedPence: 0 },
+      { day: "2026-10-31", savedPence: 950, investedPence: 0 },
+      { day: "2026-11-01", savedPence: 950, investedPence: 950 },
+      { day: "2026-11-02", savedPence: 1750, investedPence: 950 },
+      { day: "2026-11-03", savedPence: 2100, investedPence: 1750 },
+    ]);
+  });
 });

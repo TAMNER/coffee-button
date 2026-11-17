@@ -37,7 +37,10 @@ export function savingsSeries(presses: Press[], settlements: Settlement[], now: 
   const days: SavingsDay[] = [];
   for (let d = start; d <= today; d++) {
     const savedPence = presses.filter((p) => dayNumber(new Date(p.at)) <= d).reduce((sum, p) => sum + p.pricePence, 0);
-    days.push({ day: dayLabel(d), savedPence, investedPence: 0 });
+    const investedPence = settlements
+      .filter((s) => dayNumber(new Date(s.at)) <= d)
+      .reduce((sum, s) => sum + s.amountPence, 0);
+    days.push({ day: dayLabel(d), savedPence, investedPence });
   }
   const last = days[days.length - 1];
   return { days, savedPence: last.savedPence, investedPence: last.investedPence };
