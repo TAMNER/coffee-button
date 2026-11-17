@@ -821,3 +821,13 @@ body {
   outline: 3px solid var(--mustard);
   outline-offset: 2px;
 }
+
+/* Ticket 25: the permanent help lines under Data and "Where do you invest?"
+   (src/domain/settings-help.ts). Plain section ink, a touch smaller and lighter
+   than the status line; no new colour token. */
+.settings-help {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.35;
+}

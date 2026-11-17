@@ -25,6 +25,7 @@ import {
 } from "./app";
 import { confirmSheet } from "./confirm-sheet";
 import { DEFAULT_ITEM } from "../domain/store";
+import { SETTINGS_HELP } from "../domain/settings-help";
 import "./settings.css";
 
 export const LONG_PRESS_MS = 600;
@@ -207,8 +208,10 @@ function mountData(el: HTMLElement, ctx: AppContext): void {
     `<div class="settings-row">
        <button type="button" data-role="export">Export</button>
        <label class="settings-file">Import<input type="file" accept="application/json,.json" data-role="import" /></label>
-     </div>`,
+     </div>
+     <p class="settings-help" data-role="data-help"></p>`,
   );
+  el.querySelector("[data-role=data-help]")!.textContent = SETTINGS_HELP.data;
   const say = status(el);
   el.querySelector("[data-role=export]")!.addEventListener("click", async () => {
     const day = ctx.clock.now().toISOString().slice(0, 10);
