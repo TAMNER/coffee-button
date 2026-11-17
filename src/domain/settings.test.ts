@@ -376,4 +376,15 @@ describe("settings: remove an item (ticket 26)", () => {
     expect(JSON.parse(json).settings).toEqual({ paydayDay: 20, removedItemIds: ["beer"] });
     expect((await listItems(target)).map((i) => i.id)).toEqual(["coffee", "lunch"]);
   });
+
+  it("an older export without removedItemIds still imports, and a launch adds back a missing default as before", async () => {
+    const older = { ...FIXTURE, items: FIXTURE.items.filter((i) => i.id !== "lunch") };
+    const store = new MemoryStore();
+
+    await importData(store, JSON.stringify(older));
+    await ensureDefaultItems(store);
+
+    expect(await store.getSettings()).toEqual({ paydayDay: 20 });
+    expect((await listItems(store)).map((i) => i.id)).toEqual(["coffee", "beer", "lunch"]);
+  });
 });
