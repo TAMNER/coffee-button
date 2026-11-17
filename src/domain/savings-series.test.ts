@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { FakeClock } from "../adapters/clock";
 import { Ledger } from "./ledger";
 import { savingsSeries } from "./savings-series";
 import { settle } from "./settle";
@@ -60,6 +61,20 @@ describe("savingsSeries", () => {
       "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15", "2026-11-16", "2026-11-17",
     ]);
     expect(series.savedPence).toBe(600);
+  });
+
+  it("days are local days: a press at 23:59 and one at 00:01 fall on different days", async () => {
+    const clock = new FakeClock(new Date(2026, 10, 16, 23, 59));
+    const ledger = new Ledger(new MemoryStore(), () => `c${clock.now().getTime()}`);
+    await ledger.addPress("coffee", clock.now());
+    clock.set(new Date(2026, 10, 17, 0, 1));
+    await ledger.addPress("coffee", clock.now());
+    const days = savingsSeries(await ledger.presses(), [], clock.now()).days;
+    expect(days.slice(-3)).toEqual([
+      { day: "2026-11-15", savedPence: 0, investedPence: 0 },
+      { day: "2026-11-16", savedPence: 350, investedPence: 0 },
+      { day: "2026-11-17", savedPence: 700, investedPence: 0 },
+    ]);
   });
 });
 
