@@ -29,4 +29,10 @@ describe("drawing request link (ticket 38)", () => {
     expect(body("   ")).toBe("I'd like a drawing for: ");
     expect(body("  Matcha  ")).toBe("I'd like a drawing for: Matcha");
   });
+
+  it("an https destination is opened exactly as it is, with nothing appended", () => {
+    const form = "https://forms.example.invalid/d/e/abc/viewform?usp=sf_link";
+    expect(drawingRequestLink(form, "Bubble tea & cake")).toBe(form);
+    expect(drawingRequestLink("https://example.invalid", "")).toBe("https://example.invalid");
+  });
 });

@@ -5,6 +5,7 @@
 
 /** The request link for `itemName`. */
 export function drawingRequestLink(destination: string, itemName: string): string {
+  if (destination.startsWith("https:")) return destination;
   const subject = encodeURIComponent("Coffee Button drawing request");
   const body = encodeURIComponent(`I'd like a drawing for: ${itemName.trim()}`);
   return `${destination}?subject=${subject}&body=${body}`;
