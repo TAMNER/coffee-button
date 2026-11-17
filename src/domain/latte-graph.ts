@@ -112,12 +112,12 @@ export interface GlassFill {
  * waiting (latte) split in proportion, so the froth never hides the latte.
  */
 export function glassFill(
-  glass: Pick<GlassPeriod, "savedPence" | "investedPence">,
+  glass: Pick<GlassPeriod, "savedPence" | "investedPence" | "future">,
   todayPence: number,
   height: number,
   froth: number,
 ): GlassFill {
-  if (glass.savedPence <= 0 || todayPence <= 0) return { savedHeight: 0, frothHeight: 0, latteHeight: 0, coffeeHeight: 0 };
+  if (glass.future || glass.savedPence <= 0 || todayPence <= 0) return { savedHeight: 0, frothHeight: 0, latteHeight: 0, coffeeHeight: 0 };
   const savedHeight = (glass.savedPence / todayPence) * height;
   const frothHeight = Math.min(froth, savedHeight);
   const under = savedHeight - frothHeight;

@@ -209,6 +209,15 @@ describe("glassFill (ticket 33)", () => {
     });
   });
 
+  it("a glass for a day not yet come is empty, whatever its totals say", () => {
+    expect(glassFill({ savedPence: 350, investedPence: 0, future: true }, 350, 100, 8)).toEqual({
+      savedHeight: 0,
+      frothHeight: 0,
+      latteHeight: 0,
+      coffeeHeight: 0,
+    });
+  });
+
   it("a glass shallower than the froth is all froth (3 of 100 with froth 8: froth 3, nothing under it)", () => {
     expect(glassFill({ savedPence: 300, investedPence: 0 }, 10000, 100, 8)).toEqual({
       savedHeight: 3,
