@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { drawingRequestLink } from "./drawing-request";
+import { drawingRequestDestination, drawingRequestLink } from "./drawing-request";
 
 describe("drawing request link (ticket 38)", () => {
   it("a mailto destination gets the subject and a body naming the item, percent-encoded", () => {
@@ -49,5 +49,13 @@ describe("drawing request link (ticket 38)", () => {
     ]) {
       expect(drawingRequestLink(destination, "Matcha"), destination).toBeNull();
     }
+  });
+
+  it("VITE_DRAWING_REQUEST_URL sets the destination (trimmed); absent or blank means none", () => {
+    expect(drawingRequestDestination({ VITE_DRAWING_REQUEST_URL: " mailto:drawings@example.invalid " })).toBe(
+      "mailto:drawings@example.invalid",
+    );
+    expect(drawingRequestDestination({ VITE_DRAWING_REQUEST_URL: "  " })).toBe("");
+    expect(drawingRequestDestination({})).toBe("");
   });
 });

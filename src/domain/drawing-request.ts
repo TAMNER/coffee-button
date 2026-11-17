@@ -3,6 +3,21 @@
  * server, so the request leaves as a link to a destination set at build time.
  */
 
+/** The build's destination from VITE_DRAWING_REQUEST_URL, trimmed; absent or blank means none. */
+export function drawingRequestDestination(env: {
+  readonly VITE_DRAWING_REQUEST_URL?: string;
+  readonly [key: string]: unknown;
+}): string {
+  return (env.VITE_DRAWING_REQUEST_URL ?? "").trim();
+}
+
+/**
+ * Where requests go. Set at build time (VITE_DRAWING_REQUEST_URL), so no
+ * address lives in the repository; a build without it shows no request line.
+ * A built-in email address is visible to anyone who opens the app.
+ */
+export const DRAWING_REQUEST_URL = drawingRequestDestination(import.meta.env);
+
 /**
  * The request link for `itemName`, or null when `destination` is not a usable
  * `mailto:` address or `https:` link. A mailto gets the subject and a body
