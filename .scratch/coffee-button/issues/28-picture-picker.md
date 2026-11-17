@@ -8,12 +8,12 @@ Agreed in the grilling session of 2026-11-17 (Q4, Q9, Q10, Q11).
 
 **Blocked by:** 26 (Remove an item: shares the Settings item list), 27 (Mockup page: the jar pick).
 
-**Status:** blocked (waiting on 26 and 27)
+**Status:** built, awaiting review (picker tiles show the figure cropped from its vessel art, no disc; screenshots `.scratch/coffee-button/shots/28-*.png`)
 
-- [ ] The list of pictures a user can choose is data in the domain, in a fixed order; unit tested, failing first
-- [ ] Changing an existing item's picture is saved and shows on the main screen; unit tested at the settings seam
-- [ ] An unrecognised picture name resolves to the jar; the existing fallback test is changed first and fails
-- [ ] The jar plays the no-pour ceremony (coin lands, hop, confetti) and no pour sound; tested at the ceremony timeline seam
-- [ ] Items saved with the old free-text box keep working: cup, pint and plate names still show their drawings (guard test)
-- [ ] Settings shows the picker row on the add form and on each item row, with the current picture marked (DOM glue, declared untested)
-- [ ] Screenshot at 390x844 of Settings with the picker, both themes
+- [x] The list of pictures a user can choose is data in the domain, in a fixed order; unit tested, failing first
+- [x] Changing an existing item's picture is saved and shows on the main screen; unit tested at the settings seam
+- [x] An unrecognised picture name resolves to the jar; the existing fallback test is changed first and fails
+- [x] The jar plays the no-pour ceremony (coin lands, hop, confetti) and no pour sound; tested at the ceremony timeline seam
+- [x] Items saved with the old free-text box keep working: cup, pint and plate names still show their drawings (guard test)
+- [x] Settings shows the picker row on the add form and on each item row, with the current picture marked (DOM glue, declared untested)
+- [x] Screenshot at 390x844 of Settings with the picker, both themes
