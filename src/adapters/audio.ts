@@ -49,6 +49,7 @@ const SAMPLE_FILES: Record<SampleName, string[]> = {
  * example while the user is in their investing app). So unlock() runs on every
  * touchend and click for the life of the page, never just the first, and the
  * cup's click handler calls it again synchronously before its first await.
+ * The ringer switch is respected on purpose (ticket 23): on silent, no sound.
  */
 export class WebAudioCoin implements Audio {
   private ctx: AudioContext | null = null;
@@ -125,11 +126,9 @@ export class WebAudioCoin implements Audio {
   /** Call inside a user gesture: creates the context lazily and resumes it if needed. */
   unlock(): void {
     try {
-      // iOS mutes Web Audio with the ringer switch unless the page's audio
-      // session is "playback" (Safari 17+ AudioSession API; a no-op elsewhere).
-      // Trade-off: a clink then pauses music from other apps for a moment.
-      const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
-      if (session && session.type !== "playback") session.type = "playback";
+      // Ticket 23: the audio session is left as the browser sets it, so on iOS
+      // the ringer switch mutes the sounds and other apps' music keeps playing.
+      // Setting navigator.audioSession.type = "playback" would override both.
       const ctx = this.context();
       if (!ctx) return;
       this.samples.start();
