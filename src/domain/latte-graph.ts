@@ -57,3 +57,30 @@ export function glassPeriods(series: SavingsSeries): GlassPeriod[] {
   if (weekly.length <= MAX_GLASSES) return weekly;
   return group(series, (day) => day.slice(0, 7)).slice(-MAX_GLASSES);
 }
+
+/** How high each layer stands in a glass whose drink can reach `height`; they stack coffee, latte, froth from the bottom. */
+export interface GlassFill {
+  /** The froth top: saved by then over today's total. */
+  savedHeight: number;
+  frothHeight: number;
+  latteHeight: number;
+  coffeeHeight: number;
+}
+
+/**
+ * The froth top marks the total saved by the end of the period, against
+ * today's total; under the froth, invested (coffee, at the bottom) and still
+ * waiting (latte) split in proportion, so the froth never hides the latte.
+ */
+export function glassFill(
+  glass: Pick<GlassPeriod, "savedPence" | "investedPence">,
+  todayPence: number,
+  height: number,
+  froth: number,
+): GlassFill {
+  const savedHeight = (glass.savedPence / todayPence) * height;
+  const frothHeight = froth;
+  const under = savedHeight - frothHeight;
+  const coffeeHeight = (glass.investedPence / glass.savedPence) * under;
+  return { savedHeight, frothHeight, latteHeight: under - coffeeHeight, coffeeHeight };
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { glassPeriods } from "./latte-graph";
+import { glassFill, glassPeriods } from "./latte-graph";
 import { savingsSeries, type SavingsDay, type SavingsSeries } from "./savings-series";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -85,5 +85,16 @@ describe("glassPeriods (ticket 33)", () => {
       { from: "2026-11-01", to: "2026-11-30", savedPence: 950, investedPence: 350 },
       { from: "2026-12-01", to: "2026-12-17", savedPence: 950, investedPence: 350 },
     ]);
+  });
+});
+
+describe("glassFill (ticket 33)", () => {
+  it("£50 saved of today's £100 in a 100-high glass: froth top at 50; under 8 of froth, £25 invested of £50 splits the 42 evenly", () => {
+    expect(glassFill({ savedPence: 5000, investedPence: 2500 }, 10000, 100, 8)).toEqual({
+      savedHeight: 50,
+      frothHeight: 8,
+      latteHeight: 21,
+      coffeeHeight: 21,
+    });
   });
 });
