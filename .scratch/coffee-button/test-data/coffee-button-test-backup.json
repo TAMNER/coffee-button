@@ -1,0 +1,500 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "coffee",
+      "name": "Coffee",
+      "icon": "coffee",
+      "pricePence": 350
+    },
+    {
+      "id": "beer",
+      "name": "Beer",
+      "icon": "beer",
+      "pricePence": 600
+    },
+    {
+      "id": "lunch",
+      "name": "Lunch",
+      "icon": "sandwich",
+      "pricePence": 800
+    }
+  ],
+  "presses": [
+    {
+      "id": "test-press-1",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1781522280000
+    },
+    {
+      "id": "test-press-2",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1781790480000
+    },
+    {
+      "id": "test-press-3",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1781854620000
+    },
+    {
+      "id": "test-press-4",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1781943540000
+    },
+    {
+      "id": "test-press-5",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1782025920000
+    },
+    {
+      "id": "test-press-6",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1782146700000
+    },
+    {
+      "id": "test-press-7",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1782213420000
+    },
+    {
+      "id": "test-press-8",
+      "itemId": "beer",
+      "pricePence": 600,
+      "at": 1782458400000
+    },
+    {
+      "id": "test-press-9",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1782739260000
+    },
+    {
+      "id": "test-press-10",
+      "itemId": "beer",
+      "pricePence": 600,
+      "at": 1782838140000
+    },
+    {
+      "id": "test-press-11",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1782896280000
+    },
+    {
+      "id": "test-press-12",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1783929840000
+    },
+    {
+      "id": "test-press-13",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1784201700000
+    },
+    {
+      "id": "test-press-14",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1784275080000
+    },
+    {
+      "id": "test-press-15",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1784548860000
+    },
+    {
+      "id": "test-press-16",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1784978820000
+    },
+    {
+      "id": "test-press-17",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1785081240000
+    },
+    {
+      "id": "test-press-18",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1785239940000
+    },
+    {
+      "id": "test-press-19",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1785423060000
+    },
+    {
+      "id": "test-press-20",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1785513720000
+    },
+    {
+      "id": "test-press-21",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1785676320000
+    },
+    {
+      "id": "test-press-22",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1785747240000
+    },
+    {
+      "id": "test-press-23",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1785838860000
+    },
+    {
+      "id": "test-press-24",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1786273980000
+    },
+    {
+      "id": "test-press-25",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1786378080000
+    },
+    {
+      "id": "test-press-26",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1786609080000
+    },
+    {
+      "id": "test-press-27",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1786779300000
+    },
+    {
+      "id": "test-press-28",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1787056800000
+    },
+    {
+      "id": "test-press-29",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1787321280000
+    },
+    {
+      "id": "test-press-30",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1787396820000
+    },
+    {
+      "id": "test-press-31",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1787469960000
+    },
+    {
+      "id": "test-press-32",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1787650800000
+    },
+    {
+      "id": "test-press-33",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1787824320000
+    },
+    {
+      "id": "test-press-34",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1788173940000
+    },
+    {
+      "id": "test-press-35",
+      "itemId": "beer",
+      "pricePence": 600,
+      "at": 1788348660000
+    },
+    {
+      "id": "test-press-36",
+      "itemId": "beer",
+      "pricePence": 600,
+      "at": 1788592800000
+    },
+    {
+      "id": "test-press-37",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1788679080000
+    },
+    {
+      "id": "test-press-38",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1788778980000
+    },
+    {
+      "id": "test-press-39",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1788938640000
+    },
+    {
+      "id": "test-press-40",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1789043580000
+    },
+    {
+      "id": "test-press-41",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1789202640000
+    },
+    {
+      "id": "test-press-42",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1789548120000
+    },
+    {
+      "id": "test-press-43",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1789821060000
+    },
+    {
+      "id": "test-press-44",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1790175120000
+    },
+    {
+      "id": "test-press-45",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1790237880000
+    },
+    {
+      "id": "test-press-46",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1790860080000
+    },
+    {
+      "id": "test-press-47",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1790941800000
+    },
+    {
+      "id": "test-press-48",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1791035460000
+    },
+    {
+      "id": "test-press-49",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1791185400000
+    },
+    {
+      "id": "test-press-50",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1791293400000
+    },
+    {
+      "id": "test-press-51",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1791478560000
+    },
+    {
+      "id": "test-press-52",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1791979980000
+    },
+    {
+      "id": "test-press-53",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1792053180000
+    },
+    {
+      "id": "test-press-54",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1792146900000
+    },
+    {
+      "id": "test-press-55",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1792240200000
+    },
+    {
+      "id": "test-press-56",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1792512960000
+    },
+    {
+      "id": "test-press-57",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1792581060000
+    },
+    {
+      "id": "test-press-58",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1792740720000
+    },
+    {
+      "id": "test-press-59",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1792949940000
+    },
+    {
+      "id": "test-press-60",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1793110260000
+    },
+    {
+      "id": "test-press-61",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1793205720000
+    },
+    {
+      "id": "test-press-62",
+      "itemId": "lunch",
+      "pricePence": 800,
+      "at": 1793378580000
+    },
+    {
+      "id": "test-press-63",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1793614140000
+    },
+    {
+      "id": "test-press-64",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1793885160000
+    },
+    {
+      "id": "test-press-65",
+      "itemId": "beer",
+      "pricePence": 600,
+      "at": 1793967900000
+    },
+    {
+      "id": "test-press-66",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1794057840000
+    },
+    {
+      "id": "test-press-67",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1794243420000
+    },
+    {
+      "id": "test-press-68",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1794333120000
+    },
+    {
+      "id": "test-press-69",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1794398460000
+    },
+    {
+      "id": "test-press-70",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1794498180000
+    },
+    {
+      "id": "test-press-71",
+      "itemId": "beer",
+      "pricePence": 600,
+      "at": 1794568740000
+    },
+    {
+      "id": "test-press-72",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1794660600000
+    },
+    {
+      "id": "test-press-73",
+      "itemId": "coffee",
+      "pricePence": 350,
+      "at": 1794903480000
+    }
+  ],
+  "settlements": [
+    {
+      "id": "test-settle-1",
+      "amountPence": 3350,
+      "at": 1782462600000
+    },
+    {
+      "id": "test-settle-2",
+      "amountPence": 5000,
+      "at": 1785054600000
+    },
+    {
+      "id": "test-settle-3",
+      "amountPence": 5600,
+      "at": 1787733000000
+    },
+    {
+      "id": "test-settle-4",
+      "amountPence": 6400,
+      "at": 1790411400000
+    },
+    {
+      "id": "test-settle-5",
+      "amountPence": 5800,
+      "at": 1793007000000
+    }
+  ],
+  "settings": {
+    "paydayDay": 25,
+    "infoSeen": true,
+    "shelfBuiltInIds": [
+      "weekend-away",
+      "laptop",
+      "ski-week"
+    ]
+  },
+  "goals": []
+}
