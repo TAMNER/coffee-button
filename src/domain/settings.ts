@@ -1,5 +1,5 @@
 import { listItems } from "./items";
-import { DEFAULT_ITEM, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
+import { DEFAULT_ITEM, DEFAULT_ITEMS, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
 
 export async function addItem(
   store: Store,
@@ -31,6 +31,10 @@ export function repriceItem(store: Store, id: string, pricePence: number): Promi
 export async function removeItem(store: Store, id: string): Promise<void> {
   if (id === DEFAULT_ITEM.id) throw new Error("Coffee cannot be removed");
   await store.items.delete(id);
+  if (!DEFAULT_ITEMS.some((item) => item.id === id)) return;
+  const settings = await store.getSettings();
+  const removed = settings.removedItemIds ?? [];
+  if (!removed.includes(id)) await store.putSettings({ ...settings, removedItemIds: [...removed, id] });
 }
 
 /** Payday must exist in every month, so 1 to 28. */

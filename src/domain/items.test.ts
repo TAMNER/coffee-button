@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ensureDefaultItems, listItems, nextItem, prevItem } from "./items";
+import { removeItem } from "./settings";
 import { MemoryStore } from "./store";
 
 const coffee = { id: "coffee", name: "Coffee", icon: "coffee", pricePence: 350 };
@@ -82,5 +83,16 @@ describe("ensureDefaultItems", () => {
       { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
       { id: "beer-1", name: "beer", icon: "pint", pricePence: 550 },
     ]);
+  });
+
+  it("does not bring back Beer and Lunch once the user removed them (ticket 26): the removals are remembered", async () => {
+    const store = new MemoryStore();
+    await removeItem(store, "beer");
+    await removeItem(store, "lunch");
+
+    await ensureDefaultItems(store);
+
+    expect(await listItems(store)).toEqual([coffee]);
+    expect((await store.getSettings()).removedItemIds).toEqual(["beer", "lunch"]);
   });
 });

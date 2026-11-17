@@ -33,11 +33,14 @@ export async function listItems(store: Store): Promise<Item[]> {
 /**
  * Adds any default item an existing install lacks (installs from before Beer
  * was a default). An item with the same id, or one the user added under the
- * same name, counts as present, so it never adds a second Beer.
+ * same name, counts as present, so it never adds a second Beer. One the user
+ * removed (ticket 26) also counts as present, so it stays removed.
  */
 export async function ensureDefaultItems(store: Store): Promise<void> {
   const items = await store.items.list();
+  const removed = (await store.getSettings()).removedItemIds ?? [];
   const has = (d: Item) =>
+    removed.includes(d.id) ||
     items.some((item) => item.id === d.id || item.name.trim().toLowerCase() === d.name.toLowerCase());
   for (const item of DEFAULT_ITEMS) {
     if (!has(item)) await store.items.put(item);
