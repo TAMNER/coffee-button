@@ -12,6 +12,7 @@ import {
   importData,
   removeItem,
   renameItem,
+  repictureItem,
   repriceItem,
   setPayday,
 } from "../domain/settings";
@@ -24,6 +25,8 @@ import {
   type AppContext,
 } from "./app";
 import { confirmSheet } from "./confirm-sheet";
+import { pictureFor } from "../domain/pictures";
+import { picturePicker } from "./picture-picker";
 import { DEFAULT_ITEM } from "../domain/store";
 import { SETTINGS_HELP } from "../domain/settings-help";
 import "./settings.css";
@@ -123,12 +126,16 @@ function mountItems(el: HTMLElement, ctx: AppContext): void {
   const form = document.createElement("form");
   form.className = "settings-row";
   form.innerHTML = `
-    <input name="icon" aria-label="Icon" placeholder="Icon" size="4" />
     <input name="name" aria-label="Name" placeholder="New item" required />
     <input name="price" aria-label="Price in pounds" placeholder="0.00" inputmode="decimal" size="5" required />
     <button type="submit">Add</button>`;
   el.append(list, form);
   const say = status(el);
+  // Ticket 28: the new item's picture, chosen on a picker row above the form's fields.
+  let newIcon = "cup";
+  const newPicker = () => picturePicker(newIcon, "Picture for the new item", (id) => (newIcon = id));
+  form.classList.add("has-picker");
+  form.prepend(newPicker());
 
   const render = async () => {
     const items = await ctx.ledger.items();
@@ -137,10 +144,8 @@ function mountItems(el: HTMLElement, ctx: AppContext): void {
         const li = document.createElement("li");
         li.className = "settings-row";
         li.innerHTML = `
-          <span class="settings-icon"></span>
           <input name="name" aria-label="Name" />
           <span>£</span><input name="price" aria-label="Price in pounds" inputmode="decimal" size="5" />`;
-        li.querySelector(".settings-icon")!.textContent = item.icon;
         const name = li.querySelector<HTMLInputElement>("[name=name]")!;
         const price = li.querySelector<HTMLInputElement>("[name=price]")!;
         name.value = item.name;
@@ -159,6 +164,13 @@ function mountItems(el: HTMLElement, ctx: AppContext): void {
           say(`${name.value} is now ${formatPounds(pence)}. Earlier presses keep their price.`);
         });
         if (item.id !== DEFAULT_ITEM.id) li.append(removeButton(item.id, () => name.value, ctx, render));
+        li.classList.add("has-picker");
+        li.append(
+          picturePicker(item.icon, `Picture for ${item.name}`, async (id) => {
+            await repictureItem(ctx.store, item.id, id);
+            say(`${name.value} now shows the ${pictureFor(id).label.toLowerCase()}.`);
+          }),
+        );
         return li;
       }),
     );
@@ -171,9 +183,10 @@ function mountItems(el: HTMLElement, ctx: AppContext): void {
     const pence = parsePence(String(data.get("price")));
     if (!name) return say("A name cannot be empty.", true);
     if (pence === null) return say("Price must be an amount like 6.00.", true);
-    const icon = String(data.get("icon")).trim() || "cup";
-    await addItem(ctx.store, name, pence, icon);
+    await addItem(ctx.store, name, pence, newIcon);
     form.reset();
+    newIcon = "cup";
+    form.querySelector(".picture-picker")!.replaceWith(newPicker());
     say(`Added ${name} at ${formatPounds(pence)}.`);
     await render();
   });

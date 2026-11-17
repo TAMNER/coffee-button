@@ -43,6 +43,12 @@ export interface VesselArt {
    * Absent means it pours.
    */
   readonly pour?: boolean;
+  /**
+   * The square of the drawing the Settings picker tile shows (ticket 28): the
+   * figure and its shadow, without the mustard disc, so the object reads at
+   * 40px. Absent means the whole `viewBox`.
+   */
+  readonly tileViewBox?: string;
 }
 
 export const COFFEE_VESSEL: VesselArt = {
@@ -52,6 +58,7 @@ export const COFFEE_VESSEL: VesselArt = {
   base: BASE,
   liquidDrop: LIQUID_DROP,
   liquidClass: "cp-coffee",
+  tileViewBox: "90 296 228 228",
 };
 
 export const BEER_VESSEL: VesselArt = {
@@ -61,6 +68,7 @@ export const BEER_VESSEL: VesselArt = {
   base: pint.BASE,
   liquidDrop: pint.LIQUID_DROP,
   liquidClass: "cp-beer",
+  tileViewBox: "80 304 240 240",
 };
 
 export const SANDWICH_VESSEL: VesselArt = {
@@ -72,6 +80,7 @@ export const SANDWICH_VESSEL: VesselArt = {
   // Crumbs: what flies off the plate where the coin lands.
   liquidClass: "cp-bread",
   pour: false,
+  tileViewBox: "57 296 284 284",
 };
 
 export const JAR_VESSEL: VesselArt = {
@@ -83,6 +92,7 @@ export const JAR_VESSEL: VesselArt = {
   // Drops of honey: what flies off the cloth where the coin lands.
   liquidClass: "cp-mustard-deep",
   pour: false,
+  tileViewBox: "92 312 214 214",
 };
 
 /** The drawing per picture id (src/domain/pictures.ts PICTURES). A new picture adds one line here. */

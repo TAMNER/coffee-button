@@ -122,6 +122,8 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
     if (!stored || stored.id === active.id) {
       // Same item, but its name may have been edited in settings.
       if (stored) showItem((active = stored));
+      // Ticket 28: or its picture.
+      if (stored && vesselFor(stored.icon) !== vesselFor(DEFAULT_ITEM.icon)) cup.innerHTML = vesselSvg(active);
       return;
     }
     active = stored;
