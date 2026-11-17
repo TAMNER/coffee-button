@@ -8,13 +8,13 @@ Agreed in the grilling session of 2026-11-17 (Q1, Q2, Q3, Q12, Q19).
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** built, awaiting review (branch worktree-agent-acc5c6951172ee261)
 
-- [ ] Removing an item deletes it from the store; removing Coffee is refused; unit tested, failing first
-- [ ] Month, owed and lifetime totals are unchanged by removing an item that has presses (guard test)
-- [ ] A removed built-in item is remembered (a new optional setting) and is not re-added at launch; unit tested
-- [ ] The remembered removals are in the export file and honoured on import; an older export file without them still imports (unit tested)
-- [ ] The active item falls to the next item in cycling order when the active one is removed (guard test on the existing rule)
-- [ ] A press of a removed item that is still waiting to move to Starling still moves (guard test)
-- [ ] Settings shows × on every row but Coffee; the confirm sheet has Remove and Keep, closes on either, and is reusable with other wording (DOM glue, declared untested)
-- [ ] Screenshot at 390x844 of the sheet in both themes
+- [x] Removing an item deletes it from the store; removing Coffee is refused; unit tested, failing first
+- [x] Month, owed and lifetime totals are unchanged by removing an item that has presses (guard test)
+- [x] A removed built-in item is remembered (a new optional setting) and is not re-added at launch; unit tested
+- [x] The remembered removals are in the export file and honoured on import; an older export file without them still imports (unit tested)
+- [x] The active item falls to the next item in cycling order when the active one is removed (not a guard test: the existing rule fell back to the first item, Coffee, so this test failed first and `removeItem` now sets the next item)
+- [x] A press of a removed item that is still waiting to move to Starling still moves (guard test)
+- [x] Settings shows × on every row but Coffee; the confirm sheet has Remove and Keep, closes on either, and is reusable with other wording (DOM glue, declared untested)
+- [x] Screenshot at 390x844 of the sheet in both themes (`.scratch/coffee-button/shots/26-confirm-light.png`, `26-confirm-dark.png`)

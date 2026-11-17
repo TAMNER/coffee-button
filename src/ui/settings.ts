@@ -10,6 +10,7 @@ import {
   addItem,
   exportData,
   importData,
+  removeItem,
   renameItem,
   repriceItem,
   setPayday,
@@ -22,6 +23,8 @@ import {
   settingsSections,
   type AppContext,
 } from "./app";
+import { confirmSheet } from "./confirm-sheet";
+import { DEFAULT_ITEM } from "../domain/store";
 import "./settings.css";
 
 export const LONG_PRESS_MS = 600;
@@ -97,6 +100,22 @@ function status(el: HTMLElement): (text: string, isError?: boolean) => void {
   };
 }
 
+/** Ticket 26: the × on every item row but Coffee; asks first in the app's own sheet. */
+function removeButton(id: string, name: () => string, ctx: AppContext, rerender: () => Promise<void>): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "settings-remove";
+  button.textContent = "×";
+  button.setAttribute("aria-label", `Remove ${name()}`);
+  button.addEventListener("click", async () => {
+    const sure = await confirmSheet({ title: `Remove ${name()}?`, body: "Your savings stay.", confirm: "Remove", cancel: "Keep" });
+    if (!sure) return;
+    await removeItem(ctx.store, id);
+    await rerender();
+  });
+  return button;
+}
+
 function mountItems(el: HTMLElement, ctx: AppContext): void {
   const list = document.createElement("ul");
   list.className = "settings-items";
@@ -138,6 +157,7 @@ function mountItems(el: HTMLElement, ctx: AppContext): void {
           price.value = poundsField(pence);
           say(`${name.value} is now ${formatPounds(pence)}. Earlier presses keep their price.`);
         });
+        if (item.id !== DEFAULT_ITEM.id) li.append(removeButton(item.id, () => name.value, ctx, render));
         return li;
       }),
     );

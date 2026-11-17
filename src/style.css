@@ -761,3 +761,63 @@ body {
   font-weight: 800;
   line-height: 1.15;
 }
+
+/* Ticket 26: remove an item. The × chip on Settings item rows (src/ui/settings.ts)
+   and the reusable confirm sheet (src/ui/confirm-sheet.ts), which wears the info
+   sheet's overlay, torn edge and title. The sheet is cream in both appearances,
+   so like .info-sheet it uses fixed ink colours rather than theme tokens. */
+.settings .settings-remove {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--ink, #1d2a6e);
+  background: var(--off-hi, #ecc4b9);
+  box-shadow: 3px 3px 0 var(--off-shadow, #cc9283);
+}
+.settings .settings-remove:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--off-shadow, #cc9283);
+}
+.confirm-sheet {
+  --confirm-tomato: #c43d27;
+}
+.confirm-body {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+.confirm-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 20px;
+}
+.confirm-actions button {
+  flex: 1;
+  margin-top: 0;
+}
+.confirm-go {
+  min-height: 44px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--confirm-tomato);
+  color: #fff9ef;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: 4px 4px 0 #8e2f25;
+  cursor: pointer;
+}
+.confirm-go:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #8e2f25;
+}
+.confirm-go:focus-visible {
+  outline: 3px solid var(--mustard);
+  outline-offset: 2px;
+}
