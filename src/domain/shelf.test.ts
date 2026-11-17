@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addGoal, ensureTargets, migrateTargets, removeGoal, removeTarget, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView } from "./shelf";
+import { addGoal, addStarter, ensureTargets, migrateTargets, removeGoal, removeTarget, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView, starterChips } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -159,6 +159,19 @@ describe("targets: adding and removing", () => {
     expect(await shelfTargets(store)).toHaveLength(3);
   });
 
+  it("the shelf view carries the starter chips: after removing the Ski week, Espresso machine £400 then Ski week £1500", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+    await removeTarget(store, "ski-week");
+
+    const view = await shelfView({ store, ledger: new Ledger(store), now: new Date(2026, 2, 1), overdueLine: () => null });
+
+    expect(view.starters.map((s) => [s.id, s.name, s.pricePence])).toEqual([
+      ["espresso-machine", "Espresso machine", 40000],
+      ["ski-week", "Ski week", 150000],
+    ]);
+  });
+
   it("removing the Laptop takes it off the plank, frees a place, and the next launch does not bring it back", async () => {
     const store = new MemoryStore();
     await ensureTargets(store);
@@ -243,5 +256,61 @@ describe("targets: migrating a phone from before ticket 30", () => {
     await ensureTargets(store);
 
     expect(await store.getSettings()).toEqual(await expected.getSettings());
+  });
+});
+
+describe("starter chips (ticket 31)", () => {
+  it("after removing the Laptop, the starters are the built-ins not on the plank, cheapest first, at their current prices", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+    await setShelfPrice(store, "espresso-machine", 120000);
+    await removeTarget(store, "laptop");
+
+    expect((await starterChips(store)).map((s) => [s.id, s.name, s.pricePence])).toEqual([
+      ["laptop", "Laptop", 100000],
+      ["espresso-machine", "Espresso machine", 120000],
+    ]);
+  });
+
+  it("with three targets there are no chips, though the Espresso machine is off the plank", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+
+    expect(await starterChips(store)).toEqual([]);
+  });
+
+  it("adding the removed Laptop back puts it on the plank as a built-in at the £1200 it was given, and its chip goes", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+    await setShelfPrice(store, "laptop", 120000);
+    await removeTarget(store, "laptop");
+
+    await addStarter(store, "laptop");
+
+    expect((await shelfTargets(store)).map((t) => [t.id, t.pricePence, t.builtIn])).toEqual([
+      ["weekend-away", 30000, true],
+      ["laptop", 120000, true],
+      ["ski-week", 150000, true],
+    ]);
+    expect(await starterChips(store)).toEqual([]);
+  });
+
+  it("on a full plank adding the Espresso machine is refused and the plank is unchanged", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+
+    await expect(addStarter(store, "espresso-machine")).rejects.toThrow();
+
+    expect((await shelfTargets(store)).map((t) => t.id)).toEqual(["weekend-away", "laptop", "ski-week"]);
+  });
+
+  it("a double tap on the Laptop chip puts it on the plank once", async () => {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfBuiltInIds: [] });
+
+    await addStarter(store, "laptop");
+    await addStarter(store, "laptop");
+
+    expect((await shelfTargets(store)).map((t) => t.id)).toEqual(["laptop"]);
   });
 });

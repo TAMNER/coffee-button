@@ -136,6 +136,28 @@ export async function removeTarget(store: Store, id: string): Promise<void> {
   await store.putSettings({ ...settings, shelfBuiltInIds: ids.filter((builtIn) => builtIn !== id) });
 }
 
+/**
+ * Ticket 31: the built-ins not on the plank, cheapest first at their current
+ * prices; each shows as a chip. None while the plank is full (they hide with the form).
+ */
+export async function starterChips(store: Store): Promise<ShelfItem[]> {
+  if ((await shelfTargets(store)).length >= MAX_TARGETS) return [];
+  const ids = await plankBuiltInIds(store);
+  return (await shelfItems(store)).filter((item) => !ids.includes(item.id)).sort(cheapestFirst);
+}
+
+/**
+ * Ticket 31: a tapped chip puts that built-in back on the plank, at its
+ * remembered or default price; throws once the plank holds MAX_TARGETS.
+ */
+export async function addStarter(store: Store, id: string): Promise<void> {
+  if ((await shelfTargets(store)).length >= MAX_TARGETS) {
+    throw new Error(`At most ${MAX_TARGETS} targets`);
+  }
+  const settings = await store.getSettings();
+  await store.putSettings({ ...settings, shelfBuiltInIds: [...(settings.shelfBuiltInIds ?? []), id] });
+}
+
 export const COMPOUND_RATE = 0.05;
 export const COMPOUND_YEARS = 10;
 
@@ -147,6 +169,8 @@ export interface ShelfView {
   compoundedPence: number;
   /** The plank (ticket 30): at most MAX_TARGETS, cheapest first, lit and progress from the lifetime total. */
   targets: (ShelfTarget & ShelfEntry)[];
+  /** Ticket 31: built-ins not on the plank, as one-tap chips; empty when the plank is full. */
+  starters: ShelfItem[];
   /** "£X owed since October" when a settle is overdue, else null. */
   overdueLine: string | null;
 }
@@ -166,6 +190,7 @@ export async function shelfView({ store, ledger, now, overdueLine }: ShelfViewDe
     lifetimePence,
     compoundedPence: compound(lifetimePence, COMPOUND_RATE, COMPOUND_YEARS),
     targets: shelfState(await shelfTargets(store), lifetimePence),
+    starters: await starterChips(store),
     overdueLine: await overdueLine(now),
   };
 }
