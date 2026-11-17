@@ -129,6 +129,18 @@ describe("targets (ticket 30)", () => {
   });
 });
 
+describe("targets: adding and removing", () => {
+  it("on a new install's full plank of three built-ins, adding a fourth target is refused and nothing is stored", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+
+    await expect(addGoal(store, "Guitar", 45000)).rejects.toThrow();
+
+    expect(await store.goals.list()).toEqual([]);
+    expect(await shelfTargets(store)).toHaveLength(3);
+  });
+});
+
 describe("targets: migrating a phone from before ticket 30", () => {
   const GOALS = [
     { id: "g1", name: "Guitar", pricePence: 45000 },

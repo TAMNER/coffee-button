@@ -105,17 +105,18 @@ export async function migrateTargets(store: Store): Promise<void> {
 /** The plank holds at most three targets, built-in and typed together. */
 export const MAX_TARGETS = 3;
 
+/** Superseded by MAX_TARGETS (ticket 30): goals and built-ins now share the three places. */
 export const MAX_GOALS = 3;
 
-/** Adds a personal goal; throws once there are already three. */
+/** Adds a typed target (a personal goal); throws once the plank holds MAX_TARGETS, built-ins included. */
 export async function addGoal(
   store: Store,
   name: string,
   pricePence: number,
   newId: () => string = () => crypto.randomUUID(),
 ): Promise<Goal> {
-  if ((await store.goals.list()).length >= MAX_GOALS) {
-    throw new Error(`At most ${MAX_GOALS} goals`);
+  if ((await shelfTargets(store)).length >= MAX_TARGETS) {
+    throw new Error(`At most ${MAX_TARGETS} targets`);
   }
   const goal: Goal = { id: newId(), name, pricePence };
   await store.goals.put(goal);
