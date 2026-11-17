@@ -281,4 +281,13 @@ describe("starter chips (ticket 31)", () => {
     ]);
     expect(await starterChips(store)).toEqual([]);
   });
+
+  it("on a full plank adding the Espresso machine is refused and the plank is unchanged", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+
+    await expect(addStarter(store, "espresso-machine")).rejects.toThrow();
+
+    expect((await shelfTargets(store)).map((t) => t.id)).toEqual(["weekend-away", "laptop", "ski-week"]);
+  });
 });

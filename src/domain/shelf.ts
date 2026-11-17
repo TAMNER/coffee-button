@@ -146,8 +146,14 @@ export async function starterChips(store: Store): Promise<ShelfItem[]> {
   return (await shelfItems(store)).filter((item) => !ids.includes(item.id)).sort(cheapestFirst);
 }
 
-/** Ticket 31: a tapped chip puts that built-in back on the plank, at its remembered or default price. */
+/**
+ * Ticket 31: a tapped chip puts that built-in back on the plank, at its
+ * remembered or default price; throws once the plank holds MAX_TARGETS.
+ */
 export async function addStarter(store: Store, id: string): Promise<void> {
+  if ((await shelfTargets(store)).length >= MAX_TARGETS) {
+    throw new Error(`At most ${MAX_TARGETS} targets`);
+  }
   const settings = await store.getSettings();
   await store.putSettings({ ...settings, shelfBuiltInIds: [...(settings.shelfBuiltInIds ?? []), id] });
 }
