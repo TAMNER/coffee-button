@@ -78,6 +78,7 @@ export function glassFill(
   height: number,
   froth: number,
 ): GlassFill {
+  if (glass.savedPence <= 0 || todayPence <= 0) return { savedHeight: 0, frothHeight: 0, latteHeight: 0, coffeeHeight: 0 };
   const savedHeight = (glass.savedPence / todayPence) * height;
   const frothHeight = froth;
   const under = savedHeight - frothHeight;

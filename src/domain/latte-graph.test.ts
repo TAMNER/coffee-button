@@ -97,4 +97,26 @@ describe("glassFill (ticket 33)", () => {
       coffeeHeight: 21,
     });
   });
+
+  it("the last glass holds today's total, so it is always full", () => {
+    expect(glassFill({ savedPence: 38130, investedPence: 33720 }, 38130, 120, 8).savedHeight).toBe(120);
+  });
+
+  it("a glass with nothing invested shows latte and froth only", () => {
+    expect(glassFill({ savedPence: 2800, investedPence: 0 }, 2800, 100, 8)).toEqual({
+      savedHeight: 100,
+      frothHeight: 8,
+      latteHeight: 92,
+      coffeeHeight: 0,
+    });
+  });
+
+  it("a period with nothing saved yet shows an empty glass", () => {
+    expect(glassFill({ savedPence: 0, investedPence: 0 }, 2800, 100, 8)).toEqual({
+      savedHeight: 0,
+      frothHeight: 0,
+      latteHeight: 0,
+      coffeeHeight: 0,
+    });
+  });
 });
