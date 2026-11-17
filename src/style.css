@@ -902,3 +902,18 @@ body {
   padding-top: 1rem;
   border-top: 3px dashed var(--paper-2);
 }
+
+/* Ticket 33: the latte graph's light-brown "saved, still waiting" layer
+   (mockups/pictures-and-graph.html, round three). */
+:root {
+  --latte: #c68a52;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --latte: #d29a62;
+  }
+}
+:root[data-theme="dark"] {
+  --latte: #d29a62;
+}
+.cp-latte { fill: var(--latte); }

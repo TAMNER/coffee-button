@@ -22,6 +22,7 @@ import { weeklyOverdueLine } from "../domain/settle";
 import { shelfHint } from "../domain/shelf-hint";
 import { HOME_SCREEN, onStart, registerScreen, registerSettingsSection, type AppContext } from "./app";
 import { goalArt, itemArt } from "./art/items";
+import { latteGraphHtml } from "./latte-graph";
 import { shelfRows } from "./shelf-layout";
 import "./shelf.css";
 
@@ -90,6 +91,7 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
         <button type="submit">Add</button>
       </form>
       <div class="starter-chips" data-role="starters" hidden></div>
+      <div class="latte-graph-slot" data-role="graph" hidden></div>
     </section>`;
   const pace = el.querySelector<HTMLElement>("[data-role=pace]")!;
   const compounded = el.querySelector<HTMLElement>("[data-role=compound]")!;
@@ -99,8 +101,11 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
   const shelf = el.querySelector<HTMLElement>("[data-role=shelf]")!;
   const form = el.querySelector<HTMLFormElement>("[data-role=goal-form]")!;
   const starters = el.querySelector<HTMLElement>("[data-role=starters]")!;
+  const graph = el.querySelector<HTMLElement>("[data-role=graph]")!;
 
   let alive = true;
+  // Ticket 33: the pour-in plays on the first drawing of this visit only.
+  let poured = false;
   // Asked once per visit: the weekly cadence counts visits, and a refresh after
   // adding a goal must not hide a line that is already showing.
   let visitLine: Promise<string | null> | undefined;
@@ -127,6 +132,9 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
     form.hidden = view.targets.length >= MAX_TARGETS;
     starters.innerHTML = view.starters.map(starterChipHtml).join("");
     starters.hidden = view.starters.length === 0;
+    graph.hidden = view.graph === null;
+    graph.innerHTML = view.graph ? latteGraphHtml(view.graph, !poured) : "";
+    if (view.graph) poured = true;
   };
 
   // Ticket 31: a chip puts its built-in back on the plank; no confirmation.
