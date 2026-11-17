@@ -70,6 +70,8 @@ export interface LatteGraph {
   firstLabel: string;
   /** Under the tray, right. */
   lastLabel: string;
+  /** The text alternative: the two figures. */
+  alt: string;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -78,12 +80,15 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 export function latteGraph(series: SavingsSeries): LatteGraph | null {
   if (series.days.length === 0) return null;
   const glasses = glassPeriods(series);
+  const savedLabel = `${formatPoundsShort(series.savedPence)} saved`;
+  const investedLabel = `${formatPoundsShort(series.investedPence)} invested`;
   return {
     glasses,
-    savedLabel: `${formatPoundsShort(series.savedPence)} saved`,
-    investedLabel: `${formatPoundsShort(series.investedPence)} invested`,
+    savedLabel,
+    investedLabel,
     firstLabel: MONTHS[Number(glasses[0].from.slice(5, 7)) - 1],
     lastLabel: "today",
+    alt: `Savings over time: ${savedLabel}, ${investedLabel}.`,
   };
 }
 
