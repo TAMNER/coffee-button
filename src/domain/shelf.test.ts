@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addGoal, removeGoal, setShelfPrice, shelfItems, shelfState, shelfView } from "./shelf";
+import { addGoal, removeGoal, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -100,5 +100,19 @@ describe("shelfView", () => {
     expect(view.items).toHaveLength(4);
     expect(view.items.find((i) => i.id === "weekend-away")).toMatchObject({ lit: false, progress: 0.8 });
     expect(view.goals).toEqual([expect.objectContaining({ name: "Guitar", pricePence: 45000, lit: false })]);
+  });
+});
+
+describe("targets (ticket 30)", () => {
+  it("built-ins on the plank and typed goals are one list, cheapest first, built-ins at their edited prices", async () => {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfBuiltInIds: ["laptop", "ski-week"], shelfPrices: { laptop: 160000 } });
+    await store.goals.put({ id: "g1", name: "Guitar", pricePence: 45000 });
+
+    expect((await shelfTargets(store)).map((t) => [t.id, t.name, t.pricePence, t.builtIn])).toEqual([
+      ["g1", "Guitar", 45000, false],
+      ["ski-week", "Ski week", 150000, true],
+      ["laptop", "Laptop", 160000, true],
+    ]);
   });
 });

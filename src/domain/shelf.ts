@@ -40,6 +40,29 @@ export async function shelfItems(store: Store): Promise<ShelfItem[]> {
   return DEFAULT_SHELF_ITEMS.map((item) => ({ ...item, pricePence: prices[item.id] ?? item.pricePence }));
 }
 
+/** A target on the plank: a built-in (with its own drawing) or a goal the user typed. */
+export interface ShelfTarget extends ShelfItem {
+  builtIn: boolean;
+}
+
+const cheapestFirst = <T extends ShelfItem>(a: T, b: T) => a.pricePence - b.pricePence;
+
+/** Ids of the built-ins on the plank. */
+export async function plankBuiltInIds(store: Store): Promise<string[]> {
+  return (await store.getSettings()).shelfBuiltInIds ?? [];
+}
+
+/** Ticket 30: the plank's one list of targets, cheapest first. */
+export async function shelfTargets(store: Store): Promise<ShelfTarget[]> {
+  const ids = await plankBuiltInIds(store);
+  const builtIns = (await shelfItems(store)).filter((item) => ids.includes(item.id));
+  const goals = await store.goals.list();
+  return [
+    ...builtIns.map((item) => ({ ...item, builtIn: true })),
+    ...goals.map((goal) => ({ ...goal, builtIn: false })),
+  ].sort(cheapestFirst);
+}
+
 export const MAX_GOALS = 3;
 
 /** Adds a personal goal; throws once there are already three. */
