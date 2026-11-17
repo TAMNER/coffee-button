@@ -156,6 +156,12 @@ describe("glassPeriods in the first week (ticket 33, Tom's phone test)", () => {
       expect(glasses[6].to).toBe("2026-11-17");
     }
   });
+
+  it("the graph says which glass is today's: one press today makes it glass 0, and there is no right label while later glasses are still to come", () => {
+    const graph = latteGraph(savingsSeries([pressOn(17)], [], now))!;
+    expect(graph.todayIndex).toBe(0);
+    expect(graph.lastLabel).toBe("");
+  });
 });
 
 describe("glassFill (ticket 33)", () => {

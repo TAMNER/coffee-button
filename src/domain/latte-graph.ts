@@ -69,8 +69,10 @@ export interface LatteGraph {
   investedLabel: string;
   /** Under the tray, left: the first glass's month, "Jun". */
   firstLabel: string;
-  /** Under the tray, right. */
+  /** Under the tray, right: "today", or "" while the last glass is a day not yet come. */
   lastLabel: string;
+  /** Which glass is today's: the full one, with the steam. The last glass from the seventh day on. */
+  todayIndex: number;
   /** The text alternative: the two figures. */
   alt: string;
 }
@@ -83,12 +85,14 @@ export function latteGraph(series: SavingsSeries): LatteGraph | null {
   const glasses = glassPeriods(series);
   const savedLabel = `${formatPoundsShort(series.savedPence)} saved`;
   const investedLabel = `${formatPoundsShort(series.investedPence)} invested`;
+  const todayIndex = glasses.filter((g) => !g.future).length - 1;
   return {
     glasses,
     savedLabel,
     investedLabel,
     firstLabel: MONTHS[Number(glasses[0].from.slice(5, 7)) - 1],
-    lastLabel: "today",
+    lastLabel: todayIndex === glasses.length - 1 ? "today" : "",
+    todayIndex,
     alt: `Savings over time: ${savedLabel}, ${investedLabel}.`,
   };
 }
