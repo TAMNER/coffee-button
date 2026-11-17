@@ -150,6 +150,19 @@ describe("targets: adding and removing", () => {
 
     expect((await shelfTargets(store)).map((t) => t.name)).toEqual(["Weekend away", "Guitar", "Ski week"]);
   });
+
+  it("removeTarget removes a typed target too; with everything removed the plank stays empty after a launch", async () => {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfBuiltInIds: ["weekend-away"] });
+    const guitar = await addGoal(store, "Guitar", 45000);
+
+    await removeTarget(store, guitar.id);
+    await removeTarget(store, "weekend-away");
+    await ensureTargets(store);
+
+    expect(await shelfTargets(store)).toEqual([]);
+    expect(await store.goals.list()).toEqual([]);
+  });
 });
 
 describe("targets: migrating a phone from before ticket 30", () => {
