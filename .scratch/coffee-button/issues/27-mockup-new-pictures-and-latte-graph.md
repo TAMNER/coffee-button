@@ -24,3 +24,4 @@ Agreed in the grilling session of 2026-11-17 (Q4, Q9, Q16, Q21).
 - Bag: **B** (the tomato carrier bag), moved up a little so it sits centred on the disc.
 - Jar: **B** (the honey jar under the spotted cloth).
 - Graph: **neither**. In Tom's words the two options "do not look good", reading as brown blobs. A second version is wanted: the foam drawn more like a sea, swirls in the coffee, and the invested layer smoothed slightly so it trails the coffee. The graph pick stays open until he has seen version 2.
+- Graph, round two (C and D, cut-paper waves and swirls): **rejected** the same day: "wave thing does not work". New brief for round three, in his words: "Let's do latte in a glass. light brown, dark brown, froth. 'unsmooth' the graph into bars. Give me 4 different examples. Have heat swirls coming off the top." So the graph is now bars, not a smoothed curve, which also changes ticket 33's wording once he has picked.
