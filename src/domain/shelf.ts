@@ -169,6 +169,8 @@ export interface ShelfView {
   compoundedPence: number;
   /** The plank (ticket 30): at most MAX_TARGETS, cheapest first, lit and progress from the lifetime total. */
   targets: (ShelfTarget & ShelfEntry)[];
+  /** Ticket 31: built-ins not on the plank, as one-tap chips; empty when the plank is full. */
+  starters: ShelfItem[];
   /** "£X owed since October" when a settle is overdue, else null. */
   overdueLine: string | null;
 }
@@ -188,6 +190,7 @@ export async function shelfView({ store, ledger, now, overdueLine }: ShelfViewDe
     lifetimePence,
     compoundedPence: compound(lifetimePence, COMPOUND_RATE, COMPOUND_YEARS),
     targets: shelfState(await shelfTargets(store), lifetimePence),
+    starters: await starterChips(store),
     overdueLine: await overdueLine(now),
   };
 }

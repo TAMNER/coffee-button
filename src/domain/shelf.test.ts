@@ -159,6 +159,19 @@ describe("targets: adding and removing", () => {
     expect(await shelfTargets(store)).toHaveLength(3);
   });
 
+  it("the shelf view carries the starter chips: after removing the Ski week, Espresso machine £400 then Ski week £1500", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+    await removeTarget(store, "ski-week");
+
+    const view = await shelfView({ store, ledger: new Ledger(store), now: new Date(2026, 2, 1), overdueLine: () => null });
+
+    expect(view.starters.map((s) => [s.id, s.name, s.pricePence])).toEqual([
+      ["espresso-machine", "Espresso machine", 40000],
+      ["ski-week", "Ski week", 150000],
+    ]);
+  });
+
   it("removing the Laptop takes it off the plank, frees a place, and the next launch does not bring it back", async () => {
     const store = new MemoryStore();
     await ensureTargets(store);
