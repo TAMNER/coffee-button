@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { glassFill, glassPeriods } from "./latte-graph";
+import { glassFill, glassPeriods, latteGraph } from "./latte-graph";
 import { savingsSeries, type SavingsDay, type SavingsSeries } from "./savings-series";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -127,5 +127,11 @@ describe("glassFill (ticket 33)", () => {
       latteHeight: 0,
       coffeeHeight: 0,
     });
+  });
+});
+
+describe("latteGraph (ticket 33)", () => {
+  it("no presses: no graph", () => {
+    expect(latteGraph(savingsSeries([], [], new Date(2026, 10, 17, 12)))).toBeNull();
   });
 });

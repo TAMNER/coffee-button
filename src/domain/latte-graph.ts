@@ -58,6 +58,17 @@ export function glassPeriods(series: SavingsSeries): GlassPeriod[] {
   return group(series, (day) => day.slice(0, 7)).slice(-MAX_GLASSES);
 }
 
+/** Everything the latte graph shows, ready to render. */
+export interface LatteGraph {
+  glasses: GlassPeriod[];
+}
+
+/** The graph from the savings series; null before the first press (the shelf shows its hint instead). */
+export function latteGraph(series: SavingsSeries): LatteGraph | null {
+  if (series.days.length === 0) return null;
+  return { glasses: glassPeriods(series) };
+}
+
 /** How high each layer stands in a glass whose drink can reach `height`; they stack coffee, latte, froth from the bottom. */
 export interface GlassFill {
   /** The froth top: saved by then over today's total. */
