@@ -10,10 +10,10 @@ Agreed in the grilling session of 2026-11-17 (Q4, Q9, Q16, Q21).
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** mockup done (`mockups/pictures-and-graph.html`, screenshots in `.scratch/coffee-button/shots/27-*.png`); waiting for Tom's four picks
 
-- [ ] One page shows two options each for pastry, bag, jar and latte graph, in both themes
-- [ ] Each vessel is shown at main-screen size and at picker size beside the existing cup, pint and plate
-- [ ] Each graph option is shown with one week of data and with five months of data
-- [ ] All artwork is inline SVG using the existing colour tokens, or new tokens named in the page for both themes
+- [x] One page shows two options each for pastry, bag, jar and latte graph, in both themes
+- [x] Each vessel is shown at main-screen size and at picker size beside the existing cup, pint and plate
+- [x] Each graph option is shown with one week of data and with five months of data
+- [x] All artwork is inline SVG using the existing colour tokens, or new tokens named in the page for both themes (one new token, `--latte`)
 - [ ] Tom's four picks are recorded in this ticket
