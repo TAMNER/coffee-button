@@ -3,6 +3,14 @@
  * server, so the request leaves as a link to a destination set at build time.
  */
 
+/** The words, as data (proposed copy, awaiting Tom's review). `body` is followed by the item name. */
+export const DRAWING_REQUEST_COPY = {
+  line: "Want a picture that isn't here?",
+  button: "Request a drawing",
+  subject: "Coffee Button drawing request",
+  body: "I'd like a drawing for: ",
+} as const;
+
 /** The build's destination from VITE_DRAWING_REQUEST_URL, trimmed; absent or blank means none. */
 export function drawingRequestDestination(env: {
   readonly VITE_DRAWING_REQUEST_URL?: string;
@@ -32,7 +40,7 @@ export function drawingRequestLink(destination: string, itemName: string): strin
   }
   if (url.protocol === "https:") return destination;
   if (url.protocol !== "mailto:" || !url.pathname) return null;
-  const subject = encodeURIComponent("Coffee Button drawing request");
-  const body = encodeURIComponent(`I'd like a drawing for: ${itemName.trim()}`);
+  const subject = encodeURIComponent(DRAWING_REQUEST_COPY.subject);
+  const body = encodeURIComponent(DRAWING_REQUEST_COPY.body + itemName.trim());
   return `${destination}?subject=${subject}&body=${body}`;
 }

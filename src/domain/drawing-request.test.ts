@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DRAWING_REQUEST_URL, drawingRequestDestination, drawingRequestLink } from "./drawing-request";
+import { DRAWING_REQUEST_COPY, DRAWING_REQUEST_URL,drawingRequestDestination, drawingRequestLink } from "./drawing-request";
 
 describe("drawing request link (ticket 38)", () => {
   it("a mailto destination gets the subject and a body naming the item, percent-encoded", () => {
@@ -62,5 +62,14 @@ describe("drawing request link (ticket 38)", () => {
   it("a build without the variable has no destination, so no link and nothing for Settings to show", () => {
     expect(DRAWING_REQUEST_URL).toBe(""); // this test build sets no VITE_DRAWING_REQUEST_URL
     expect(drawingRequestLink(DRAWING_REQUEST_URL, "Matcha")).toBeNull();
+  });
+
+  it("holds the proposed copy as data for Settings to render (awaiting Tom's review)", () => {
+    expect(DRAWING_REQUEST_COPY).toEqual({
+      line: "Want a picture that isn't here?",
+      button: "Request a drawing",
+      subject: "Coffee Button drawing request",
+      body: "I'd like a drawing for: ",
+    });
   });
 });
