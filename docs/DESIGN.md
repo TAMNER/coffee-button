@@ -24,15 +24,37 @@ you clear into your Stocks and Shares ISA once a month.
   and the press uses that item's price (added 2026-11-03, ticket 12; Lunch
   2026-11-04). Faint cobalt chevrons at cup height (tappable) and at the
   bottom of the screen signify the swipes.
+- **Removing an item (2026-11-17, ticket 26).** Every item but Coffee can be
+  removed from its row in Settings. Coffee is permanent, but can be renamed,
+  repriced and given another picture (a tea drinker makes it "Tea"). A removed
+  Beer or Lunch stays removed, through export and import too; it comes back
+  only by adding it again by hand. Presses keep their own price, so everything
+  already saved stays in every total. If the removed item was on the main
+  screen, the cup moves to the next item.
+- **Pictures (2026-11-17, tickets 27 to 29).** An item's picture is chosen
+  from a fixed set of six drawn by us: cup, pint, plate, jar, pastry (an iced
+  muffin) and bag (a carrier bag). Settings shows them as a row of tappable
+  tiles on every item and on the add form; the free-text icon box is gone. The
+  jar is the "anything else" picture and what an unrecognised name shows. New
+  pictures ship in releases: a friend asks, it is drawn, it arrives. Nothing is
+  ever generated on request.
+- **One way to remove anything.** Removing an item or a shelf target opens the
+  app's own Cut Paper sheet ("Remove Beer? Your savings stay.", Remove / Keep).
+  No browser confirm box, and nothing is removed without it.
 - **Ring.** Curved text around the button like a stamp: "SKIP AND SAVE" over
   the top arc, the active item and price ("COFFEE £3.50") on the bottom arc,
   permanent, updating on swipe.
-- **Info.** A small i in the top-left opens a sheet: the idea, the money (nothing
-  moves until you link a bank; Starling in Settings moves every press into a
-  Space; Monzo is coming), the swipes, and an Add to Home Screen hint.
+- **Info.** A small i in the top-left opens a sheet. Since 2026-11-17 (ticket
+  24) its copy is the author's own: the idea, the money, how saving works
+  (Starling users' savings grow in their Coffee Button Space; everyone else
+  gets a tally), how investment works, then the swipes and an Add to Home
+  Screen hint. The words a user sees are "Invest £X" and "Space"; "settle day"
+  and "investment day" are names for the code and these docs only.
 - **Ceremony on every press.** Pour, coin drop into the cup, cheer with
   confetti. Beer pours amber ale with a cream foam head. Lunch has no pour:
-  the coin drops onto the plate, the sandwich hops, confetti as usual. Identical stimulus every time (Pavlovian), ~2 s, never blocks: the
+  the coin drops onto the plate, the sandwich hops, confetti as usual. The jar,
+  pastry and bag follow the plate: coin lands, the object hops, no pour and no
+  pour sound. Identical stimulus every time (Pavlovian), ~2 s, never blocks: the
   press is recorded before the animation starts and the user may leave
   mid-animation.
 - **Two taps total.** Home Screen icon → tap the cup. No widgets.
@@ -75,6 +97,11 @@ you clear into your Stocks and Shares ISA once a month.
   £X?" Yes clears the owed balance and plays the settle ceremony. With a
   Space linked the screen also says "£X is waiting in your Coffee Button
   Space". InvestEngine is no longer assumed: friends use whatever they use.
+- **Pretend date (2026-11-17, ticket 35).** A tester can open the app as if
+  today were another day (Settings, last section) to walk "Invest £X" without
+  waiting for it. It is look-only for money: ceremonies play, but no press or
+  settle is saved and no transfer is sent, and a notice above every screen
+  says so. The date lives outside Settings, so it is never exported.
 - **Fund nudge.** Under the button, for people with nothing set: "Not sure how
   or where to invest? Open your stocks and shares ISA and invest in Vanguard
   funds. I recommend ESG Global All Cap UCITS ETF (V3AB)."
@@ -92,13 +119,39 @@ you clear into your Stocks and Shares ISA once a month.
   through 31 December. Before the first press the shelf shows "Tap the cup
   every time you walk past the café." instead of the sums (2026-11-16).
 - **Compounding line.** "£X at 5% for 10 years is £Y." Rate fixed at 5%.
-- **Shelf.** Four drawn big-ticket items spread across the price range
-  (weekend away £300, espresso machine £400, laptop £1000, ski week £1500;
-  cut from ten on 2026-11-04 because the screen was too busy) with rough
-  editable prices, greyed until the lifetime total passes the
-  price, then lit with "you could now buy this". Unreached items show progress.
-  Up to three personal goals with a price.
-- **Also shown.** Owed-since line when a settle is overdue. Nothing else.
+- **Shelf: one plank of targets (2026-11-17, tickets 30 and 31).** A single
+  plank holds at most three targets, cheapest on the left. There is one kind
+  of target: the four drawn starters (weekend away £300, espresso machine
+  £400, laptop £1000, ski week £1500; cut from ten on 2026-11-04) and anything
+  the user types are the same thing, and any of them can be removed. Starters
+  keep their drawings and editable prices; a typed target gets the generic
+  drawing. Each is greyed until the lifetime total passes its price, then lit
+  with "you could now buy this"; unreached targets show progress. A new
+  install starts with weekend away, laptop and ski week. Under the plank a
+  name-and-price form adds a target, and any starter not on the plank shows as
+  a one-tap chip that puts it back; form and chips hide when the plank is
+  full. This replaced two rows of built-ins plus a row of up to three goals,
+  which testers found too busy.
+- **Older phones.** A phone from before the single plank keeps every goal the
+  user typed and fills the remaining places with starters, cheapest first at
+  the user's prices; the other starters leave the plank. It runs once.
+  Nothing the user typed is ever removed automatically.
+- **Latte graph (2026-11-17, tickets 32 and 33).** Under the plank, savings
+  over time as a row of seven latte glasses on a cobalt tray. The days since
+  the first press (at least seven) are shared out evenly among the glasses, so
+  early on each glass is a day and later each is a few weeks; the row always
+  runs from the first press to today. Each glass is filled to what had been
+  saved by then: the top of the cream froth is the total saved, dark coffee
+  under it is what had been invested, light latte is saved and still waiting.
+  Steam curls off the newest glass. The only labels are "£X saved" and
+  "£Y invested" (pence shown when there are any; "£0 invested" shown before
+  the first invest), the first month and "today". No gridlines, no axis
+  numbers, nothing to tap. The drink pours in once when the shelf opens, and
+  simply appears under reduced motion. Absent before the first press. The
+  author rejected two smoother versions (area charts, then cut-paper waves)
+  before choosing bars as glasses; do not go back to a curve.
+- **Also shown.** Owed-since line when a settle is overdue. Nothing beyond
+  the pace line, the compounding line, the plank and the graph.
 - **Tone.** Whimsical objects. No mascot, no happy characters.
 
 ## Design process

@@ -4,11 +4,11 @@
 
 **Blocked by:** 30 (Targets: one plank, three at most), 33 (Latte graph on the shelf).
 
-**Status:** blocked (waiting on 30 and 33)
+**Status:** done (2026-11-17). Also added: the pretend date, the info sheet wording, and a dated update at the top of the handoff. The design doc's Relay and Hosting sections still describe the pre-Cloudflare setup and need Tom's wording.
 
-- [ ] Items: every item but Coffee can be removed; removal is remembered; past presses stay in totals
-- [ ] Pictures: the fixed set of six, the jar as the fallback, the picker, and that new pictures ship in releases and are never generated
-- [ ] Shelf: one plank, three targets at most, cheapest first, one kind of target, starter chips, and the migration rule for older phones
-- [ ] Graph: the latte layers, the labels, the pour-in, and where it sits; the "Nothing else" line is rewritten
-- [ ] The confirm sheet is named as the one way anything is removed
-- [ ] The shelf test count and any commands in the repo instructions that changed are corrected
+- [x] Items: every item but Coffee can be removed; removal is remembered; past presses stay in totals
+- [x] Pictures: the fixed set of six, the jar as the fallback, the picker, and that new pictures ship in releases and are never generated
+- [x] Shelf: one plank, three targets at most, cheapest first, one kind of target, starter chips, and the migration rule for older phones
+- [x] Graph: the latte layers, the labels, the pour-in, and where it sits; the "Nothing else" line is rewritten
+- [x] The confirm sheet is named as the one way anything is removed
+- [x] The shelf test count and any commands in the repo instructions that changed are corrected

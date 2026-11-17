@@ -2,7 +2,17 @@
 
 Written 2026-11-04 at the end of the session that built tickets 13 to 22. Read this first, then `docs/DESIGN.md` (the agreed design, source of truth), then `CLAUDE.md` (how to work in this repo). The architecture explainer with diagrams is published as a Claude artifact: https://claude.ai/artifact/FwVggpfSfmfxfwAKpCxgQK (private to Tom).
 
-## Where things stand
+## Update, 2026-11-17: round-two feedback built (read this before the rest)
+
+Everything below this section was written on 2026-11-04 and is partly out of date. What changed since:
+
+- **16 Nov.** Tester round one fixes (pace counts at least seven days, install copy per browser), recorded pour and cheer, and Cloudflare hosting: the Starling relay as a Worker (`relay-worker/`), the app as Workers static assets (`wrangler.jsonc`), deployed by `scripts/cf-deploy.sh` from a worktree. Tom has deployed and tested it. The design doc's "Relay" and "Hosting" sections still describe the black-box relay and GitHub Pages; they need Tom's wording for the Cloudflare decision.
+- **17 Nov.** Tom's second round of feedback was triaged, grilled and built as tickets 23 to 36 (`.scratch/coffee-button/issues/`, GitHub issues of the same numbers). All fourteen are built on branch `round-2`: silent mode respected, new info sheet copy, Settings help lines, removable items, six pictures with a picker, one plank of three targets with starter chips, the latte graph (a row of seven glasses), a look-only pretend date for walking "Invest £X", and vibration patterns on Android. 388 tests, build clean.
+- **Not done by an agent, waiting on Tom:** nothing from `round-2` is deployed or on a phone. Device checks are open in tickets 23, 24, 29, 33, 35 and 36 (36 needs an Android tester). Copy to read before any push: the info sheet (24), the reworded phrase in the Settings help (25), the pretend-date notice and labels (35), the payday line and calendar reminder that no longer say "settle day" (24), and the starter chip labels (31).
+- **The mockup page** for the new pictures and the graph is `mockups/pictures-and-graph.html` (three rounds; Tom's picks are recorded in ticket 27), published privately at https://claude.ai/artifact/AEQvMsQ5QPdCPh8YBa2BE5.
+- **A bug fixed on the way:** the ring text sat about 55px off the disc whenever "Invest £X" showed (it only re-measured when the cup changed size). Fixed in `src/ui/ring.ts`.
+
+## Where things stand (as of 2026-11-04)
 
 | Area | State |
 |---|---|

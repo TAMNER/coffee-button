@@ -23,7 +23,7 @@ Start with `docs/HANDOFF.md` (current state and open items), then `docs/DESIGN.m
 ## Commands
 
 ```bash
-npx vitest run            # 209 tests
+npx vitest run            # 388 tests (one skipped)
 npm run build             # tsc + vite
 bash scripts/deploy.sh    # build, restart services, tailscale serve, curl checks
 node scripts/screenshot.mjs /tmp/shot.png   # 390x844 render, bypasses the service worker
