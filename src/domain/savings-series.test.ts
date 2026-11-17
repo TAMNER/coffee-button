@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { Ledger } from "./ledger";
 import { savingsSeries } from "./savings-series";
+import { MemoryStore } from "./store";
 
 let n = 0;
 const press = (pricePence: number, at: Date, itemId = "coffee") => ({ id: `p${++n}`, itemId, pricePence, at: at.getTime() });
@@ -44,5 +46,18 @@ describe("savingsSeries", () => {
       { day: "2026-11-02", savedPence: 1750, investedPence: 950 },
       { day: "2026-11-03", savedPence: 2100, investedPence: 1750 },
     ]);
+  });
+
+  it("an undone press is deleted from the ledger, so it neither counts nor starts the series", async () => {
+    let id = 0;
+    const ledger = new Ledger(new MemoryStore(), () => `u${++id}`);
+    const early = await ledger.addPress("coffee", new Date(2026, 10, 1, 8));
+    await ledger.undo(early.id);
+    await ledger.addPress("beer", new Date(2026, 10, 17, 8));
+    const series = savingsSeries(await ledger.presses(), [], new Date(2026, 10, 17, 12));
+    expect(series.days.map((d) => d.day)).toEqual([
+      "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15", "2026-11-16", "2026-11-17",
+    ]);
+    expect(series.savedPence).toBe(600);
   });
 });
