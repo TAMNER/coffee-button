@@ -24,6 +24,8 @@ export const PICTURES: readonly Picture[] = [
   { id: "pint", label: "Pint", aliases: ["beer"], pour: true },
   { id: "plate", label: "Plate", aliases: ["sandwich"], pour: false },
   { id: "jar", label: "Jar", pour: false },
+  { id: "pastry", label: "Pastry", pour: false },
+  { id: "bag", label: "Bag", pour: false },
 ];
 
 /** The jar: the picture for anything the app has no drawing for. */

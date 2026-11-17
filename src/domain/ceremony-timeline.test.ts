@@ -32,3 +32,11 @@ describe("ceremonyTimeline for the jar (ticket 28)", () => {
     expect(names("pint")).toEqual(["pour", "coin", "cheer"]);
   });
 });
+
+describe("ceremonyTimeline for the pastry and the bag (ticket 29)", () => {
+  it("has nothing to pour, like the plate and the jar: coin then cheer", () => {
+    const names = (icon: string) => ceremonyTimeline({ pour: pictureFor(icon).pour }).map((s) => s.name);
+    expect(names("pastry")).toEqual(["coin", "cheer"]);
+    expect(names("bag")).toEqual(["coin", "cheer"]);
+  });
+});

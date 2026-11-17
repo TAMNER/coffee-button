@@ -60,6 +60,22 @@ describe("Ceremony.play", () => {
     expect(events).toEqual(["coin", "clink", "woohoo", "cheer"]);
   });
 
+  for (const icon of ["pastry", "bag"]) {
+    it(`for the ${icon} (ticket 29) plays coin, the clink, then cheer, and no pour sound`, async () => {
+      const events: string[] = [];
+      const recording: Stage = { step: async (step) => void events.push(step.name) };
+      const audio = {
+        playPour: () => void events.push("pour-sound"),
+        playCoin: () => void events.push("clink"),
+        playCheer: () => void events.push("woohoo"),
+      };
+
+      await new Ceremony(recording, { pour: vesselFor(icon).pour }).play({ audio });
+
+      expect(events).toEqual(["coin", "clink", "woohoo", "cheer"]);
+    });
+  }
+
   it("still resolves when audio throws", async () => {
     const audio = new FakeAudio();
     audio.fail = true;
