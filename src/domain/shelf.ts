@@ -136,6 +136,12 @@ export async function removeTarget(store: Store, id: string): Promise<void> {
   await store.putSettings({ ...settings, shelfBuiltInIds: ids.filter((builtIn) => builtIn !== id) });
 }
 
+/** Ticket 31: the built-ins not on the plank, cheapest first at their current prices; each shows as a chip. */
+export async function starterChips(store: Store): Promise<ShelfItem[]> {
+  const ids = await plankBuiltInIds(store);
+  return (await shelfItems(store)).filter((item) => !ids.includes(item.id)).sort(cheapestFirst);
+}
+
 export const COMPOUND_RATE = 0.05;
 export const COMPOUND_YEARS = 10;
 
