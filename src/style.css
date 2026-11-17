@@ -917,3 +917,44 @@ body {
   --latte: #d29a62;
 }
 .cp-latte { fill: var(--latte); }
+
+/* Ticket 38: "Want a picture that isn't here?" and the Request a drawing link
+   under the add form's picture row (src/ui/drawing-request.ts). A full-width
+   line of its own, so the name, price and ADD row is untouched; the link wears
+   the Settings button look (src/ui/settings.css) at a smaller size, in the
+   muted chip colours of the remove and close chips. No new colour token. */
+.settings .drawing-request {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.7rem;
+  margin: 0.2rem 0 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.settings .drawing-request-link {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--ink, #1d2a6e);
+  background: var(--off-hi, #ecc4b9);
+  border-radius: 4px;
+  padding: 0.45rem 0.7rem;
+  box-shadow: 3px 3px 0 var(--off-shadow, #cc9283);
+  -webkit-tap-highlight-color: transparent;
+}
+.settings .drawing-request-link:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--off-shadow, #cc9283);
+}
+.settings .drawing-request-link:focus-visible {
+  outline: 3px solid var(--mustard-deep, #d48e12);
+  outline-offset: 2px;
+}

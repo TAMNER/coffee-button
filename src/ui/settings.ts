@@ -27,6 +27,7 @@ import {
 import { confirmSheet } from "./confirm-sheet";
 import { pictureFor } from "../domain/pictures";
 import { picturePicker } from "./picture-picker";
+import { drawingRequestLine } from "./drawing-request";
 import { DEFAULT_ITEM } from "../domain/store";
 import { SETTINGS_HELP } from "../domain/settings-help";
 import "./settings.css";
@@ -136,6 +137,9 @@ function mountItems(el: HTMLElement, ctx: AppContext): void {
   const newPicker = () => picturePicker(newIcon, "Picture for the new item", (id) => (newIcon = id));
   form.classList.add("has-picker");
   form.prepend(newPicker());
+  // Ticket 38: "Request a drawing" under the picture row; absent when the build has no destination.
+  const request = drawingRequestLine(form.querySelector<HTMLInputElement>("[name=name]")!);
+  if (request) form.querySelector(".picture-picker")!.after(request);
 
   const render = async () => {
     const items = await ctx.ledger.items();
