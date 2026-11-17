@@ -12,20 +12,41 @@ export interface GlassPeriod {
   to: string;
   savedPence: number;
   investedPence: number;
+  /** A day that has not happened yet (first week only): drawn as an empty glass. */
+  future?: boolean;
 }
 
 /** The row always holds exactly this many glasses (and never more). */
 export const MAX_GLASSES = 7;
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The "YYYY-MM-DD" label `k` days after `day`. */
+const addDays = (day: string, k: number) =>
+  new Date(Date.parse(`${day}T00:00:00Z`) + k * DAY_MS).toISOString().slice(0, 10);
+
 /**
- * Always seven glasses: the series' days (at least seven, oldest first,
- * ending today) are shared out evenly in order, floor(n/7) days each, the
- * oldest n mod 7 glasses taking one extra. Each glass carries the running
- * totals at the end of its last day.
+ * Always seven glasses, starting on the first press day. Within the first
+ * week, one glass a day, the glasses after today being days not yet come
+ * (`future`, empty). From seven days on, the days from the first press to
+ * today are shared out evenly in order, floor(n/7) days each, the oldest
+ * n mod 7 glasses taking one extra. Each glass carries the running totals at
+ * the end of its last day.
  */
 export function glassPeriods(series: SavingsSeries): GlassPeriod[] {
-  const { days } = series;
+  const first = Math.max(0, series.days.findIndex((d) => d.savedPence > 0));
+  const days = series.days.slice(first);
   if (days.length === 0) return [];
+  if (days.length < MAX_GLASSES) {
+    const today = days[days.length - 1].day;
+    return [
+      ...days.map((d) => ({ from: d.day, to: d.day, savedPence: d.savedPence, investedPence: d.investedPence })),
+      ...Array.from({ length: MAX_GLASSES - days.length }, (_, k) => {
+        const day = addDays(today, k + 1);
+        return { from: day, to: day, savedPence: 0, investedPence: 0, future: true };
+      }),
+    ];
+  }
   const base = Math.floor(days.length / MAX_GLASSES);
   const extra = days.length % MAX_GLASSES;
   const out: GlassPeriod[] = [];

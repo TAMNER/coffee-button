@@ -105,6 +105,28 @@ describe("glassPeriods (ticket 33)", () => {
   });
 });
 
+describe("glassPeriods in the first week (ticket 33, Tom's phone test)", () => {
+  const now = new Date(2026, 10, 17, 12);
+  const pressOn = (day: number, pricePence = 350) => ({
+    id: `p${day}`,
+    itemId: "coffee",
+    pricePence,
+    at: new Date(2026, 10, day, 8).getTime(),
+  });
+
+  it("one press today: the row starts today on the left, the six glasses after it are days not yet come", () => {
+    expect(glassPeriods(savingsSeries([pressOn(17)], [], now))).toEqual([
+      { from: "2026-11-17", to: "2026-11-17", savedPence: 350, investedPence: 0 },
+      { from: "2026-11-18", to: "2026-11-18", savedPence: 0, investedPence: 0, future: true },
+      { from: "2026-11-19", to: "2026-11-19", savedPence: 0, investedPence: 0, future: true },
+      { from: "2026-11-20", to: "2026-11-20", savedPence: 0, investedPence: 0, future: true },
+      { from: "2026-11-21", to: "2026-11-21", savedPence: 0, investedPence: 0, future: true },
+      { from: "2026-11-22", to: "2026-11-22", savedPence: 0, investedPence: 0, future: true },
+      { from: "2026-11-23", to: "2026-11-23", savedPence: 0, investedPence: 0, future: true },
+    ]);
+  });
+});
+
 describe("glassFill (ticket 33)", () => {
   it("£50 saved of today's £100 in a 100-high glass: froth top at 50; under 8 of froth, £25 invested of £50 splits the 42 evenly", () => {
     expect(glassFill({ savedPence: 5000, investedPence: 2500 }, 10000, 100, 8)).toEqual({
