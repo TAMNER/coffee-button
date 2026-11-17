@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ceremonyTimeline } from "./ceremony-timeline";
-import { pressVibration } from "./vibration";
+import { pressVibration, settleVibration } from "./vibration";
 
 /** When each buzz starts, in ms from the press: the pattern alternates on, off, on... */
 function buzzStarts(pattern: number[]): number[] {
@@ -41,5 +41,19 @@ describe("pressVibration", () => {
     // Same tick, buzz and flutter; only the wait for the coin is shorter, by the pour's 800 ms.
     expect(plate[1]).toBe(pouring[1] - 800);
     expect([plate[0], ...plate.slice(2)]).toEqual([pouring[0], ...pouring.slice(2)]);
+  });
+});
+
+describe("settleVibration", () => {
+  it("is a longer celebration than a press: more buzzes, more time buzzing, ending on the longest one", () => {
+    const press = pressVibration(ceremonyTimeline());
+    const settle = settleVibration();
+    const on = (p: number[]) => p.filter((_, i) => i % 2 === 0);
+    const sum = (p: number[]) => p.reduce((a, b) => a + b, 0);
+    expect(settle.length % 2).toBe(1); // starts and ends on a buzz
+    expect(on(settle).length).toBeGreaterThan(on(press).length);
+    expect(sum(on(settle))).toBeGreaterThan(sum(on(press)));
+    expect(settle[settle.length - 1]).toBe(Math.max(...on(settle)));
+    expect(sum(settle)).toBeLessThanOrEqual(2000);
   });
 });

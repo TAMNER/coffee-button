@@ -29,3 +29,11 @@ export function pressVibration(steps: readonly CeremonyStep[]): VibrationPattern
   }
   return pattern;
 }
+
+/**
+ * Confirming a settle: a longer celebration than a press. Three quick taps,
+ * two firmer beats, then one long buzz to finish (under a second in all).
+ */
+export function settleVibration(): VibrationPattern {
+  return [30, 70, 30, 70, 30, 70, 50, 140, 50, 140, 200];
+}
