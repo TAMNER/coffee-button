@@ -66,10 +66,30 @@ export async function shelfTargets(store: Store): Promise<ShelfTarget[]> {
 /** What a new install's plank starts with (ticket 30). */
 export const STARTER_TARGET_IDS: readonly string[] = ["weekend-away", "laptop", "ski-week"];
 
-/** Run at launch, before anything else writes: settles which built-ins stand on the plank. */
+/**
+ * Anything the app only writes once someone has used it: a phone with any of
+ * these was in use before ticket 30. A new install has none at its first launch.
+ */
+async function usedBefore(store: Store): Promise<boolean> {
+  const settings = await store.getSettings();
+  return (
+    settings.infoSeen === true ||
+    Object.keys(settings.shelfPrices ?? {}).length > 0 ||
+    (await store.goals.list()).length > 0 ||
+    (await store.presses.list()).length > 0 ||
+    (await store.settlements.list()).length > 0
+  );
+}
+
+/**
+ * Run at launch, before anything else writes (main.ts). `shelfBuiltInIds`
+ * present: already settled, nothing to do. Absent on a phone used before:
+ * migrateTargets. Absent on a new install: the starter three.
+ */
 export async function ensureTargets(store: Store): Promise<void> {
   const settings = await store.getSettings();
   if (settings.shelfBuiltInIds) return;
+  if (await usedBefore(store)) return migrateTargets(store);
   await store.putSettings({ ...settings, shelfBuiltInIds: [...STARTER_TARGET_IDS] });
 }
 

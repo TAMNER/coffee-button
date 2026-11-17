@@ -171,4 +171,22 @@ describe("targets: migrating a phone from before ticket 30", () => {
     expect(await store.getSettings()).toEqual(before);
     expect(await store.goals.list()).toEqual([GOALS[0]]);
   });
+
+  it.each<[string, (store: MemoryStore) => Promise<void>]>([
+    ["a press", (s) => s.presses.put({ id: "p1", itemId: "coffee", pricePence: 350, at: 1 })],
+    ["a settlement", (s) => s.settlements.put({ id: "s1", amountPence: 350, at: 1 })],
+    ["a goal", (s) => s.goals.put({ id: "g1", name: "Guitar", pricePence: 45000 })],
+    ["an edited shelf price", (s) => s.putSettings({ paydayDay: 25, shelfPrices: { laptop: 90000 } })],
+    ["the info sheet seen", (s) => s.putSettings({ paydayDay: 25, infoSeen: true })],
+  ])("at launch, a phone with %s and no plank yet is migrated, not given the new-install three", async (_, setUp) => {
+    const store = new MemoryStore();
+    await setUp(store);
+    const expected = new MemoryStore();
+    await setUp(expected);
+    await migrateTargets(expected);
+
+    await ensureTargets(store);
+
+    expect(await store.getSettings()).toEqual(await expected.getSettings());
+  });
 });
