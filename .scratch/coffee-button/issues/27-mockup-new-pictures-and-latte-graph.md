@@ -17,3 +17,10 @@ Agreed in the grilling session of 2026-11-17 (Q4, Q9, Q16, Q21).
 - [x] Each graph option is shown with one week of data and with five months of data
 - [x] All artwork is inline SVG using the existing colour tokens, or new tokens named in the page for both themes (one new token, `--latte`)
 - [ ] Tom's four picks are recorded in this ticket
+
+**Tom's picks (2026-11-17):**
+
+- Pastry: **B** (the iced muffin).
+- Bag: **B** (the tomato carrier bag), moved up a little so it sits centred on the disc.
+- Jar: **B** (the honey jar under the spotted cloth).
+- Graph: **neither**. In Tom's words the two options "do not look good", reading as brown blobs. A second version is wanted: the foam drawn more like a sea, swirls in the coffee, and the invested layer smoothed slightly so it trails the coffee. The graph pick stays open until he has seen version 2.
