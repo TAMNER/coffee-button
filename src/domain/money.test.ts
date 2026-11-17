@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatPounds } from "./money";
+import { formatPounds, formatPoundsShort } from "./money";
 
 describe("formatPounds", () => {
   it("formats the default coffee price of 350 pence as £3.50", () => {
@@ -12,5 +12,12 @@ describe("formatPounds", () => {
 
   it("formats zero as £0.00", () => {
     expect(formatPounds(0)).toBe("£0.00");
+  });
+});
+
+describe("formatPoundsShort (ticket 33: the latte graph's labels)", () => {
+  it("drops the pence when there are none: 2800 is £28, 0 is £0", () => {
+    expect(formatPoundsShort(2800)).toBe("£28");
+    expect(formatPoundsShort(0)).toBe("£0");
   });
 });
