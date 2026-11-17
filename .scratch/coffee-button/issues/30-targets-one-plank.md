@@ -10,13 +10,13 @@ Tester feedback 2026-11-17 ("Target shelf needs only one layer. Allow removal of
 
 **Blocked by:** 26 (Remove an item: the confirm sheet).
 
-**Status:** blocked (waiting on 26)
+**Status:** built, awaiting review (not pushed; nothing on device yet)
 
-- [ ] The shelf view returns one list of at most three targets, sorted cheapest first; unit tested, failing first
-- [ ] A new install's targets are exactly Weekend away, Laptop and Ski week at their default prices; unit tested
-- [ ] Migration: with n personal goals and four built-ins, the result is the n goals plus the 3 − n cheapest built-ins at their edited prices; cases for n = 0, 1, 2, 3 unit tested; running it twice changes nothing
-- [ ] An export file made before this ticket imports and ends up with the same three targets the migration would give (unit tested)
-- [ ] Adding a fourth target is refused; removing any target, built-in or typed, works and is remembered (unit tested)
-- [ ] Lighting ("you could now buy this") and progress still follow the lifetime total (guard tests)
-- [ ] The shelf renders one plank, three across at 390px, with × on every target opening the confirm sheet (DOM glue, declared untested); the row-split test is changed to one row
-- [ ] Screenshot at 390x844 with one, two and three targets, both themes
+- [x] The shelf view returns one list of at most three targets, sorted cheapest first; unit tested, failing first
+- [x] A new install's targets are exactly Weekend away, Laptop and Ski week at their default prices; unit tested
+- [x] Migration: with n personal goals and four built-ins, the result is the n goals plus the 3 − n cheapest built-ins at their edited prices; cases for n = 0, 1, 2, 3 unit tested; running it twice changes nothing
+- [x] An export file made before this ticket imports and ends up with the same three targets the migration would give (unit tested)
+- [x] Adding a fourth target is refused; removing any target, built-in or typed, works and is remembered (unit tested)
+- [x] Lighting ("you could now buy this") and progress still follow the lifetime total (guard tests)
+- [x] The shelf renders one plank, three across at 390px, with × on every target opening the confirm sheet (DOM glue, declared untested); the row-split test is changed to one row
+- [x] Screenshot at 390x844 with one, two and three targets, both themes (.scratch/coffee-button/shots/{one,two,three,mixed,confirm}-{light,dark}.png)
