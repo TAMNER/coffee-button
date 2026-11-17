@@ -28,7 +28,7 @@ function escapeHtml(text: string): string {
 
 function sheetHtml(id: number): string {
   const hintNeeded = homeScreenHintNeeded(isStandalone());
-  // All four sections always show; the Home Screen one is flagged only while the app is not installed.
+  // Every section always shows; the Home Screen one is flagged only while the app is not installed.
   // Its body is Safari's steps on iOS Safari and neutral wording elsewhere (domain/install-copy.ts).
   const homeScreenBody = installCopy(browserFacts()).infoBody;
   const sections = INFO_SECTIONS.map((s) => (s.heading === HOME_SCREEN_HEADING ? { ...s, body: homeScreenBody } : s)).map(

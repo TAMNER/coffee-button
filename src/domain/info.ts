@@ -1,5 +1,6 @@
 /**
  * Ticket 15: the info sheet's copy, as data, and when it shows.
+ * Ticket 24: the copy's second version (Tom's words, 2026-11-17).
  * The UI (src/ui/info.ts) only renders what is here.
  */
 import type { Store } from "./store";
@@ -12,15 +13,23 @@ export interface InfoSection {
 export const INFO_SECTIONS: readonly InfoSection[] = [
   {
     heading: "The idea",
-    body:
-      "Want to cut down on frivolous spending? Want to save for something mindful and amazing? Skip and Save! " +
-      "Skip the coffee, press the cup, and the price you didn't spend is saved.",
+    body: "Skip a coffee, Press the cup and Save the money. Build good habits whilst investing in future you.",
   },
   {
     heading: "The money",
+    body: "Click the cup and set money aside. Once a month the app shows Invest £X and prompts you to invest your savings.",
+  },
+  {
+    heading: "How does saving work?",
     body:
-      "Set up Starling in Settings and every press moves the price into a Starling Space straight away. " +
-      "Otherwise the app keeps a tally of your savings and prompts you monthly to move the total into an investment account.",
+      "For Starling bank users, your savings will grow in your Coffee Button Space every time you click. " +
+      "For other users, the app keeps a tally of your savings until Invest £X appears.",
+  },
+  {
+    heading: "How does investment work?",
+    body:
+      "When Invest £X appears, the app will prompt you to invest your savings with your chosen investment service. " +
+      "Follow the instructions to invest in future you.",
   },
   {
     heading: "Swipe",
