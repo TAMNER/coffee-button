@@ -1,4 +1,5 @@
 import { listItems, nextItem } from "./items";
+import { migrateTargets } from "./shelf";
 import { DEFAULT_ITEM, DEFAULT_ITEMS, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
 
 export async function addItem(
@@ -161,6 +162,8 @@ export async function importData(store: Store, json: string): Promise<void> {
     ...(starlingAuthFailed ? { starlingAuthFailed } : {}),
   };
   await store.replaceAll({ items, presses, settlements, goals, settings });
+  // A file from before ticket 30 has no plank yet: it gets the migration (a no-op for newer files).
+  await migrateTargets(store);
 }
 
 export async function setPayday(store: Store, day: number): Promise<void> {
