@@ -761,3 +761,19 @@ body {
   font-weight: 800;
   line-height: 1.15;
 }
+
+/* Ticket 35: the pretend-date notice pinned above every screen (src/ui/pretend.ts).
+   Mustard, unlike the cobalt Safari banner, so a pretend day is never mistaken
+   for a real one. Under it, the Safari banner stops being sticky so the two never overlap. */
+.pretend-banner {
+  background: var(--mustard);
+  color: var(--dark);
+  font-weight: 700;
+}
+.pretend-banner ~ .banner {
+  position: static;
+  padding-top: 0.5rem;
+}
+.pretend-help {
+  margin: 0 0 0.6rem;
+}

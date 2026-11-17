@@ -13,3 +13,4 @@ import "./invest-destination";
 import "./starling-settings";
 import "./starling-mover";
 import "./settings-button";
+import "./pretend";
