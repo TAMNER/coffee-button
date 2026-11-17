@@ -48,4 +48,11 @@ describe("glassPeriods (ticket 33)", () => {
       ["2026-11-16", "2026-11-17", 4400],
     ]);
   });
+
+  it("an eighth week touched (Sun 4 Oct to Tue 17 Nov): one glass per calendar month, split at the month boundary, the last being this month so far", () => {
+    expect(glassPeriods(series("2026-10-04", 45))).toEqual([
+      { from: "2026-10-04", to: "2026-10-31", savedPence: 2800, investedPence: 280 },
+      { from: "2026-11-01", to: "2026-11-17", savedPence: 4500, investedPence: 450 },
+    ]);
+  });
 });

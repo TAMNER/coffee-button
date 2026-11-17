@@ -16,6 +16,8 @@ export interface GlassPeriod {
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** Up to this many days of series: one glass a day. */
 const DAILY_DAYS = 7;
+/** The row never holds more glasses than this. */
+export const MAX_GLASSES = 7;
 
 /** Day number of a "YYYY-MM-DD" label, counted as savings-series.ts counts (UTC midnight of the local date). */
 const dayNumber = (day: string) => Date.parse(`${day}T00:00:00Z`) / DAY_MS;
@@ -51,5 +53,7 @@ function group(series: SavingsSeries, key: (day: string) => string | number): Gl
  */
 export function glassPeriods(series: SavingsSeries): GlassPeriod[] {
   if (series.days.length <= DAILY_DAYS) return group(series, (day) => day);
-  return group(series, weekOf);
+  const weekly = group(series, weekOf);
+  if (weekly.length <= MAX_GLASSES) return weekly;
+  return group(series, (day) => day.slice(0, 7));
 }
