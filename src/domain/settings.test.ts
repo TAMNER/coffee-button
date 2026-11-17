@@ -387,4 +387,15 @@ describe("settings: remove an item (ticket 26)", () => {
     expect(await store.getSettings()).toEqual({ paydayDay: 20 });
     expect((await listItems(store)).map((i) => i.id)).toEqual(["coffee", "beer", "lunch"]);
   });
+
+  it("a file whose removed items are not a list of ids is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { ...FIXTURE, settings: { paydayDay: 20, removedItemIds: "beer" } };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow(
+      "This file is not a Coffee Button export (removed items must be a list of item ids)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
+  });
 });
