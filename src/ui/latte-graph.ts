@@ -72,7 +72,8 @@ function glassesSvg(graph: LatteGraph): string {
   const W = 358, H = 200, FROTH = 8, BUB = 3;
   const list = graph.glasses;
   const n = list.length;
-  const today = list[n - 1].savedPence;
+  // Today's glass is the full one; in the first week the glasses after it are days not yet come, drawn empty.
+  const today = list[graph.todayIndex].savedPence;
   const trayY = H - 18, yT = 58, yB = trayY;
   const x0 = 6, x1 = 340, pitch = (x1 - x0) / n;
   const wT = Math.min(44, pitch * 0.72), wB = wT * 0.84;
@@ -94,12 +95,13 @@ function glassesSvg(graph: LatteGraph): string {
       ${hl > 10 ? `<rect class="cp-cream" x="${f1(xc - wT / 2 + 7)}" y="${f1(ib - 6 - hl)}" width="3.5" height="${f1(hl)}" rx="1.75" opacity="0.55"/>` : ""}
       ${rim}`;
   });
-  const lastX = x0 + pitch * (n - 0.5);
-  return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true" style="--n:${n}">
+  const todayX = x0 + pitch * (graph.todayIndex + 0.5);
+  // --n: how many glasses pour, so the steam waits for the last of them.
+  return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true" style="--n:${graph.todayIndex + 1}">
   <g class="cp-shadow" transform="translate(5 5)">${shadow}<rect x="0" y="${trayY}" width="${W - 12}" height="12" rx="6"/></g>
   <rect class="cp-cobalt" x="0" y="${trayY}" width="${W - 12}" height="12" rx="6"/>
   ${glasses}
-  ${steam(lastX, yT - 12, 1)}
+  ${steam(todayX, yT - 12, 1)}
 </svg>`;
 }
 
