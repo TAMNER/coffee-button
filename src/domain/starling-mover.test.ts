@@ -3,6 +3,7 @@ import { StarlingAuthError, StarlingError, StarlingNetworkError, StarlingRateLim
 import { moverFor, StarlingMover, waitingCount, waitingLine, waitingTotal, type StarlingTransfers, type Timers } from "./starling-mover";
 import { LedgerMover } from "./money-mover";
 import { DEFAULT_RELAY_URL } from "./starling-link";
+import { removeItem } from "./settings";
 import { MemoryStore, type Press, type StarlingLink } from "./store";
 
 const LINK: StarlingLink = {
@@ -221,6 +222,17 @@ describe("StarlingMover: retry queue", () => {
     await mover.drain();
 
     expect(calls.map((c) => c.transferUid)).toEqual(["t-early", "t-mid", "t-late"]);
+  });
+
+  it("a waiting Beer press still moves after Beer is removed (ticket 26), at its own price", async () => {
+    const { store, calls, mover } = await setup();
+    await store.presses.put({ ...press("p1", 600, "waiting"), itemId: "beer" });
+    await removeItem(store, "beer");
+
+    await mover.drain();
+
+    expect(calls.map((c) => [c.transferUid, c.amountPence])).toEqual([["t-p1", 600]]);
+    expect((await store.presses.get("p1"))?.transfer?.state).toBe("moved");
   });
 
   it("a network failure stops the run: later presses wait for the next drain", async () => {
