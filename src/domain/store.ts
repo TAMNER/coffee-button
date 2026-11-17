@@ -56,6 +56,8 @@ export interface Settings {
   starling?: StarlingLink;
   /** Starling answered 401/403 to a transfer (ticket 20): retries stop and the cup shows a banner until the link is saved again. */
   starlingAuthFailed?: boolean;
+  /** Ids of built-in items (Beer, Lunch) the user removed (ticket 26), so launch does not add them back. Exported. */
+  removedItemIds?: string[];
 }
 
 export interface StarlingLink {

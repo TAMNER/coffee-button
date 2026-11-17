@@ -1,5 +1,5 @@
-import { listItems } from "./items";
-import { DEFAULT_ITEM, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
+import { listItems, nextItem } from "./items";
+import { DEFAULT_ITEM, DEFAULT_ITEMS, type Goal, type Item, type Press, type Settings, type Settlement, type Store } from "./store";
 
 export async function addItem(
   store: Store,
@@ -25,6 +25,27 @@ export function renameItem(store: Store, id: string, name: string): Promise<void
 
 export function repriceItem(store: Store, id: string, pricePence: number): Promise<void> {
   return updateItem(store, id, { pricePence });
+}
+
+/**
+ * Takes an item out of the swipe for good (ticket 26). Coffee is permanent.
+ * Presses keep their own price, so totals stay. A removed Beer or Lunch is
+ * remembered so launch does not add it back; if the cup showed the removed
+ * item it moves to the next one in cycling order.
+ */
+export async function removeItem(store: Store, id: string): Promise<void> {
+  if (id === DEFAULT_ITEM.id) throw new Error("Coffee cannot be removed");
+  const wasActive = (await activeItemId(store)) === id;
+  const next = nextItem(await listItems(store), id);
+  await store.items.delete(id);
+  const settings = await store.getSettings();
+  const removed = settings.removedItemIds ?? [];
+  const remember = DEFAULT_ITEMS.some((item) => item.id === id) && !removed.includes(id);
+  await store.putSettings({
+    ...settings,
+    ...(wasActive ? { activeItemId: next } : {}),
+    ...(remember ? { removedItemIds: [...removed, id] } : {}),
+  });
 }
 
 /** Payday must exist in every month, so 1 to 28. */
@@ -117,6 +138,10 @@ function parseExport(json: string): ExportFile {
   }
   if (settings?.activeItemId !== undefined && typeof settings.activeItemId !== "string") {
     throw new Error(`${NOT_EXPORT} (active item must be an item id)`);
+  }
+  const removed: unknown = settings?.removedItemIds;
+  if (removed !== undefined && !(Array.isArray(removed) && removed.every((id) => typeof id === "string"))) {
+    throw new Error(`${NOT_EXPORT} (removed items must be a list of item ids)`);
   }
   const investUrl: unknown = settings?.investUrl;
   if (investUrl !== undefined && (typeof investUrl !== "string" || validateInvestUrl(investUrl) === null)) {

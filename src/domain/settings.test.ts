@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { ensureDefaultItems, listItems } from "./items";
 import { Ledger } from "./ledger";
-import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
+import { activeItemId, addItem, removeItem, setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
+import { owed } from "./settle";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -334,5 +336,77 @@ describe("settings: export and import leave the Starling link on the phone (tick
 
     expect(await healthy.getSettings()).toEqual({ paydayDay: 20, starling: LINK });
     expect(await store.getSettings()).toEqual({ paydayDay: 20, starling: LINK, starlingAuthFailed: true });
+  });
+});
+
+describe("settings: remove an item (ticket 26)", () => {
+  it("removeItem('beer') deletes Beer from the store; removeItem('coffee') is refused and Coffee stays", async () => {
+    const store = new MemoryStore();
+
+    await removeItem(store, "beer");
+    await expect(removeItem(store, "coffee")).rejects.toThrow(/Coffee/);
+
+    expect((await store.items.list()).map((i) => i.id)).toEqual(["coffee", "lunch"]);
+  });
+
+  it("removing Beer after a Beer and a Coffee press leaves month, owed and lifetime totals as they were", async () => {
+    const store = new MemoryStore();
+    let n = 0;
+    const ledger = new Ledger(store, () => `press-${++n}`);
+    const now = new Date(2026, 10, 10, 12, 0);
+    await ledger.addPress("beer", new Date(2026, 10, 3, 18, 0));
+    await ledger.addPress("coffee", new Date(2026, 10, 4, 9, 0));
+    const before = [await ledger.monthToDate(now), await owed(store, now), await ledger.lifetime()];
+
+    await removeItem(store, "beer");
+
+    expect(before).toEqual([950, 950, 950]);
+    expect([await ledger.monthToDate(now), await owed(store, now), await ledger.lifetime()]).toEqual(before);
+  });
+
+  it("removing the active item moves the cup to the next item in cycling order: Beer to Lunch, then Lunch wraps to Coffee", async () => {
+    const store = new MemoryStore();
+    await setActiveItem(store, "beer");
+
+    await removeItem(store, "beer");
+    const afterBeer = await activeItemId(store);
+    await removeItem(store, "lunch");
+
+    expect([afterBeer, await activeItemId(store)]).toEqual(["lunch", "coffee"]);
+  });
+
+  it("export then import keeps Beer removed: the file lists it and the next launch does not add it back", async () => {
+    const source = await storeWithFixture();
+    await removeItem(source, "beer");
+    const json = await exportData(source);
+
+    const target = new MemoryStore();
+    await importData(target, json);
+    await ensureDefaultItems(target);
+
+    expect(JSON.parse(json).settings).toEqual({ paydayDay: 20, removedItemIds: ["beer"] });
+    expect((await listItems(target)).map((i) => i.id)).toEqual(["coffee", "lunch"]);
+  });
+
+  it("an older export without removedItemIds still imports, and a launch adds back a missing default as before", async () => {
+    const older = { ...FIXTURE, items: FIXTURE.items.filter((i) => i.id !== "lunch") };
+    const store = new MemoryStore();
+
+    await importData(store, JSON.stringify(older));
+    await ensureDefaultItems(store);
+
+    expect(await store.getSettings()).toEqual({ paydayDay: 20 });
+    expect((await listItems(store)).map((i) => i.id)).toEqual(["coffee", "beer", "lunch"]);
+  });
+
+  it("a file whose removed items are not a list of ids is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { ...FIXTURE, settings: { paydayDay: 20, removedItemIds: "beer" } };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow(
+      "This file is not a Coffee Button export (removed items must be a list of item ids)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
 });
