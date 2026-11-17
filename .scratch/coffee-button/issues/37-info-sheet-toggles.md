@@ -6,11 +6,11 @@ Add to Home Screen is the exception: while the app is not installed it stays ope
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** built, waiting for Tom on the phone (`sectionStartsOpen` in domain/info.ts; `<details>` folds in ui/info.ts; shots `.scratch/coffee-button/shots/37-*.png`)
 
-- [ ] Which sections start open is decided by a pure function of the section and whether the app is installed: "The idea" always; Add to Home Screen only when not installed; nothing else; unit tested, failing first
-- [ ] The headings and bodies are exactly as they are today, in the same order (guard test on the existing copy test)
-- [ ] Each folded section is a real control: reachable by keyboard, announces expanded or collapsed, and its heading row is at least 44px tall (DOM glue, declared untested)
-- [ ] The sheet no longer needs scrolling on a 390x844 screen when it first opens, installed or not (screenshot, both themes)
-- [ ] Screenshot with one section unfolded and with all unfolded: the sheet scrolls cleanly
+- [x] Which sections start open is decided by a pure function of the section and whether the app is installed: "The idea" always; Add to Home Screen only when not installed; nothing else; unit tested, failing first
+- [x] The headings and bodies are exactly as they are today, in the same order (guard test on the existing copy test)
+- [x] Each folded section is a real control: reachable by keyboard, announces expanded or collapsed, and its heading row is at least 44px tall (DOM glue, declared untested)
+- [x] The sheet no longer needs scrolling on a 390x844 screen when it first opens, installed or not (screenshot, both themes)
+- [x] Screenshot with one section unfolded and with all unfolded: the sheet scrolls cleanly
 - [ ] Tom has seen it on the phone

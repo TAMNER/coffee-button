@@ -6,7 +6,7 @@ declare const __BUILD_ID__: string;
  * Escape, or a downward drag of at least SWIPE_DOWN_PX.
  */
 import { browserFacts } from "../adapters/browser";
-import { INFO_SECTIONS, homeScreenHintNeeded, markInfoSeen, shouldShowInfoOnLaunch } from "../domain/info";
+import { INFO_SECTIONS, homeScreenHintNeeded, markInfoSeen, sectionStartsOpen, shouldShowInfoOnLaunch } from "../domain/info";
 import { installCopy } from "../domain/install-copy";
 import { registerCupExtra, type CupContext } from "./cup";
 
@@ -27,17 +27,27 @@ function escapeHtml(text: string): string {
 }
 
 function sheetHtml(id: number): string {
-  const hintNeeded = homeScreenHintNeeded(isStandalone());
-  // Every section always shows; the Home Screen one is flagged only while the app is not installed.
+  const standalone = isStandalone();
+  const hintNeeded = homeScreenHintNeeded(standalone);
+  // The Home Screen section is flagged only while the app is not installed.
   // Its body is Safari's steps on iOS Safari and neutral wording elsewhere (domain/install-copy.ts).
   const homeScreenBody = installCopy(browserFacts()).infoBody;
-  const sections = INFO_SECTIONS.map((s) => (s.heading === HOME_SCREEN_HEADING ? { ...s, body: homeScreenBody } : s)).map(
-      (s) => `<section class="info-section"${s.heading === HOME_SCREEN_HEADING && hintNeeded ? ' data-needed="true"' : ""}>
+  // Ticket 37: a section that starts open is shown in full; every other one is a
+  // <details> fold, so the platform gives it keyboard reach and expanded/collapsed.
+  const sections = INFO_SECTIONS.map((s) => {
+    const needed = s.heading === HOME_SCREEN_HEADING && hintNeeded ? ' data-needed="true"' : "";
+    const body = s.heading === HOME_SCREEN_HEADING ? homeScreenBody : s.body;
+    if (sectionStartsOpen(s, standalone)) {
+      return `<section class="info-section"${needed}>
         <h3>${escapeHtml(s.heading)}</h3>
-        <p>${escapeHtml(s.body)}</p>
-      </section>`,
-    )
-    .join("");
+        <p>${escapeHtml(body)}</p>
+      </section>`;
+    }
+    return `<details class="info-section info-fold"${needed}>
+        <summary><h3>${escapeHtml(s.heading)}</h3></summary>
+        <p>${escapeHtml(body)}</p>
+      </details>`;
+  }).join("");
   return `<div class="info-backdrop" data-role="info-backdrop"></div>
     <div class="info-sheet" data-role="info-sheet" role="dialog" aria-modal="true" aria-labelledby="info-title-${id}" tabindex="-1">
       <div class="info-grip" aria-hidden="true"></div>
@@ -61,10 +71,15 @@ function mountInfo(el: HTMLElement, ctx: CupContext): () => void {
 
   const onKey = (e: KeyboardEvent) => {
     if (e.key === "Escape") close();
-    // The Close button is the sheet's only control, so Tab keeps focus on it.
+    // Tab and Shift+Tab cycle through the sheet's controls (the folds' headings
+    // and Close) and never leave the dialog.
     if (e.key === "Tab") {
       e.preventDefault();
-      overlay.querySelector<HTMLButtonElement>("[data-role=info-close]")?.focus();
+      const controls = [...overlay.querySelectorAll<HTMLElement>("summary, [data-role=info-close]")];
+      if (!controls.length) return;
+      const at = controls.indexOf(document.activeElement as HTMLElement);
+      const next = at < 0 ? 0 : (at + (e.shiftKey ? -1 : 1) + controls.length) % controls.length;
+      controls[next]!.focus();
     }
   };
 
@@ -94,7 +109,10 @@ function mountInfo(el: HTMLElement, ctx: CupContext): () => void {
   // shelf's swipe up and the settings long press all listen on document.
   const stop = (e: Event) => e.stopPropagation();
   const down = (y: number) => {
-    startY = y;
+    // Ticket 37: with sections unfolded the sheet scrolls; a drag down that is
+    // scrolling back up must not close it, so only a drag from the top counts.
+    const sheet = overlay.querySelector<HTMLElement>("[data-role=info-sheet]");
+    startY = sheet && sheet.scrollTop > 0 ? null : y;
   };
   const up = (y: number) => {
     if (startY === null) return;
