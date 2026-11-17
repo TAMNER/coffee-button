@@ -4,6 +4,7 @@
  * no money moves.
  */
 import type { Clock } from "../adapters/clock";
+import type { Collection, Store } from "./store";
 
 /** The pretend date from a date field's "YYYY-MM-DD" (local midnight), or null for anything that is not a real date. */
 export function parsePretendDate(raw: string | null | undefined): Date | null {
@@ -22,5 +23,37 @@ export function pretendClock(day: Date, real: Clock): Clock {
       const t = real.now();
       return new Date(day.getFullYear(), day.getMonth(), day.getDate(), t.getHours(), t.getMinutes(), t.getSeconds(), t.getMilliseconds());
     },
+  };
+}
+
+/** Reads pass through; writes and deletes are dropped. `current` is read on every call, since replaceAll may swap the collection. */
+function readOnly<T extends { id: string }>(current: () => Collection<T>): Collection<T> {
+  return {
+    get: (id) => current().get(id),
+    list: () => current().list(),
+    put: async () => {},
+    delete: async () => {},
+  };
+}
+
+/**
+ * The store as the app sees it on a pretend date: presses and settlements are
+ * read but never written, so a press or a "Yes" changes neither the ledger nor
+ * the owed balance (nor, since the queue is the presses, the Starling queue).
+ * Items, goals and settings still save.
+ */
+export function lookOnlyStore(store: Store): Store {
+  return {
+    get items() {
+      return store.items;
+    },
+    get goals() {
+      return store.goals;
+    },
+    presses: readOnly(() => store.presses),
+    settlements: readOnly(() => store.settlements),
+    getSettings: () => store.getSettings(),
+    putSettings: (settings) => store.putSettings(settings),
+    replaceAll: (snapshot) => store.replaceAll(snapshot),
   };
 }
