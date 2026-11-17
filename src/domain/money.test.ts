@@ -20,4 +20,9 @@ describe("formatPoundsShort (ticket 33: the latte graph's labels)", () => {
     expect(formatPoundsShort(2800)).toBe("£28");
     expect(formatPoundsShort(0)).toBe("£0");
   });
+
+  it("keeps the pence when there are any: 38130 is £381.30, 1205 is £12.05", () => {
+    expect(formatPoundsShort(38130)).toBe("£381.30");
+    expect(formatPoundsShort(1205)).toBe("£12.05");
+  });
 });
