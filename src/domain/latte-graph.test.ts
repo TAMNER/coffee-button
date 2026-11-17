@@ -125,6 +125,37 @@ describe("glassPeriods in the first week (ticket 33, Tom's phone test)", () => {
       { from: "2026-11-23", to: "2026-11-23", savedPence: 0, investedPence: 0, future: true },
     ]);
   });
+
+  it("first press three days ago, a press each day: three glasses filling up, then four not yet come", () => {
+    const glasses = glassPeriods(savingsSeries([pressOn(15), pressOn(16), pressOn(17)], [], now));
+    expect(glasses.map((g) => [g.from, g.savedPence, g.future ?? false])).toEqual([
+      ["2026-11-15", 350, false],
+      ["2026-11-16", 700, false],
+      ["2026-11-17", 1050, false],
+      ["2026-11-18", 0, true],
+      ["2026-11-19", 0, true],
+      ["2026-11-20", 0, true],
+      ["2026-11-21", 0, true],
+    ]);
+  });
+
+  it("first press six days ago (11 Nov): seven glasses, none not yet come, today the last", () => {
+    const glasses = glassPeriods(savingsSeries([pressOn(11), pressOn(17)], [], now));
+    expect(glasses.map((g) => g.from)).toEqual(["2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15", "2026-11-16", "2026-11-17"]);
+    expect(glasses.some((g) => g.future)).toBe(false);
+  });
+
+  it("first press seven or more days ago: unchanged, the series already starts on the first press day", () => {
+    for (const first of [10, 3]) {
+      const s = savingsSeries([pressOn(first), pressOn(17)], [], now);
+      expect(s.days[0].day).toBe(`2026-11-${String(first).padStart(2, "0")}`);
+      const glasses = glassPeriods(s);
+      expect(glasses).toHaveLength(7);
+      expect(glasses.some((g) => g.future)).toBe(false);
+      expect(glasses[0].from).toBe(s.days[0].day);
+      expect(glasses[6].to).toBe("2026-11-17");
+    }
+  });
 });
 
 describe("glassFill (ticket 33)", () => {
