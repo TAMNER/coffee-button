@@ -290,4 +290,14 @@ describe("starter chips (ticket 31)", () => {
 
     expect((await shelfTargets(store)).map((t) => t.id)).toEqual(["weekend-away", "laptop", "ski-week"]);
   });
+
+  it("a double tap on the Laptop chip puts it on the plank once", async () => {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfBuiltInIds: [] });
+
+    await addStarter(store, "laptop");
+    await addStarter(store, "laptop");
+
+    expect((await shelfTargets(store)).map((t) => t.id)).toEqual(["laptop"]);
+  });
 });
