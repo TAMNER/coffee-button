@@ -136,8 +136,12 @@ export async function removeTarget(store: Store, id: string): Promise<void> {
   await store.putSettings({ ...settings, shelfBuiltInIds: ids.filter((builtIn) => builtIn !== id) });
 }
 
-/** Ticket 31: the built-ins not on the plank, cheapest first at their current prices; each shows as a chip. */
+/**
+ * Ticket 31: the built-ins not on the plank, cheapest first at their current
+ * prices; each shows as a chip. None while the plank is full (they hide with the form).
+ */
 export async function starterChips(store: Store): Promise<ShelfItem[]> {
+  if ((await shelfTargets(store)).length >= MAX_TARGETS) return [];
   const ids = await plankBuiltInIds(store);
   return (await shelfItems(store)).filter((item) => !ids.includes(item.id)).sort(cheapestFirst);
 }

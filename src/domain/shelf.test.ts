@@ -258,4 +258,11 @@ describe("starter chips (ticket 31)", () => {
       ["espresso-machine", "Espresso machine", 120000],
     ]);
   });
+
+  it("with three targets there are no chips, though the Espresso machine is off the plank", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+
+    expect(await starterChips(store)).toEqual([]);
+  });
 });
