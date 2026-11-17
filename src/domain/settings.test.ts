@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { activeItemId, addItem, setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
+import { activeItemId, addItem, removeItem,setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -334,5 +334,16 @@ describe("settings: export and import leave the Starling link on the phone (tick
 
     expect(await healthy.getSettings()).toEqual({ paydayDay: 20, starling: LINK });
     expect(await store.getSettings()).toEqual({ paydayDay: 20, starling: LINK, starlingAuthFailed: true });
+  });
+});
+
+describe("settings: remove an item (ticket 26)", () => {
+  it("removeItem('beer') deletes Beer from the store; removeItem('coffee') is refused and Coffee stays", async () => {
+    const store = new MemoryStore();
+
+    await removeItem(store, "beer");
+    await expect(removeItem(store, "coffee")).rejects.toThrow(/Coffee/);
+
+    expect((await store.items.list()).map((i) => i.id)).toEqual(["coffee", "lunch"]);
   });
 });

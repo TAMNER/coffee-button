@@ -27,6 +27,12 @@ export function repriceItem(store: Store, id: string, pricePence: number): Promi
   return updateItem(store, id, { pricePence });
 }
 
+/** Takes an item out of the swipe for good (ticket 26). Coffee is permanent. Presses keep their own price, so totals stay. */
+export async function removeItem(store: Store, id: string): Promise<void> {
+  if (id === DEFAULT_ITEM.id) throw new Error("Coffee cannot be removed");
+  await store.items.delete(id);
+}
+
 /** Payday must exist in every month, so 1 to 28. */
 export function validatePayday(day: number): boolean {
   return Number.isInteger(day) && day >= 1 && day <= 28;
