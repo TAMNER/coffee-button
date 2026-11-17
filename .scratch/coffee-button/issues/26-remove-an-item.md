@@ -8,7 +8,7 @@ Agreed in the grilling session of 2026-11-17 (Q1, Q2, Q3, Q12, Q19).
 
 **Blocked by:** None (can start immediately).
 
-**Status:** built, awaiting review (branch worktree-agent-acc5c6951172ee261)
+**Status:** built, merged into round-2, awaiting review
 
 - [x] Removing an item deletes it from the store; removing Coffee is refused; unit tested, failing first
 - [x] Month, owed and lifetime totals are unchanged by removing an item that has presses (guard test)

@@ -6,7 +6,7 @@ Agreed in the grilling session of 2026-11-17 (Q8, Q17, Q18).
 
 **Blocked by:** None (can start immediately).
 
-**Status:** done (branch worktree-agent-a1d98ac78ac7d090f, awaiting merge). `savingsSeries(presses, settlements, now)` in src/domain/savings-series.ts, unit tested; no UI.
+**Status:** done, merged into round-2. `savingsSeries(presses, settlements, now)` in src/domain/savings-series.ts, unit tested; no UI.
 
 - [x] No presses gives no series; unit tested, failing first
 - [x] One press today gives a seven-day series ending today, with saved stepping up on the day of the press
