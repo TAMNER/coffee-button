@@ -3,9 +3,9 @@ import { PICTURES, pictureFor } from "./pictures";
 import { DEFAULT_ITEMS } from "./store";
 
 describe("PICTURES (ticket 28)", () => {
-  it("lists the pictures a user can choose, in a fixed order: cup, pint, plate, jar", () => {
-    expect(PICTURES.map((p) => p.id)).toEqual(["cup", "pint", "plate", "jar"]);
-    expect(PICTURES.map((p) => p.label)).toEqual(["Cup", "Pint", "Plate", "Jar"]);
+  it("lists the pictures a user can choose, in a fixed order: cup, pint, plate, jar, then pastry and bag (ticket 29)", () => {
+    expect(PICTURES.map((p) => p.id)).toEqual(["cup", "pint", "plate", "jar", "pastry", "bag"]);
+    expect(PICTURES.map((p) => p.label)).toEqual(["Cup", "Pint", "Plate", "Jar", "Pastry", "Bag"]);
   });
 });
 
