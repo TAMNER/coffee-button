@@ -25,6 +25,10 @@ if [ ! -d node_modules ] || [ package-lock.json -nt node_modules/.package-lock.j
 fi
 
 # The tailnet build keeps a relay address built in; a build without the variable ships none.
+# VITE_DRAWING_REQUEST_URL (ticket 38): where "Request a drawing" in Settings goes, a mailto:
+# address or an https: form link. Not set here; export it before running to build one in.
+# With none, the line and button are not shown.
+# A built-in email address is visible to anyone who opens the app.
 BUILD_ID="$(git rev-parse --short HEAD)" VITE_DEFAULT_RELAY_URL="${VITE_DEFAULT_RELAY_URL:-https://black-box.<tailnet>.ts.net:8443}" npm run build
 
 mkdir -p "$UNIT_DIR"
