@@ -119,4 +119,13 @@ describe("glassFill (ticket 33)", () => {
       coffeeHeight: 0,
     });
   });
+
+  it("a glass shallower than the froth is all froth (3 of 100 with froth 8: froth 3, nothing under it)", () => {
+    expect(glassFill({ savedPence: 300, investedPence: 0 }, 10000, 100, 8)).toEqual({
+      savedHeight: 3,
+      frothHeight: 3,
+      latteHeight: 0,
+      coffeeHeight: 0,
+    });
+  });
 });
