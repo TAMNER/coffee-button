@@ -86,6 +86,14 @@ function mountRing(el: HTMLElement, ctx: CupContext): () => void {
   place();
   const observer = typeof ResizeObserver === "function" ? new ResizeObserver(place) : undefined;
   if (cup) observer?.observe(cup);
+  // The disc also moves without changing size when something beside it in the
+  // column appears or grows (the Invest button and nudge under the total, a
+  // banner above), so the column and the cup's siblings are watched as well.
+  const column = cup?.parentElement;
+  if (column) {
+    observer?.observe(column);
+    for (const sibling of column.children) if (sibling !== cup) observer?.observe(sibling);
+  }
   window.addEventListener("resize", place);
   // Fonts and layout may settle after mount.
   const frame = requestAnimationFrame(place);
