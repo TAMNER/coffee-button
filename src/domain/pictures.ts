@@ -9,12 +9,14 @@ export interface Picture {
   readonly id: string;
   /** The picture's name, as the picker button announces it. */
   readonly label: string;
+  /** Older names stored for this picture: the built-in items' icons (src/domain/store.ts). */
+  readonly aliases?: readonly string[];
 }
 
 export const PICTURES: readonly Picture[] = [
-  { id: "cup", label: "Cup" },
-  { id: "pint", label: "Pint" },
-  { id: "plate", label: "Plate" },
+  { id: "cup", label: "Cup", aliases: ["coffee"] },
+  { id: "pint", label: "Pint", aliases: ["beer"] },
+  { id: "plate", label: "Plate", aliases: ["sandwich"] },
   { id: "jar", label: "Jar" },
 ];
 
@@ -23,5 +25,5 @@ const FALLBACK = "jar";
 
 /** The picture an item's `icon` shows; a name the app does not recognise shows the jar. */
 export function pictureFor(icon: string): Picture {
-  return PICTURES.find((p) => p.id === icon) ?? PICTURES.find((p) => p.id === FALLBACK)!;
+  return PICTURES.find((p) => p.id === icon || p.aliases?.includes(icon)) ??PICTURES.find((p) => p.id === FALLBACK)!;
 }

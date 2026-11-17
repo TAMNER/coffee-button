@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PICTURES, pictureFor } from "./pictures";
+import { DEFAULT_ITEMS } from "./store";
 
 describe("PICTURES (ticket 28)", () => {
   it("lists the pictures a user can choose, in a fixed order: cup, pint, plate, jar", () => {
@@ -19,5 +20,12 @@ describe("pictureFor", () => {
     expect(pictureFor("cup").id).toBe("cup");
     expect(pictureFor("pint").id).toBe("pint");
     expect(pictureFor("plate").id).toBe("plate");
+  });
+
+  it("keeps the built-in items' stored names: coffee, beer and sandwich (and every default item) are not the jar", () => {
+    expect(pictureFor("coffee").id).toBe("cup");
+    expect(pictureFor("beer").id).toBe("pint");
+    expect(pictureFor("sandwich").id).toBe("plate");
+    for (const item of DEFAULT_ITEMS) expect(pictureFor(item.icon).id).not.toBe("jar");
   });
 });
