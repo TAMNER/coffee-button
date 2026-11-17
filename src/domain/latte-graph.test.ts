@@ -29,61 +29,78 @@ describe("glassPeriods (ticket 33)", () => {
     ]);
   });
 
-  it("day eight (Tue 10 to Tue 17 Nov): one glass per Monday-to-Sunday week, the last being this week so far", () => {
+  it("eight days (10 to 17 Nov): still seven glasses, the first (oldest) covering two days", () => {
     expect(glassPeriods(series("2026-11-10", 8))).toEqual([
-      { from: "2026-11-10", to: "2026-11-15", savedPence: 600, investedPence: 60 },
-      { from: "2026-11-16", to: "2026-11-17", savedPence: 800, investedPence: 80 },
+      { from: "2026-11-10", to: "2026-11-11", savedPence: 200, investedPence: 20 },
+      { from: "2026-11-12", to: "2026-11-12", savedPence: 300, investedPence: 30 },
+      { from: "2026-11-13", to: "2026-11-13", savedPence: 400, investedPence: 40 },
+      { from: "2026-11-14", to: "2026-11-14", savedPence: 500, investedPence: 50 },
+      { from: "2026-11-15", to: "2026-11-15", savedPence: 600, investedPence: 60 },
+      { from: "2026-11-16", to: "2026-11-16", savedPence: 700, investedPence: 70 },
+      { from: "2026-11-17", to: "2026-11-17", savedPence: 800, investedPence: 80 },
     ]);
   });
 
-  it("exactly seven weeks touched (Mon 5 Oct to Tue 17 Nov, 44 days): seven weekly glasses", () => {
-    const glasses = glassPeriods(series("2026-10-05", 44));
-    expect(glasses.map((g) => [g.from, g.to, g.savedPence])).toEqual([
-      ["2026-10-05", "2026-10-11", 700],
-      ["2026-10-12", "2026-10-18", 1400],
-      ["2026-10-19", "2026-10-25", 2100],
-      ["2026-10-26", "2026-11-01", 2800],
-      ["2026-11-02", "2026-11-08", 3500],
-      ["2026-11-09", "2026-11-15", 4200],
-      ["2026-11-16", "2026-11-17", 4400],
+  it("fourteen days (4 to 17 Nov) share out evenly: two days a glass", () => {
+    expect(glassPeriods(series("2026-11-04", 14)).map((g) => [g.from, g.to, g.savedPence])).toEqual([
+      ["2026-11-04", "2026-11-05", 200],
+      ["2026-11-06", "2026-11-07", 400],
+      ["2026-11-08", "2026-11-09", 600],
+      ["2026-11-10", "2026-11-11", 800],
+      ["2026-11-12", "2026-11-13", 1000],
+      ["2026-11-14", "2026-11-15", 1200],
+      ["2026-11-16", "2026-11-17", 1400],
     ]);
   });
 
-  it("an eighth week touched (Sun 4 Oct to Tue 17 Nov): one glass per calendar month, split at the month boundary, the last being this month so far", () => {
-    expect(glassPeriods(series("2026-10-04", 45))).toEqual([
-      { from: "2026-10-04", to: "2026-10-31", savedPence: 2800, investedPence: 280 },
-      { from: "2026-11-01", to: "2026-11-17", savedPence: 4500, investedPence: 450 },
-    ]);
-  });
-
-  it("more than seven months (15 Jan to 17 Nov): only the most recent seven, May to November", () => {
-    const s = series("2026-01-15", 307); // 15 Jan to 17 Nov 2026
+  it("a long series (15 Jan to 17 Nov, 307 days): seven glasses of 44 or 43 days, longer ones oldest, from the first day to today", () => {
+    const s = series("2026-01-15", 307);
     expect(s.days[s.days.length - 1].day).toBe("2026-11-17");
     const glasses = glassPeriods(s);
-    expect(glasses.map((g) => [g.from, g.to])).toEqual([
-      ["2026-05-01", "2026-05-31"],
-      ["2026-06-01", "2026-06-30"],
-      ["2026-07-01", "2026-07-31"],
-      ["2026-08-01", "2026-08-31"],
-      ["2026-09-01", "2026-09-30"],
-      ["2026-10-01", "2026-10-31"],
-      ["2026-11-01", "2026-11-17"],
-    ]);
-    expect(glasses[6].savedPence).toBe(30700);
+    const sizes = glasses.map((g) => s.days.findIndex((d) => d.day === g.to) - s.days.findIndex((d) => d.day === g.from) + 1);
+    expect(sizes).toEqual([44, 44, 44, 44, 44, 44, 43]);
+    expect(glasses[0].from).toBe("2026-01-15");
+    expect(glasses[6].to).toBe("2026-11-17");
+    expect([glasses[6].savedPence, glasses[6].investedPence]).toEqual([s.savedPence, s.investedPence]);
   });
 
-  it("local days, as savingsSeries counts them: a press at 23:50 on 31 Oct is October's, one at 00:10 on 1 Nov is November's", () => {
+  it("any length from 7 to 400 days: seven contiguous glasses covering every day once, sizes within one, saved never falling", () => {
+    for (let n = 7; n <= 400; n++) {
+      const s = series("2026-01-01", n);
+      const glasses = glassPeriods(s);
+      expect(glasses).toHaveLength(7);
+      const index = (day: string) => s.days.findIndex((d) => d.day === day);
+      expect(index(glasses[0].from)).toBe(0);
+      expect(index(glasses[6].to)).toBe(n - 1);
+      const sizes = glasses.map((g) => index(g.to) - index(g.from) + 1);
+      expect(sizes.reduce((a, b) => a + b, 0)).toBe(n);
+      expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
+      glasses.forEach((g, i) => {
+        if (i > 0) {
+          expect(index(g.from)).toBe(index(glasses[i - 1].to) + 1);
+          expect(g.savedPence).toBeGreaterThanOrEqual(glasses[i - 1].savedPence);
+        }
+        expect(g.savedPence).toBe(s.days[index(g.to)].savedPence);
+      });
+    }
+  });
+
+  it("local days, as savingsSeries counts them: a press at 23:50 on 11 Nov is the 11th's glass, one at 00:10 on 12 Nov the 12th's", () => {
     const at = (d: Date) => d.getTime();
     const presses = [
-      { id: "a", itemId: "coffee", pricePence: 350, at: at(new Date(2026, 9, 31, 23, 50)) },
-      { id: "b", itemId: "coffee", pricePence: 600, at: at(new Date(2026, 10, 1, 0, 10)) },
+      { id: "a", itemId: "coffee", pricePence: 350, at: at(new Date(2026, 10, 11, 23, 50)) },
+      { id: "b", itemId: "coffee", pricePence: 600, at: at(new Date(2026, 10, 12, 0, 10)) },
     ];
-    const settlements = [{ id: "s", amountPence: 350, at: at(new Date(2026, 10, 30, 23, 59)) }];
-    const glasses = glassPeriods(savingsSeries(presses, settlements, new Date(2026, 11, 17, 0, 5)));
-    expect(glasses).toEqual([
-      { from: "2026-10-31", to: "2026-10-31", savedPence: 350, investedPence: 0 },
-      { from: "2026-11-01", to: "2026-11-30", savedPence: 950, investedPence: 350 },
-      { from: "2026-12-01", to: "2026-12-17", savedPence: 950, investedPence: 350 },
+    const settlements = [{ id: "s", amountPence: 350, at: at(new Date(2026, 10, 16, 23, 59)) }];
+    const glasses = glassPeriods(savingsSeries(presses, settlements, new Date(2026, 10, 17, 0, 5)));
+    expect(glasses.map((g) => [g.from, g.savedPence, g.investedPence])).toEqual([
+      ["2026-11-11", 350, 0],
+      ["2026-11-12", 950, 0],
+      ["2026-11-13", 950, 0],
+      ["2026-11-14", 950, 0],
+      ["2026-11-15", 950, 0],
+      ["2026-11-16", 950, 350],
+      ["2026-11-17", 950, 350],
     ]);
   });
 });

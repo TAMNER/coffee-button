@@ -1,6 +1,6 @@
 /**
- * Ticket 33: the latte graph on the shelf, as numbers. One glass per period,
- * oldest first; each carries the running totals at the end of its period.
+ * Ticket 33: the latte graph on the shelf, as numbers. Seven glasses, oldest
+ * first; each carries the running totals at the end of its share of the days.
  * Built on savingsSeries (ticket 32), whose days are local calendar days.
  */
 import { formatPoundsShort } from "./money";
@@ -14,49 +14,29 @@ export interface GlassPeriod {
   investedPence: number;
 }
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-/** Up to this many days of series: one glass a day. */
-const DAILY_DAYS = 7;
-/** The row never holds more glasses than this. */
+/** The row always holds exactly this many glasses (and never more). */
 export const MAX_GLASSES = 7;
 
-/** Day number of a "YYYY-MM-DD" label, counted as savings-series.ts counts (UTC midnight of the local date). */
-const dayNumber = (day: string) => Date.parse(`${day}T00:00:00Z`) / DAY_MS;
-
-/** The Monday starting the week holding `day`. 1970-01-01 (day 0) was a Thursday. */
-const weekOf = (day: string) => {
-  const n = dayNumber(day);
-  return n - ((n + 3) % 7);
-};
-
-/** Consecutive days sharing a key make one glass, carrying the totals of its last day. */
-function group(series: SavingsSeries, key: (day: string) => string | number): GlassPeriod[] {
-  const out: GlassPeriod[] = [];
-  let current: string | number | undefined;
-  for (const d of series.days) {
-    const k = key(d.day);
-    if (out.length === 0 || k !== current) {
-      out.push({ from: d.day, to: d.day, savedPence: 0, investedPence: 0 });
-      current = k;
-    }
-    const glass = out[out.length - 1];
-    glass.to = d.day;
-    glass.savedPence = d.savedPence;
-    glass.investedPence = d.investedPence;
-  }
-  return out;
-}
-
 /**
- * Never more than seven glasses: one a day while the series spans seven days
- * (it always spans at least seven); then one per Monday-to-Sunday week, the
- * last being this week so far.
+ * Always seven glasses: the series' days (at least seven, oldest first,
+ * ending today) are shared out evenly in order, floor(n/7) days each, the
+ * oldest n mod 7 glasses taking one extra. Each glass carries the running
+ * totals at the end of its last day.
  */
 export function glassPeriods(series: SavingsSeries): GlassPeriod[] {
-  if (series.days.length <= DAILY_DAYS) return group(series, (day) => day);
-  const weekly = group(series, weekOf);
-  if (weekly.length <= MAX_GLASSES) return weekly;
-  return group(series, (day) => day.slice(0, 7)).slice(-MAX_GLASSES);
+  const { days } = series;
+  if (days.length === 0) return [];
+  const base = Math.floor(days.length / MAX_GLASSES);
+  const extra = days.length % MAX_GLASSES;
+  const out: GlassPeriod[] = [];
+  let start = 0;
+  for (let i = 0; i < MAX_GLASSES; i++) {
+    const end = start + base + (i < extra ? 1 : 0) - 1;
+    const last = days[end];
+    out.push({ from: days[start].day, to: last.day, savedPence: last.savedPence, investedPence: last.investedPence });
+    start = end + 1;
+  }
+  return out;
 }
 
 /** Everything the latte graph shows, ready to render. */
