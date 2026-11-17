@@ -162,6 +162,19 @@ describe("glassPeriods in the first week (ticket 33, Tom's phone test)", () => {
     expect(graph.todayIndex).toBe(0);
     expect(graph.lastLabel).toBe("");
   });
+
+  it("first press six days ago: today is the last glass (index 6) and the right label is back to 'today'; the text alternative is unchanged", () => {
+    const graph = latteGraph(savingsSeries([pressOn(11), pressOn(17)], [], now))!;
+    expect(graph.todayIndex).toBe(6);
+    expect(graph.lastLabel).toBe("today");
+    expect(graph.alt).toBe("Savings over time: £7 saved, £0 invested.");
+  });
+
+  it("day three: today's glass is index 2; the text alternative still states the two figures", () => {
+    const graph = latteGraph(savingsSeries([pressOn(15), pressOn(16), pressOn(17)], [], now))!;
+    expect(graph.todayIndex).toBe(2);
+    expect(graph.alt).toBe("Savings over time: £10.50 saved, £0 invested.");
+  });
 });
 
 describe("glassFill (ticket 33)", () => {
