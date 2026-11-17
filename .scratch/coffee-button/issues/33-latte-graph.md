@@ -18,16 +18,16 @@ Tester feedback 2026-11-17 ("Add a graph of savings and amounts invested over ti
 
 **Blocked by:** 27 (Mockup page: the graph pick), 30 (Targets: one plank, which frees the space), 32 (Savings over time, as numbers).
 
-**Status:** ready-for-agent
+**Status:** built (domain in `src/domain/latte-graph.ts`, art and glue in `src/ui/latte-graph.ts`; screenshots `.scratch/coffee-button/shots/33-*.png`); waiting for Tom's device check and his word on the seven-glass limit and the weekly stage
 
-- [ ] A pure function turns the savings series into the glasses' periods: seven daily glasses for the first week, weekly glasses up to seven weeks, then the most recent seven calendar months; each carries the running saved and invested totals at the end of its period; unit tested, failing first
-- [ ] A pure function turns each period into its fill levels for a given glass height: the froth top at saved over today's total, coffee and latte split in proportion under the froth; the last glass is always full; unit tested
-- [ ] A glass with nothing invested shows latte and froth only; a period with nothing saved yet shows an empty glass (unit tested)
-- [ ] The labels read "£X saved" and "£Y invested" from the same figures as the series, pence shown when there are any, "£0 invested" shown before the first invest; the first glass's month and "today" underneath
-- [ ] With no presses the graph is absent and the existing first-press hint still shows (guard test on the hint rule)
-- [ ] The graph has a text alternative saying the two figures
-- [ ] The new latte colour is a token in both theme blocks (the mockup's values); CSS is appended under a comment naming this ticket
-- [ ] Glasses, froth with bubbles, tray and steam are drawn as in the mockup's Graph 1 (art and DOM glue, declared untested)
-- [ ] The pour-in plays once per opening of the shelf and is skipped under reduced motion (DOM glue, declared untested)
-- [ ] Screenshot at 390x844 with three targets and the graph, for one week, about four weeks and about five months of data: the whole shelf fits or scrolls cleanly, both themes
+- [x] A pure function turns the savings series into the glasses' periods: seven daily glasses for the first week, weekly glasses up to seven weeks, then the most recent seven calendar months; each carries the running saved and invested totals at the end of its period; unit tested, failing first
+- [x] A pure function turns each period into its fill levels for a given glass height: the froth top at saved over today's total, coffee and latte split in proportion under the froth; the last glass is always full; unit tested
+- [x] A glass with nothing invested shows latte and froth only; a period with nothing saved yet shows an empty glass (unit tested)
+- [x] The labels read "£X saved" and "£Y invested" from the same figures as the series, pence shown when there are any, "£0 invested" shown before the first invest; the first glass's month and "today" underneath
+- [x] With no presses the graph is absent and the existing first-press hint still shows (guard test on the hint rule)
+- [x] The graph has a text alternative saying the two figures
+- [x] The new latte colour is a token in both theme blocks (the mockup's values); CSS is appended under a comment naming this ticket
+- [x] Glasses, froth with bubbles, tray and steam are drawn as in the mockup's Graph 1 (art and DOM glue, declared untested)
+- [x] The pour-in plays once per opening of the shelf and is skipped under reduced motion (DOM glue, declared untested)
+- [x] Screenshot at 390x844 with three targets and the graph, for one week, about four weeks and about five months of data: the whole shelf fits or scrolls cleanly, both themes
 - [ ] Device check (Tom): the graph after a real press and after a real settle
