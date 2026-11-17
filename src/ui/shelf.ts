@@ -7,6 +7,7 @@
 import { formatPounds } from "../domain/money";
 import {
   addGoal,
+  addStarter,
   COMPOUND_RATE,
   COMPOUND_YEARS,
   MAX_TARGETS,
@@ -57,6 +58,12 @@ function entryHtml(entry: ShelfView["targets"][number]): string {
     </li>`;
 }
 
+/** Ticket 31: a one-tap chip for a built-in not on the plank, e.g. "Espresso machine £400.00". */
+function starterChipHtml(item: ShelfView["starters"][number]): string {
+  return `<button type="button" class="starter-chip" data-starter="${escapeHtml(item.id)}">` +
+    `${escapeHtml(item.name)} ${formatPounds(item.pricePence)}</button>`;
+}
+
 /** Each row stands on its own tomato plank; shelf-layout.ts decides the rows. */
 function shelvesHtml(rows: string[][]): string {
   return rows.map((row) => `<ul class="shelf-row">${row.join("")}</ul>`).join("");
@@ -82,6 +89,7 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
         <input name="price" placeholder="£" aria-label="Goal price" inputmode="decimal" required />
         <button type="submit">Add</button>
       </form>
+      <div class="starter-chips" data-role="starters" hidden></div>
     </section>`;
   const pace = el.querySelector<HTMLElement>("[data-role=pace]")!;
   const compounded = el.querySelector<HTMLElement>("[data-role=compound]")!;
@@ -90,6 +98,7 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
   const overdue = el.querySelector<HTMLElement>("[data-role=overdue]")!;
   const shelf = el.querySelector<HTMLElement>("[data-role=shelf]")!;
   const form = el.querySelector<HTMLFormElement>("[data-role=goal-form]")!;
+  const starters = el.querySelector<HTMLElement>("[data-role=starters]")!;
 
   let alive = true;
   // Asked once per visit: the weekly cadence counts visits, and a refresh after
@@ -116,7 +125,21 @@ function mountShelf(el: HTMLElement, ctx: AppContext): () => void {
     overdue.textContent = view.overdueLine ?? "";
     shelf.innerHTML = shelvesHtml(shelfRows(view.targets.map(entryHtml)));
     form.hidden = view.targets.length >= MAX_TARGETS;
+    starters.innerHTML = view.starters.map(starterChipHtml).join("");
+    starters.hidden = view.starters.length === 0;
   };
+
+  // Ticket 31: a chip puts its built-in back on the plank; no confirmation.
+  starters.addEventListener("click", async (e) => {
+    const id = (e.target as Element).closest<HTMLElement>("[data-starter]")?.dataset.starter;
+    if (!id) return;
+    try {
+      await addStarter(ctx.store, id);
+    } catch {
+      // Plank already full; the chips hide on refresh.
+    }
+    await refresh();
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
