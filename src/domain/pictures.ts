@@ -11,13 +11,19 @@ export interface Picture {
   readonly label: string;
   /** Older names stored for this picture: the built-in items' icons (src/domain/store.ts). */
   readonly aliases?: readonly string[];
+  /**
+   * False when there is nothing to pour (the plate, the jar): the press
+   * ceremony skips the pour, the coin lands and the figure hops
+   * (src/domain/ceremony-timeline.ts).
+   */
+  readonly pour: boolean;
 }
 
 export const PICTURES: readonly Picture[] = [
-  { id: "cup", label: "Cup", aliases: ["coffee"] },
-  { id: "pint", label: "Pint", aliases: ["beer"] },
-  { id: "plate", label: "Plate", aliases: ["sandwich"] },
-  { id: "jar", label: "Jar" },
+  { id: "cup", label: "Cup", aliases: ["coffee"], pour: true },
+  { id: "pint", label: "Pint", aliases: ["beer"], pour: true },
+  { id: "plate", label: "Plate", aliases: ["sandwich"], pour: false },
+  { id: "jar", label: "Jar", pour: false },
 ];
 
 /** The jar: the picture for anything the app has no drawing for. */
