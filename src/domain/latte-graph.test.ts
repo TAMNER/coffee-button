@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { glassPeriods } from "./latte-graph";
-import type { SavingsDay, SavingsSeries } from "./savings-series";
+import { savingsSeries, type SavingsDay, type SavingsSeries } from "./savings-series";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -70,5 +70,20 @@ describe("glassPeriods (ticket 33)", () => {
       ["2026-11-01", "2026-11-17"],
     ]);
     expect(glasses[6].savedPence).toBe(30700);
+  });
+
+  it("local days, as savingsSeries counts them: a press at 23:50 on 31 Oct is October's, one at 00:10 on 1 Nov is November's", () => {
+    const at = (d: Date) => d.getTime();
+    const presses = [
+      { id: "a", itemId: "coffee", pricePence: 350, at: at(new Date(2026, 9, 31, 23, 50)) },
+      { id: "b", itemId: "coffee", pricePence: 600, at: at(new Date(2026, 10, 1, 0, 10)) },
+    ];
+    const settlements = [{ id: "s", amountPence: 350, at: at(new Date(2026, 10, 30, 23, 59)) }];
+    const glasses = glassPeriods(savingsSeries(presses, settlements, new Date(2026, 11, 17, 0, 5)));
+    expect(glasses).toEqual([
+      { from: "2026-10-31", to: "2026-10-31", savedPence: 350, investedPence: 0 },
+      { from: "2026-11-01", to: "2026-11-30", savedPence: 950, investedPence: 350 },
+      { from: "2026-12-01", to: "2026-12-17", savedPence: 950, investedPence: 350 },
+    ]);
   });
 });
