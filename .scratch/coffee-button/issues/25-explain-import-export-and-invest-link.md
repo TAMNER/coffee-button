@@ -11,9 +11,9 @@ Tom approved this copy on 2026-11-17. The second line was then reworded from "On
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** built, awaiting Tom's review of the two lines before push
 
-- [ ] The two lines are held as data beside the other Settings copy and covered by a test that fails first
-- [ ] Each line shows under its section in Settings, in both themes, without pushing the buttons off a 390px screen (screenshot)
-- [ ] Export still leaves out the Starling token and link, and import still ignores them (guard tests)
+- [x] The two lines are held as data beside the other Settings copy and covered by a test that fails first
+- [x] Each line shows under its section in Settings, in both themes, without pushing the buttons off a 390px screen (screenshot)
+- [x] Export still leaves out the Starling token and link, and import still ignores them (guard tests)
 - [ ] Tom has reviewed the two lines before they are pushed

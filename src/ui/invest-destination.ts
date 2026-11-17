@@ -5,6 +5,7 @@
  * validateInvestUrl / setInvestUrl (src/domain/settings.ts).
  */
 import { setInvestUrl } from "../domain/settings";
+import { SETTINGS_HELP } from "../domain/settings-help";
 import { registerSettingsSection, type AppContext } from "./app";
 
 function mountInvestDestination(el: HTMLElement, ctx: AppContext): void {
@@ -14,8 +15,10 @@ function mountInvestDestination(el: HTMLElement, ctx: AppContext): void {
        <input name="invest-url" type="url" inputmode="url" autocomplete="url" autocapitalize="off"
               spellcheck="false" placeholder="https://" />
      </label>
+     <p class="settings-help" data-role="invest-url-help"></p>
      <p class="settings-status" aria-live="polite" data-role="invest-url-status"></p>`,
   );
+  el.querySelector("[data-role=invest-url-help]")!.textContent = SETTINGS_HELP.investDestination;
   const input = el.querySelector<HTMLInputElement>("[name=invest-url]")!;
   const line = el.querySelector<HTMLElement>("[data-role=invest-url-status]")!;
   const say = (text: string, isError = false) => {
