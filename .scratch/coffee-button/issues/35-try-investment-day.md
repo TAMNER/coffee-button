@@ -8,12 +8,12 @@ Decided by Tom (2026-11-17): the pretend mode is look-only for money. A press or
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** built, awaiting copy review and device check. The clock could not already be overridden at runtime (only FakeClock in tests). The date is set in Settings > Pretend date, kept in the app's localStorage (read synchronously at boot, works in the Home Screen app, never exported), and switching it reloads the app. Look-only: `lookOnlyStore` (src/domain/pretend.ts) drops press and settlement writes; `LookOnlyMover` replaces the mover and `moverFor` never swaps it for a Starling mover, so the transfer queue never drains. Device check outstanding.
 
 - [x] Tom has answered the open question; answer recorded here
-- [ ] While a pretend date is active, a press and a settle confirmation leave the ledger and the owed balance unchanged; unit tested, failing first
-- [ ] A pure function reads the pretend date from where the tester sets it and rejects anything that is not a real date; unit tested, failing first
-- [ ] With a pretend date on or after settle day and money owed, the settle rules report "Invest £X" exactly as they would on that real date (guard test with the fake clock)
-- [ ] A notice naming the pretend date shows on every screen while it is active (DOM glue, declared untested)
-- [ ] The device checklist gains the steps to walk investment day this way
+- [x] While a pretend date is active, a press and a settle confirmation leave the ledger and the owed balance unchanged; unit tested, failing first
+- [x] A pure function reads the pretend date from where the tester sets it and rejects anything that is not a real date; unit tested, failing first
+- [x] With a pretend date on or after settle day and money owed, the settle rules report "Invest £X" exactly as they would on that real date (guard test with the fake clock)
+- [x] A notice naming the pretend date shows on every screen while it is active (DOM glue, declared untested)
+- [x] The device checklist gains the steps to walk investment day this way
 - [ ] Device check (Tom): the full flow on the iPhone, including the invest link opening and the return question

@@ -109,6 +109,39 @@ payday, set Settings > Payday to a day earlier than today first.
 - [ ] Return to the cup after a few seconds in another app, then tap the cup.
   - Expected: the coin clink still plays (audio resumes after backgrounding).
 
+### 8a. Walk Invest £X on any day with a pretend date (ticket 35)
+
+Use the Home Screen app. Needs at least one press already made this month (a
+press made while pretending is not saved, so it does not count towards the
+amount). Nothing pressed or invested while pretending is saved, and no money
+moves, even with Starling linked.
+
+- [ ] Settings > Pretend date, pick 26 of this month (any day after payday),
+  tap Pretend.
+  - Expected: the app reloads on the cup with a mustard line across the top:
+    "Pretending today is <weekday> 26 <month> <year>. Nothing you press or
+    invest is saved and no money moves." The line stays on the shelf and in
+    Settings too.
+- [ ] Note the month total and check under it.
+  - Expected: "Invest £X" with the amount owed (and, with a Space linked,
+    "£X is waiting in your Coffee Button Space").
+- [ ] Tap the cup once.
+  - Expected: the press ceremony plays as usual.
+- [ ] Tap "Invest £X".
+  - Expected: the amount is copied and your invest link opens (or nothing
+    opens if Where do you invest? is blank).
+- [ ] Return to Coffee Button.
+  - Expected: "Did you invest £X?" with Yes and Not yet.
+- [ ] Tap Yes.
+  - Expected: one haptic tap, the settle ceremony plays (coins cascade out of
+    the cup, the shelf ticks up), then "Invest £X" is back with the same
+    amount, because nothing was saved.
+- [ ] Settings > Pretend date > Back to today.
+  - Expected: the app reloads with no mustard line. The month total is the
+    one you noted (the pretend press is not there), no Invest button before
+    payday, and with Starling linked Settings shows no new press waiting to
+    move and the Space holds no new transfer.
+
 ## 9. Calendar reminder import
 
 - [ ] Settings > Reminder > Add monthly reminder.
