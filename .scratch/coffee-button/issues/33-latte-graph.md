@@ -4,6 +4,8 @@
 
 Tester feedback 2026-11-17 ("Add a graph of savings and amounts invested over time"; "under the curve is coffee and the curve line is latte froth"); agreed in the grilling session of the same day (Q7, Q8, Q16, Q17, Q18).
 
+Decided by Tom after seeing the mockup (2026-11-17): the "£0 invested" label shows even before the first invest, and the labels keep pence when there are any ("£381.30 saved"), as the mockup draws them.
+
 **Blocked by:** 27 (Mockup page: the graph pick), 30 (Targets: one plank, which frees the space), 32 (Savings over time, as numbers).
 
 **Status:** blocked (waiting on 27, 30 and 32)
