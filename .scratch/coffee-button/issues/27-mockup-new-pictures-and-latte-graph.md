@@ -1,0 +1,19 @@
+# 27: Mockup page for the new pictures and the latte graph
+
+**What to build:** One mockup page, viewable on the phone at 390px, showing two options each for four new pieces of artwork in the Cut Paper style, in both themes: a pastry, a takeaway bag, a jar (the "anything else" picture), and the latte graph. Tom picks one of each; the picks become the real artwork in tickets 28, 29 and 33. This follows the design doc's process: the author chooses from options rather than accepting a first draft.
+
+The latte graph, as agreed: a glass seen side-on as a chart over time. A dark espresso layer at the bottom is the money invested; a lighter coffee layer above it is money saved and still waiting; a smooth froth line on top is the running total saved. The two options should differ in how the froth and layers are drawn, not in what they mean. Show each graph option with a few days of data and with several months.
+
+Each vessel option is shown at main-screen size and at picker size (small, in a row of six).
+
+Agreed in the grilling session of 2026-11-17 (Q4, Q9, Q16, Q21).
+
+**Blocked by:** None (can start immediately).
+
+**Status:** ready-for-agent
+
+- [ ] One page shows two options each for pastry, bag, jar and latte graph, in both themes
+- [ ] Each vessel is shown at main-screen size and at picker size beside the existing cup, pint and plate
+- [ ] Each graph option is shown with one week of data and with five months of data
+- [ ] All artwork is inline SVG using the existing colour tokens, or new tokens named in the page for both themes
+- [ ] Tom's four picks are recorded in this ticket
