@@ -7,4 +7,16 @@ describe("drawing request link (ticket 38)", () => {
       "mailto:drawings@example.invalid?subject=Coffee%20Button%20drawing%20request&body=I'd%20like%20a%20drawing%20for%3A%20Matcha",
     );
   });
+
+  it("a name with spaces, &, ?, £ or a newline survives into the body intact and splits no parameter", () => {
+    for (const name of ["Bubble tea & cake", "What? Tea?", "£2 flapjack", "Iced\nlatte", "a=b&subject=x#frag"]) {
+      const link = drawingRequestLink("mailto:drawings@example.invalid", name);
+      const query = new URLSearchParams(link.slice(link.indexOf("?") + 1));
+      expect([...query.keys()]).toEqual(["subject", "body"]);
+      expect(query.get("subject")).toBe("Coffee Button drawing request");
+      expect(query.get("body")).toBe(`I'd like a drawing for: ${name}`);
+      expect(link).not.toContain(" ");
+      expect(link).not.toContain("+");
+    }
+  });
 });
