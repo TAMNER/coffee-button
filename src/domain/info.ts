@@ -46,6 +46,11 @@ export function homeScreenHintNeeded(standalone: boolean): boolean {
   return !standalone;
 }
 
+/** Ticket 37: whether a section of the sheet starts unfolded. */
+export function sectionStartsOpen(_section: InfoSection, _standalone: boolean): boolean {
+  return true;
+}
+
 /** The sheet opens by itself only until it has been seen once. */
 export async function shouldShowInfoOnLaunch(store: Store): Promise<boolean> {
   return !(await store.getSettings()).infoSeen;

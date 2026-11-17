@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { INFO_SECTIONS, homeScreenHintNeeded, markInfoSeen, shouldShowInfoOnLaunch } from "./info";
+import { INFO_SECTIONS, homeScreenHintNeeded, markInfoSeen, sectionStartsOpen, shouldShowInfoOnLaunch } from "./info";
 import { installCopy } from "./install-copy";
 import { exportData, importData } from "./settings";
 import { MemoryStore } from "./store";
@@ -64,6 +64,15 @@ describe("info sheet copy", () => {
   it("marks the Add to Home Screen section needed only when not running standalone", () => {
     expect(homeScreenHintNeeded(false)).toBe(true);
     expect(homeScreenHintNeeded(true)).toBe(false);
+  });
+});
+
+describe("which info sections start open (ticket 37)", () => {
+  const section = (heading: string) => INFO_SECTIONS.find((s) => s.heading === heading)!;
+
+  it("opens The idea whether or not the app is installed", () => {
+    expect(sectionStartsOpen(section("The idea"), false)).toBe(true);
+    expect(sectionStartsOpen(section("The idea"), true)).toBe(true);
   });
 });
 
