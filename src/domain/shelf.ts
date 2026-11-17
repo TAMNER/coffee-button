@@ -16,7 +16,7 @@ export interface ShelfEntry extends ShelfItem {
   progress: number;
 }
 
-export function shelfState(items: ShelfItem[], lifetimePence: number): ShelfEntry[] {
+export function shelfState<T extends ShelfItem>(items: T[], lifetimePence: number): (T & ShelfEntry)[] {
   return items.map((item) => ({
     ...item,
     lit: lifetimePence >= item.pricePence,
@@ -145,8 +145,8 @@ export interface ShelfView {
   lifetimePence: number;
   /** Lifetime total compounded at COMPOUND_RATE for COMPOUND_YEARS. */
   compoundedPence: number;
-  items: ShelfEntry[];
-  goals: ShelfEntry[];
+  /** The plank (ticket 30): at most MAX_TARGETS, cheapest first, lit and progress from the lifetime total. */
+  targets: (ShelfTarget & ShelfEntry)[];
   /** "£X owed since October" when a settle is overdue, else null. */
   overdueLine: string | null;
 }
@@ -165,8 +165,7 @@ export async function shelfView({ store, ledger, now, overdueLine }: ShelfViewDe
     pacePence: paceToYearEnd(await ledger.presses(), now),
     lifetimePence,
     compoundedPence: compound(lifetimePence, COMPOUND_RATE, COMPOUND_YEARS),
-    items: shelfState(await shelfItems(store), lifetimePence),
-    goals: shelfState(await store.goals.list(), lifetimePence),
+    targets: shelfState(await shelfTargets(store), lifetimePence),
     overdueLine: await overdueLine(now),
   };
 }

@@ -85,6 +85,7 @@ describe("shelfView", () => {
     await put("b", 6000, new Date(2026, 0, 10, 9));
     await put("c", 6000, new Date(2026, 2, 31, 8));
     await addGoal(store, "Guitar", 45000);
+    await ensureTargets(store); // used before: the goal plus the two cheapest built-ins
 
     const view = await shelfView({
       store,
@@ -97,9 +98,27 @@ describe("shelfView", () => {
     expect(view.lifetimePence).toBe(24000);
     expect(view.compoundedPence).toBe(39093);
     expect(view.overdueLine).toBe("£12.00 owed since October");
-    expect(view.items).toHaveLength(4);
-    expect(view.items.find((i) => i.id === "weekend-away")).toMatchObject({ lit: false, progress: 0.8 });
-    expect(view.goals).toEqual([expect.objectContaining({ name: "Guitar", pricePence: 45000, lit: false })]);
+    expect(view.targets.map((t) => [t.name, t.pricePence, t.builtIn, t.lit, t.progress])).toEqual([
+      ["Weekend away", 30000, true, false, 0.8],
+      ["Espresso machine", 40000, true, false, 0.6],
+      ["Guitar", 45000, false, false, 24000 / 45000],
+    ]);
+  });
+
+  it("targets light by the lifetime total, built-in and typed alike: £450 lifetime lights the £300 weekend and the £450 guitar, the laptop is 45% there", async () => {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfBuiltInIds: ["weekend-away", "laptop"] });
+    await addGoal(store, "Guitar", 45000);
+    await store.presses.put({ id: "p1", itemId: "coffee", pricePence: 45000, at: new Date(2026, 0, 5).getTime() });
+    await store.settlements.put({ id: "s1", amountPence: 45000, at: new Date(2026, 1, 1).getTime() });
+
+    const view = await shelfView({ store, ledger: new Ledger(store), now: new Date(2026, 2, 1), overdueLine: () => null });
+
+    expect(view.targets.map((t) => [t.name, t.lit, t.progress])).toEqual([
+      ["Weekend away", true, 1],
+      ["Guitar", true, 1],
+      ["Laptop", false, 0.45],
+    ]);
   });
 });
 
