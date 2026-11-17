@@ -28,11 +28,11 @@ The draft with those decisions applied, for Tom to read before it is pushed:
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** built, awaiting Tom's read on the phone (2026-11-17)
 
 - [x] Tom has answered the three wording questions; answers recorded here
-- [ ] The info sheet's sections are exactly the agreed headings and bodies, in the agreed order; the existing copy test is changed first and fails
-- [ ] The install wording still follows the browser (iOS Safari wording versus neutral wording), as it does today (guard test)
-- [ ] Any other user-visible place that names investment day or the Space uses the agreed words
-- [ ] Screenshot at 390x844 shows the sheet fits or scrolls cleanly in both themes
+- [x] The info sheet's sections are exactly the agreed headings and bodies, in the agreed order; the existing copy test is changed first and fails
+- [x] The install wording still follows the browser (iOS Safari wording versus neutral wording), as it does today (guard test)
+- [x] Any other user-visible place that names investment day or the Space uses the agreed words
+- [x] Screenshot at 390x844 shows the sheet fits or scrolls cleanly in both themes
 - [ ] Tom has read the final copy on the phone before it is pushed
