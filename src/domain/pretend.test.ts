@@ -3,7 +3,8 @@ import { FakeClipboard } from "../adapters/clipboard";
 import { FakeClock } from "../adapters/clock";
 import { FakeUrlOpener } from "../adapters/open-url";
 import { Ledger } from "./ledger";
-import { lookOnlyStore, parsePretendDate, pretendClock } from "./pretend";
+import { LookOnlyMover, lookOnlyStore, parsePretendDate, pretendClock } from "./pretend";
+import { moverFor, type StarlingMover } from "./starling-mover";
 import { formatPounds } from "./money";
 import { InvestFlow, isSettleWindow, owed, owedSince } from "./settle";
 import { MemoryStore, type Settlement, type Store } from "./store";
@@ -74,5 +75,26 @@ describe("settle rules on a pretend date", () => {
     expect(await offer(view, clock.now())).toBe("Invest £3.50");
     expect(await offer(view, clock.now())).toBe(await offer(store, realDay));
     expect(await offer(store, new Date(2026, 10, 17, 9, 0))).toBeNull(); // the real 17th offers nothing
+  });
+});
+
+describe("Starling on a pretend date", () => {
+  it("with a Space linked, the boot decision keeps the look-only mover, so no Starling transfer is ever built", async () => {
+    const { view } = await pretending();
+    await view.putSettings({
+      ...(await view.getSettings()),
+      starling: { token: "t", relayUrl: "https://relay.example", accountUid: "a", spaceUid: "s", spaceName: "Coffee Button" },
+    });
+    const lookOnly = new LookOnlyMover();
+    let built = 0;
+
+    const mover = await moverFor(view, lookOnly, () => {
+      built++;
+      return {} as StarlingMover;
+    });
+
+    expect(mover).toBe(lookOnly);
+    expect(built).toBe(0);
+    expect(await lookOnly.move(350, { pressId: "p" })).toEqual({ ok: true });
   });
 });

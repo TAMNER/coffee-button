@@ -4,6 +4,7 @@
  * no money moves.
  */
 import type { Clock } from "../adapters/clock";
+import type { MoneyMover, MoveRef, MoveResult } from "./money-mover";
 import type { Collection, Store } from "./store";
 
 /** The pretend date from a date field's "YYYY-MM-DD" (local midnight), or null for anything that is not a real date. */
@@ -56,4 +57,11 @@ export function lookOnlyStore(store: Store): Store {
     putSettings: (settings) => store.putSettings(settings),
     replaceAll: (snapshot) => store.replaceAll(snapshot),
   };
+}
+
+/** The mover on a pretend date: nothing moves, and moverFor never swaps it for a Starling mover. */
+export class LookOnlyMover implements MoneyMover {
+  async move(_amountPence: number, _ref: MoveRef): Promise<MoveResult> {
+    return { ok: true };
+  }
 }
