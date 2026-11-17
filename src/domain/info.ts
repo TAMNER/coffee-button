@@ -46,8 +46,13 @@ export function homeScreenHintNeeded(standalone: boolean): boolean {
   return !standalone;
 }
 
-/** Ticket 37: whether a section of the sheet starts unfolded. */
-export function sectionStartsOpen(section: InfoSection, _standalone: boolean): boolean {
+/**
+ * Ticket 37: whether a section of the sheet starts unfolded. The idea always;
+ * Add to Home Screen while the app is not installed (losing data is the one
+ * thing not to hide behind a tap); nothing else.
+ */
+export function sectionStartsOpen(section: InfoSection, standalone: boolean): boolean {
+  if (section.heading === "Add to Home Screen") return homeScreenHintNeeded(standalone);
   return section.heading === "The idea";
 }
 

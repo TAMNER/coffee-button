@@ -81,6 +81,11 @@ describe("which info sections start open (ticket 37)", () => {
       expect(sectionStartsOpen(section(heading), true)).toBe(false);
     }
   });
+
+  it("keeps Add to Home Screen open while the app is not installed, folded once it is", () => {
+    expect(sectionStartsOpen(section("Add to Home Screen"), false)).toBe(true);
+    expect(sectionStartsOpen(section("Add to Home Screen"), true)).toBe(false);
+  });
 });
 
 describe("info sheet on first launch", () => {
