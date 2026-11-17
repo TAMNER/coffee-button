@@ -123,8 +123,17 @@ export async function addGoal(
   return goal;
 }
 
+/** Superseded by removeTarget (ticket 30), which removes built-ins too. */
 export function removeGoal(store: Store, id: string): Promise<void> {
   return store.goals.delete(id);
+}
+
+/** Takes any target off the plank, built-in or typed; it stays off (ticket 31's chips can put a built-in back). */
+export async function removeTarget(store: Store, id: string): Promise<void> {
+  await store.goals.delete(id);
+  const settings = await store.getSettings();
+  const ids = settings.shelfBuiltInIds ?? [];
+  await store.putSettings({ ...settings, shelfBuiltInIds: ids.filter((builtIn) => builtIn !== id) });
 }
 
 export const COMPOUND_RATE = 0.05;

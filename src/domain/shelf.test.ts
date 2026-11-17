@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addGoal, ensureTargets, migrateTargets, removeGoal, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView } from "./shelf";
+import { addGoal, ensureTargets, migrateTargets, removeGoal, removeTarget, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -138,6 +138,17 @@ describe("targets: adding and removing", () => {
 
     expect(await store.goals.list()).toEqual([]);
     expect(await shelfTargets(store)).toHaveLength(3);
+  });
+
+  it("removing the Laptop takes it off the plank, frees a place, and the next launch does not bring it back", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+
+    await removeTarget(store, "laptop");
+    await ensureTargets(store);
+    await addGoal(store, "Guitar", 45000);
+
+    expect((await shelfTargets(store)).map((t) => t.name)).toEqual(["Weekend away", "Guitar", "Ski week"]);
   });
 });
 
