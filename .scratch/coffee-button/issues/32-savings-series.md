@@ -9,7 +9,7 @@ Agreed in the grilling session of 2026-11-17 (Q8, Q17, Q18).
 **Status:** in-progress
 
 - [x] No presses gives no series; unit tested, failing first
-- [ ] One press today gives a seven-day series ending today, with saved stepping up on the day of the press
+- [x] One press today gives a seven-day series ending today, with saved stepping up on the day of the press
 - [ ] Saved is cumulative per day across items and months; invested steps up on the day of each settlement by its amount
 - [ ] An undone press does not appear in the series (guard test)
 - [ ] The last point's saved figure equals the ledger's lifetime total, and its invested figure equals the sum of settlements (guard tests)
