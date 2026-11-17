@@ -56,12 +56,12 @@ Rename to the names above, run `scripts/deploy.sh`, relaunch the app twice.
 
 - iCloud Private Relay must be off or Tailscale MagicDNS names do not resolve; the raw IP is useless because the TLS certificate is for the name.
 - A stale Home Screen app: open, wait ten seconds, swipe away, reopen. Still stale: open the URL in Safari, pull to reload twice, relaunch. Never delete the Home Screen icon without exporting first: the installed app has its own storage and deleting the icon deletes presses.
-- Web Audio is muted by the ringer switch unless `navigator.audioSession.type = "playback"` (iOS 17+); the adapter sets it on every unlock. Trade-off: a sound briefly pauses other apps' music.
+- Web Audio is muted by the ringer switch unless `navigator.audioSession.type = "playback"` (iOS 17+). Since ticket 23 the adapter no longer sets it: silent mode is respected by choice, and sounds no longer pause other apps' music.
 - Haptics and audio unlock must run before the first `await` in the tap handler.
 
 ## Open design questions (ask Tom, do not decide)
 
-- Whether the "playback" audio session pausing background music is acceptable, or should be a setting.
+- Settled (ticket 23, tester feedback 2026-11-17): the "playback" audio session is gone; silent mode is respected by choice and other apps' music keeps playing. No setting.
 - Whether the cheer should be a human voice (Tom's own recording) or synthesised. Tom chose recordings.
 - Monzo: build only when a Monzo-owning tester exists. Facts in DESIGN.md.
 - Tailscale Funnel for friends was superseded by GitHub Pages; do not enable Funnel for the app.

@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** built (adapter test, guard test, docs); awaiting Tom's two device checks
 
-- [ ] Unlocking audio no longer asks for the "playback" session; a test at the audio adapter seam fails first
-- [ ] The press and settle vibration ticks still fire before the first await, whatever the ringer switch says (guard test)
+- [x] Unlocking audio no longer asks for the "playback" session; a test at the audio adapter seam fails first
+- [x] The press and settle vibration ticks still fire before the first await, whatever the ringer switch says (guard test)
 - [ ] Device check (Tom): switch on silent, a press is silent with a tick; switch on ring, all three sounds play; music from another app keeps playing through a press
 - [ ] Device check (Tom): with headphones in and the switch on silent, note in this ticket whether sound plays
-- [ ] The design doc's "known losses" line and the handoff's open question about the playback session are updated to say silent mode is respected by choice
+- [x] The design doc's "known losses" line and the handoff's open question about the playback session are updated to say silent mode is respected by choice

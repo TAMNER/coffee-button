@@ -119,8 +119,10 @@ you clear into your Stocks and Shares ISA once a month.
   storage, service worker for offline.
 - Haptics: iOS 18 `<input type="checkbox" switch>` toggle trick. Verify on
   device; degrade silently.
-- Known losses vs native: ringer switch mutes audio; no scheduled local
-  notifications.
+- Known losses vs native: no scheduled local notifications. The ringer
+  switch mutes the sounds by choice (ticket 23): on silent a press gives its
+  vibration tick only, and sounds never pause other apps' music. A web app
+  cannot see headphones or the switch, so there is no "play with headphones".
 - Reminder: the app offers an `.ics` with a monthly rule on settle day whose
   event links to the app URL. Added to Calendar once.
 - Data: local only. JSON export and import. The app insists on Home Screen
