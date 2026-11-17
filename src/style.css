@@ -847,3 +847,58 @@ body {
   font-weight: 500;
   line-height: 1.35;
 }
+
+/* Ticket 28: the picture picker on Settings item rows and the add form
+   (src/ui/picture-picker.ts). Each tile shows the vessel art cropped to the
+   figure, without its mustard disc; the chosen tile is cut from mustard with
+   a cobalt ring, the others from the muted card. The jar's bow centre uses
+   .cp-dark. No new colour token. */
+.cp-dark { fill: var(--dark); }
+.settings-row.has-picker {
+  flex-wrap: wrap;
+}
+.picture-picker {
+  flex: 1 0 100%;
+  display: flex;
+  gap: 8px;
+}
+.settings .picture-tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border-radius: 8px;
+  background: var(--off-hi);
+  box-shadow: 3px 3px 0 var(--off-shadow);
+}
+.picture-tile .cup {
+  width: 42px;
+  height: 42px;
+}
+/* The disc and its shadow stay on the cup screen. */
+.picture-tile .cup-disc,
+.picture-tile .cup > .cp-shadow {
+  display: none;
+}
+.settings .picture-tile[aria-pressed="true"] {
+  background: var(--mustard);
+  box-shadow: 3px 3px 0 var(--shadow);
+  outline: 3px solid var(--cobalt);
+  outline-offset: 2px;
+}
+.settings .picture-tile:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--off-shadow);
+}
+/* Each item's picker reads as part of its own row: space between items, and
+   a torn-paper rule above the add form. */
+.settings-items .settings-row.has-picker {
+  margin-bottom: 1.3rem;
+}
+.settings form.settings-row.has-picker {
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 3px dashed var(--paper-2);
+}

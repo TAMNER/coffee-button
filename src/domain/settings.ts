@@ -28,6 +28,11 @@ export function repriceItem(store: Store, id: string, pricePence: number): Promi
   return updateItem(store, id, { pricePence });
 }
 
+/** Saves the picture an item shows (ticket 28): one of src/domain/pictures.ts PICTURES ids. */
+export function repictureItem(store: Store, id: string, icon: string): Promise<void> {
+  return updateItem(store, id, { icon });
+}
+
 /**
  * Takes an item out of the swipe for good (ticket 26). Coffee is permanent.
  * Presses keep their own price, so totals stay. A removed Beer or Lunch is

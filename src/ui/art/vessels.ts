@@ -5,6 +5,8 @@
  * from tests.
  */
 import { BASE, CUP_VIEWBOX, cupSvg, LIQUID_DROP, RIM } from "../cup-art";
+import { pictureFor } from "../../domain/pictures";
+import * as jar from "../jar-art";
 import * as pint from "../pint-art";
 import * as sandwich from "../sandwich-art";
 
@@ -41,6 +43,12 @@ export interface VesselArt {
    * Absent means it pours.
    */
   readonly pour?: boolean;
+  /**
+   * The square of the drawing the Settings picker tile shows (ticket 28): the
+   * figure and its shadow, without the mustard disc, so the object reads at
+   * 40px. Absent means the whole `viewBox`.
+   */
+  readonly tileViewBox?: string;
 }
 
 export const COFFEE_VESSEL: VesselArt = {
@@ -50,6 +58,7 @@ export const COFFEE_VESSEL: VesselArt = {
   base: BASE,
   liquidDrop: LIQUID_DROP,
   liquidClass: "cp-coffee",
+  tileViewBox: "90 296 228 228",
 };
 
 export const BEER_VESSEL: VesselArt = {
@@ -59,6 +68,7 @@ export const BEER_VESSEL: VesselArt = {
   base: pint.BASE,
   liquidDrop: pint.LIQUID_DROP,
   liquidClass: "cp-beer",
+  tileViewBox: "80 304 240 240",
 };
 
 export const SANDWICH_VESSEL: VesselArt = {
@@ -70,16 +80,35 @@ export const SANDWICH_VESSEL: VesselArt = {
   // Crumbs: what flies off the plate where the coin lands.
   liquidClass: "cp-bread",
   pour: false,
+  tileViewBox: "57 296 284 284",
 };
 
+export const JAR_VESSEL: VesselArt = {
+  viewBox: jar.CUP_VIEWBOX,
+  svg: jar.cupSvg,
+  rim: jar.RIM,
+  base: jar.BASE,
+  liquidDrop: jar.LIQUID_DROP,
+  // Drops of honey: what flies off the cloth where the coin lands.
+  liquidClass: "cp-mustard-deep",
+  pour: false,
+  tileViewBox: "92 312 214 214",
+};
+
+/** The drawing per picture id (src/domain/pictures.ts PICTURES). A new picture adds one line here. */
 const VESSELS: Record<string, VesselArt> = {
-  coffee: COFFEE_VESSEL,
-  beer: BEER_VESSEL,
+  cup: COFFEE_VESSEL,
   pint: BEER_VESSEL,
-  sandwich: SANDWICH_VESSEL,
+  plate: SANDWICH_VESSEL,
+  jar: JAR_VESSEL,
 };
 
-/** The vessel for an item icon; any icon without its own art gets the coffee cup. */
+/**
+ * The vessel for an item icon, through the domain's picture names (so the
+ * built-in "coffee", "beer" and "sandwich" keep theirs); any icon the app
+ * does not recognise gets the jar (ticket 28).
+ */
 export function vesselFor(icon: string): VesselArt {
-  return Object.hasOwn(VESSELS, icon) ? VESSELS[icon] : COFFEE_VESSEL;
+  const id = pictureFor(icon).id;
+  return Object.hasOwn(VESSELS, id) ? VESSELS[id] : JAR_VESSEL;
 }

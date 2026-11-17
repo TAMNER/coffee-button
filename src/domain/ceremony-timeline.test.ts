@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ceremonyTimeline } from "./ceremony-timeline";
+import { pictureFor } from "./pictures";
 
 describe("ceremonyTimeline", () => {
   it("is pour, then coin, then cheer, lasting about two seconds in total", () => {
@@ -18,5 +19,16 @@ describe("ceremonyTimeline for a vessel with no pour (Lunch)", () => {
     const steps = ceremonyTimeline({ pour: false });
     expect(steps.map((s) => s.name)).toEqual(["coin", "cheer"]);
     expect(steps).toEqual(ceremonyTimeline().filter((s) => s.name !== "pour"));
+  });
+});
+
+describe("ceremonyTimeline for the jar (ticket 28)", () => {
+  it("has nothing to pour, like the plate: coin then cheer; the cup and the pint still pour", () => {
+    const names = (icon: string) => ceremonyTimeline({ pour: pictureFor(icon).pour }).map((s) => s.name);
+    expect(names("jar")).toEqual(["coin", "cheer"]);
+    expect(names("teapot")).toEqual(["coin", "cheer"]);
+    expect(names("plate")).toEqual(["coin", "cheer"]);
+    expect(names("cup")).toEqual(["pour", "coin", "cheer"]);
+    expect(names("pint")).toEqual(["pour", "coin", "cheer"]);
   });
 });

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ensureDefaultItems, listItems } from "./items";
 import { Ledger } from "./ledger";
-import { activeItemId, addItem, removeItem, setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
+import { activeItemId, addItem, removeItem, setActiveItem, exportData, importData, renameItem, repictureItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
+import { pictureFor } from "./pictures";
 import { owed } from "./settle";
 import { shelfTargets } from "./shelf";
 import { MemoryStore } from "./store";
@@ -39,6 +40,22 @@ describe("settings: items", () => {
     expect(await store.presses.list()).toEqual([
       { id: "press-1", itemId: "coffee", pricePence: 350, at: new Date(2026, 10, 3, 9, 0).getTime() },
     ]);
+  });
+
+  it("repictureItem saves a new picture for an existing item (Coffee renamed to Tea switches to the jar) and changes nothing else", async () => {
+    const store = new MemoryStore();
+    await renameItem(store, "coffee", "Tea");
+
+    await repictureItem(store, "coffee", "jar");
+
+    const items = await listItems(store);
+    expect(items).toEqual([
+      { id: "coffee", name: "Tea", icon: "jar", pricePence: 350 },
+      { id: "beer", name: "Beer", icon: "beer", pricePence: 600 },
+      { id: "lunch", name: "Lunch", icon: "sandwich", pricePence: 800 },
+    ]);
+    // The cup screen draws pictureFor(item.icon).
+    expect(pictureFor(items[0].icon).id).toBe("jar");
   });
 });
 
