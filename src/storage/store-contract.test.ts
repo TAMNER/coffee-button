@@ -137,7 +137,8 @@ describe.each(backends)("Store contract: $name", (backend) => {
     await source.presses.put(pressA);
     await source.settlements.put({ id: "s1", amountPence: 600, at: Date.UTC(2026, 10, 26, 9, 0) });
     await source.goals.put({ id: "g1", name: "Tent", pricePence: 20000 });
-    await source.putSettings({ paydayDay: 20 });
+    // A plank (ticket 30) as every phone has after launch, so the import does not migrate.
+    await source.putSettings({ paydayDay: 20, shelfBuiltInIds: ["laptop"] });
     const json = await exportData(source);
 
     const target = await backend.open(freshName());

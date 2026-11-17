@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
-import { addGoal, removeGoal, setShelfPrice, shelfItems, shelfState, shelfView } from "./shelf";
+import { addGoal, ensureTargets, migrateTargets, removeGoal, removeTarget, setShelfPrice, shelfItems, shelfState, shelfTargets, shelfView } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("shelfState", () => {
@@ -85,6 +85,7 @@ describe("shelfView", () => {
     await put("b", 6000, new Date(2026, 0, 10, 9));
     await put("c", 6000, new Date(2026, 2, 31, 8));
     await addGoal(store, "Guitar", 45000);
+    await ensureTargets(store); // used before: the goal plus the two cheapest built-ins
 
     const view = await shelfView({
       store,
@@ -97,8 +98,150 @@ describe("shelfView", () => {
     expect(view.lifetimePence).toBe(24000);
     expect(view.compoundedPence).toBe(39093);
     expect(view.overdueLine).toBe("£12.00 owed since October");
-    expect(view.items).toHaveLength(4);
-    expect(view.items.find((i) => i.id === "weekend-away")).toMatchObject({ lit: false, progress: 0.8 });
-    expect(view.goals).toEqual([expect.objectContaining({ name: "Guitar", pricePence: 45000, lit: false })]);
+    expect(view.targets.map((t) => [t.name, t.pricePence, t.builtIn, t.lit, t.progress])).toEqual([
+      ["Weekend away", 30000, true, false, 0.8],
+      ["Espresso machine", 40000, true, false, 0.6],
+      ["Guitar", 45000, false, false, 24000 / 45000],
+    ]);
+  });
+
+  it("targets light by the lifetime total, built-in and typed alike: £450 lifetime lights the £300 weekend and the £450 guitar, the laptop is 45% there", async () => {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfBuiltInIds: ["weekend-away", "laptop"] });
+    await addGoal(store, "Guitar", 45000);
+    await store.presses.put({ id: "p1", itemId: "coffee", pricePence: 45000, at: new Date(2026, 0, 5).getTime() });
+    await store.settlements.put({ id: "s1", amountPence: 45000, at: new Date(2026, 1, 1).getTime() });
+
+    const view = await shelfView({ store, ledger: new Ledger(store), now: new Date(2026, 2, 1), overdueLine: () => null });
+
+    expect(view.targets.map((t) => [t.name, t.lit, t.progress])).toEqual([
+      ["Weekend away", true, 1],
+      ["Guitar", true, 1],
+      ["Laptop", false, 0.45],
+    ]);
+  });
+});
+
+describe("targets (ticket 30)", () => {
+  it("built-ins on the plank and typed goals are one list, cheapest first, built-ins at their edited prices", async () => {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfBuiltInIds: ["laptop", "ski-week"], shelfPrices: { laptop: 160000 } });
+    await store.goals.put({ id: "g1", name: "Guitar", pricePence: 45000 });
+
+    expect((await shelfTargets(store)).map((t) => [t.id, t.name, t.pricePence, t.builtIn])).toEqual([
+      ["g1", "Guitar", 45000, false],
+      ["ski-week", "Ski week", 150000, true],
+      ["laptop", "Laptop", 160000, true],
+    ]);
+  });
+
+  it("a new install starts with exactly Weekend away £300, Laptop £1000 and Ski week £1500", async () => {
+    const store = new MemoryStore();
+
+    await ensureTargets(store);
+
+    expect((await shelfTargets(store)).map((t) => [t.id, t.name, t.pricePence, t.builtIn])).toEqual([
+      ["weekend-away", "Weekend away", 30000, true],
+      ["laptop", "Laptop", 100000, true],
+      ["ski-week", "Ski week", 150000, true],
+    ]);
+  });
+});
+
+describe("targets: adding and removing", () => {
+  it("on a new install's full plank of three built-ins, adding a fourth target is refused and nothing is stored", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+
+    await expect(addGoal(store, "Guitar", 45000)).rejects.toThrow();
+
+    expect(await store.goals.list()).toEqual([]);
+    expect(await shelfTargets(store)).toHaveLength(3);
+  });
+
+  it("removing the Laptop takes it off the plank, frees a place, and the next launch does not bring it back", async () => {
+    const store = new MemoryStore();
+    await ensureTargets(store);
+
+    await removeTarget(store, "laptop");
+    await ensureTargets(store);
+    await addGoal(store, "Guitar", 45000);
+
+    expect((await shelfTargets(store)).map((t) => t.name)).toEqual(["Weekend away", "Guitar", "Ski week"]);
+  });
+
+  it("removeTarget removes a typed target too; with everything removed the plank stays empty after a launch", async () => {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfBuiltInIds: ["weekend-away"] });
+    const guitar = await addGoal(store, "Guitar", 45000);
+
+    await removeTarget(store, guitar.id);
+    await removeTarget(store, "weekend-away");
+    await ensureTargets(store);
+
+    expect(await shelfTargets(store)).toEqual([]);
+    expect(await store.goals.list()).toEqual([]);
+  });
+});
+
+describe("targets: migrating a phone from before ticket 30", () => {
+  const GOALS = [
+    { id: "g1", name: "Guitar", pricePence: 45000 },
+    { id: "g2", name: "Sofa", pricePence: 180000 },
+    { id: "g3", name: "Tent", pricePence: 20000 },
+  ];
+
+  /** Four built-ins; the espresso machine repriced to £1200, so cheapest-first must use edited prices. */
+  async function oldPhone(goalCount: number): Promise<MemoryStore> {
+    const store = new MemoryStore();
+    await store.putSettings({ paydayDay: 25, shelfPrices: { "espresso-machine": 120000 } });
+    for (const goal of GOALS.slice(0, goalCount)) await store.goals.put(goal);
+    return store;
+  }
+
+  it.each([
+    [0, ["weekend-away", "laptop", "espresso-machine"]],
+    [1, ["weekend-away", "laptop"]],
+    [2, ["weekend-away"]],
+    [3, []],
+  ])("with %i goals the plank keeps every goal and fills up with the cheapest built-ins: %j", async (n, builtIns) => {
+    const store = await oldPhone(n);
+
+    await migrateTargets(store);
+
+    const targets = await shelfTargets(store);
+    expect(targets.filter((t) => !t.builtIn).map((t) => t.id).sort()).toEqual(GOALS.slice(0, n).map((g) => g.id).sort());
+    expect(targets.filter((t) => t.builtIn).map((t) => t.id)).toEqual(builtIns);
+    expect(targets.find((t) => t.id === "espresso-machine")?.pricePence ?? 120000).toBe(120000);
+  });
+
+  it("running the migration twice changes nothing, even after the plank was changed in between", async () => {
+    const store = await oldPhone(1);
+
+    await migrateTargets(store);
+    await store.putSettings({ ...(await store.getSettings()), shelfBuiltInIds: ["laptop"] });
+    const before = await store.getSettings();
+    await migrateTargets(store);
+
+    expect(await store.getSettings()).toEqual(before);
+    expect(await store.goals.list()).toEqual([GOALS[0]]);
+  });
+
+  it.each<[string, (store: MemoryStore) => Promise<void>]>([
+    ["a press", (s) => s.presses.put({ id: "p1", itemId: "coffee", pricePence: 350, at: 1 })],
+    ["a settlement", (s) => s.settlements.put({ id: "s1", amountPence: 350, at: 1 })],
+    ["a goal", (s) => s.goals.put({ id: "g1", name: "Guitar", pricePence: 45000 })],
+    ["an edited shelf price", (s) => s.putSettings({ paydayDay: 25, shelfPrices: { laptop: 90000 } })],
+    ["the info sheet seen", (s) => s.putSettings({ paydayDay: 25, infoSeen: true })],
+  ])("at launch, a phone with %s and no plank yet is migrated, not given the new-install three", async (_, setUp) => {
+    const store = new MemoryStore();
+    await setUp(store);
+    const expected = new MemoryStore();
+    await setUp(expected);
+    await migrateTargets(expected);
+
+    await ensureTargets(store);
+
+    expect(await store.getSettings()).toEqual(await expected.getSettings());
   });
 });

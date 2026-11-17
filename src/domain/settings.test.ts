@@ -3,6 +3,7 @@ import { ensureDefaultItems, listItems } from "./items";
 import { Ledger } from "./ledger";
 import { activeItemId, addItem, removeItem, setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
 import { owed } from "./settle";
+import { shelfTargets } from "./shelf";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -124,6 +125,12 @@ const FIXTURE = {
   goals: [{ id: "g1", name: "Ski week", pricePence: 120000 }],
 };
 
+/**
+ * FIXTURE is a file from before ticket 30 (no plank in its settings), so
+ * importing it migrates: its one goal plus the two cheapest built-ins.
+ */
+const FIXTURE_PLANK = { shelfBuiltInIds: ["weekend-away", "espresso-machine"] };
+
 async function storeWithFixture(): Promise<MemoryStore> {
   const store = new MemoryStore();
   for (const item of FIXTURE.items) await store.items.put(item);
@@ -152,7 +159,31 @@ describe("settings: export and import", () => {
     expect(await store.presses.list()).toEqual(FIXTURE.presses);
     expect(await store.settlements.list()).toEqual(FIXTURE.settlements);
     expect(await store.goals.list()).toEqual(FIXTURE.goals);
-    expect(await store.getSettings()).toEqual({ paydayDay: 20 });
+    expect(await store.getSettings()).toEqual({ paydayDay: 20, ...FIXTURE_PLANK });
+  });
+
+  it("an export made before ticket 30 imports with the three targets the migration gives: its goal plus the two cheapest built-ins at its prices", async () => {
+    const older = { ...FIXTURE, settings: { paydayDay: 20, shelfPrices: { "espresso-machine": 120000 } } };
+    const store = new MemoryStore();
+
+    await importData(store, JSON.stringify(older));
+
+    expect((await shelfTargets(store)).map((t) => [t.id, t.pricePence])).toEqual([
+      ["weekend-away", 30000],
+      ["laptop", 100000],
+      ["g1", 120000],
+    ]);
+  });
+
+  it("a file whose plank is not a list of ids is rejected and the store is untouched", async () => {
+    const store = await storeWithFixture();
+    const broken = { ...FIXTURE, settings: { paydayDay: 20, shelfBuiltInIds: "laptop" } };
+
+    await expect(importData(store, JSON.stringify(broken))).rejects.toThrow(
+      "This file is not a Coffee Button export (shelf targets must be a list of ids)",
+    );
+
+    expect(JSON.parse(await exportData(store))).toEqual(FIXTURE);
   });
 
   it("importData replaces what was there: a stale press and an extra item are gone afterwards", async () => {
@@ -320,8 +351,8 @@ describe("settings: export and import leave the Starling link on the phone (tick
     await importData(fresh, JSON.stringify(planted));
     await importData(linked, JSON.stringify(planted));
 
-    expect(await fresh.getSettings()).toEqual({ paydayDay: 20 });
-    expect(await linked.getSettings()).toEqual({ paydayDay: 20, starling: LINK });
+    expect(await fresh.getSettings()).toEqual({ paydayDay: 20, ...FIXTURE_PLANK });
+    expect(await linked.getSettings()).toEqual({ paydayDay: 20, starling: LINK, ...FIXTURE_PLANK });
   });
 
   it("starlingAuthFailed is this phone's state too: export leaves it out, import keeps the phone's own (ticket 20)", async () => {
@@ -334,8 +365,8 @@ describe("settings: export and import leave the Starling link on the phone (tick
     await importData(healthy, JSON.stringify({ ...FIXTURE, settings: { paydayDay: 20, starlingAuthFailed: true } }));
     await importData(store, JSON.stringify({ ...FIXTURE, settings: { paydayDay: 20 } }));
 
-    expect(await healthy.getSettings()).toEqual({ paydayDay: 20, starling: LINK });
-    expect(await store.getSettings()).toEqual({ paydayDay: 20, starling: LINK, starlingAuthFailed: true });
+    expect(await healthy.getSettings()).toEqual({ paydayDay: 20, starling: LINK, ...FIXTURE_PLANK });
+    expect(await store.getSettings()).toEqual({ paydayDay: 20, starling: LINK, starlingAuthFailed: true, ...FIXTURE_PLANK });
   });
 });
 
@@ -395,7 +426,7 @@ describe("settings: remove an item (ticket 26)", () => {
     await importData(store, JSON.stringify(older));
     await ensureDefaultItems(store);
 
-    expect(await store.getSettings()).toEqual({ paydayDay: 20 });
+    expect(await store.getSettings()).toEqual({ paydayDay: 20, ...FIXTURE_PLANK });
     expect((await listItems(store)).map((i) => i.id)).toEqual(["coffee", "beer", "lunch"]);
   });
 

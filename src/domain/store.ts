@@ -58,6 +58,12 @@ export interface Settings {
   starlingAuthFailed?: boolean;
   /** Ids of built-in items (Beer, Lunch) the user removed (ticket 26), so launch does not add them back. Exported. */
   removedItemIds?: string[];
+  /**
+   * Ids of the built-in shelf targets standing on the plank (ticket 30), beside
+   * the typed goals. Absent means this store has not been through the ticket 30
+   * migration yet (domain/shelf.ts ensureTargets). Exported.
+   */
+  shelfBuiltInIds?: string[];
 }
 
 export interface StarlingLink {

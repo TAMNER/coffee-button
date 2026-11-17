@@ -16,7 +16,7 @@ export interface ShelfEntry extends ShelfItem {
   progress: number;
 }
 
-export function shelfState(items: ShelfItem[], lifetimePence: number): ShelfEntry[] {
+export function shelfState<T extends ShelfItem>(items: T[], lifetimePence: number): (T & ShelfEntry)[] {
   return items.map((item) => ({
     ...item,
     lit: lifetimePence >= item.pricePence,
@@ -40,25 +40,100 @@ export async function shelfItems(store: Store): Promise<ShelfItem[]> {
   return DEFAULT_SHELF_ITEMS.map((item) => ({ ...item, pricePence: prices[item.id] ?? item.pricePence }));
 }
 
+/** A target on the plank: a built-in (with its own drawing) or a goal the user typed. */
+export interface ShelfTarget extends ShelfItem {
+  builtIn: boolean;
+}
+
+const cheapestFirst = <T extends ShelfItem>(a: T, b: T) => a.pricePence - b.pricePence;
+
+/** Ids of the built-ins on the plank. */
+export async function plankBuiltInIds(store: Store): Promise<string[]> {
+  return (await store.getSettings()).shelfBuiltInIds ?? [];
+}
+
+/** Ticket 30: the plank's one list of targets, cheapest first. */
+export async function shelfTargets(store: Store): Promise<ShelfTarget[]> {
+  const ids = await plankBuiltInIds(store);
+  const builtIns = (await shelfItems(store)).filter((item) => ids.includes(item.id));
+  const goals = await store.goals.list();
+  return [
+    ...builtIns.map((item) => ({ ...item, builtIn: true })),
+    ...goals.map((goal) => ({ ...goal, builtIn: false })),
+  ].sort(cheapestFirst);
+}
+
+/** What a new install's plank starts with (ticket 30). */
+export const STARTER_TARGET_IDS: readonly string[] = ["weekend-away", "laptop", "ski-week"];
+
+/**
+ * Anything the app only writes once someone has used it: a phone with any of
+ * these was in use before ticket 30. A new install has none at its first launch.
+ */
+async function usedBefore(store: Store): Promise<boolean> {
+  const settings = await store.getSettings();
+  return (
+    settings.infoSeen === true ||
+    Object.keys(settings.shelfPrices ?? {}).length > 0 ||
+    (await store.goals.list()).length > 0 ||
+    (await store.presses.list()).length > 0 ||
+    (await store.settlements.list()).length > 0
+  );
+}
+
+/**
+ * Run at launch, before anything else writes (main.ts). `shelfBuiltInIds`
+ * present: already settled, nothing to do. Absent on a phone used before:
+ * migrateTargets. Absent on a new install: the starter three.
+ */
+export async function ensureTargets(store: Store): Promise<void> {
+  const settings = await store.getSettings();
+  if (settings.shelfBuiltInIds) return;
+  if (await usedBefore(store)) return migrateTargets(store);
+  await store.putSettings({ ...settings, shelfBuiltInIds: [...STARTER_TARGET_IDS] });
+}
+
+/** A phone from before ticket 30: every goal stays, the cheapest built-ins (edited prices) fill the places left. */
+export async function migrateTargets(store: Store): Promise<void> {
+  const settings = await store.getSettings();
+  if (settings.shelfBuiltInIds) return; // already migrated: runs once
+  const places =Math.max(0, MAX_TARGETS - (await store.goals.list()).length);
+  const builtIns = (await shelfItems(store)).sort(cheapestFirst).slice(0, places);
+  await store.putSettings({ ...settings, shelfBuiltInIds: builtIns.map((item) => item.id) });
+}
+
+/** The plank holds at most three targets, built-in and typed together. */
+export const MAX_TARGETS = 3;
+
+/** Superseded by MAX_TARGETS (ticket 30): goals and built-ins now share the three places. */
 export const MAX_GOALS = 3;
 
-/** Adds a personal goal; throws once there are already three. */
+/** Adds a typed target (a personal goal); throws once the plank holds MAX_TARGETS, built-ins included. */
 export async function addGoal(
   store: Store,
   name: string,
   pricePence: number,
   newId: () => string = () => crypto.randomUUID(),
 ): Promise<Goal> {
-  if ((await store.goals.list()).length >= MAX_GOALS) {
-    throw new Error(`At most ${MAX_GOALS} goals`);
+  if ((await shelfTargets(store)).length >= MAX_TARGETS) {
+    throw new Error(`At most ${MAX_TARGETS} targets`);
   }
   const goal: Goal = { id: newId(), name, pricePence };
   await store.goals.put(goal);
   return goal;
 }
 
+/** Superseded by removeTarget (ticket 30), which removes built-ins too. */
 export function removeGoal(store: Store, id: string): Promise<void> {
   return store.goals.delete(id);
+}
+
+/** Takes any target off the plank, built-in or typed; it stays off (ticket 31's chips can put a built-in back). */
+export async function removeTarget(store: Store, id: string): Promise<void> {
+  await store.goals.delete(id);
+  const settings = await store.getSettings();
+  const ids = settings.shelfBuiltInIds ?? [];
+  await store.putSettings({ ...settings, shelfBuiltInIds: ids.filter((builtIn) => builtIn !== id) });
 }
 
 export const COMPOUND_RATE = 0.05;
@@ -70,8 +145,8 @@ export interface ShelfView {
   lifetimePence: number;
   /** Lifetime total compounded at COMPOUND_RATE for COMPOUND_YEARS. */
   compoundedPence: number;
-  items: ShelfEntry[];
-  goals: ShelfEntry[];
+  /** The plank (ticket 30): at most MAX_TARGETS, cheapest first, lit and progress from the lifetime total. */
+  targets: (ShelfTarget & ShelfEntry)[];
   /** "£X owed since October" when a settle is overdue, else null. */
   overdueLine: string | null;
 }
@@ -90,8 +165,7 @@ export async function shelfView({ store, ledger, now, overdueLine }: ShelfViewDe
     pacePence: paceToYearEnd(await ledger.presses(), now),
     lifetimePence,
     compoundedPence: compound(lifetimePence, COMPOUND_RATE, COMPOUND_YEARS),
-    items: shelfState(await shelfItems(store), lifetimePence),
-    goals: shelfState(await store.goals.list(), lifetimePence),
+    targets: shelfState(await shelfTargets(store), lifetimePence),
     overdueLine: await overdueLine(now),
   };
 }
