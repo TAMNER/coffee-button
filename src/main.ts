@@ -6,10 +6,13 @@ import { installCopy } from "./domain/install-copy";
 import { ensureDefaultItems } from "./domain/items";
 import { Ledger } from "./domain/ledger";
 import { LedgerMover } from "./domain/money-mover";
+import { LookOnlyMover, lookOnlyStore, pretendClock } from "./domain/pretend";
 import { MemoryStore, type Store } from "./domain/store";
 import { IndexedDbStore } from "./storage/idb";
 import { startApp } from "./ui/app";
 import "./ui/register";
+// After register, so the Pretend date section is listed last in Settings.
+import { readPretendDate } from "./ui/pretend";
 
 registerSW({ immediate: true });
 
@@ -49,11 +52,14 @@ async function boot(): Promise<void> {
   // Installs from before Beer was a default get it once; a failure only means no Beer yet.
   await ensureDefaultItems(store).catch((err) => console.error("Could not add default items", err));
 
+  // Ticket 35: on a pretend date the app runs on that day, and money is look-only.
+  const pretend = readPretendDate();
+  const live = pretend ? lookOnlyStore(store) : store;
   startApp(document.getElementById("app")!, {
-    store,
-    ledger: new Ledger(store),
-    mover: new LedgerMover(),
-    clock: systemClock,
+    store: live,
+    ledger: new Ledger(live),
+    mover: pretend ? new LookOnlyMover() : new LedgerMover(),
+    clock: pretend ? pretendClock(pretend, systemClock) : systemClock,
   });
 }
 

@@ -3,6 +3,7 @@
  */
 import { StarlingAuthError, StarlingError, StarlingNetworkError, StarlingRateLimited } from "./starling";
 import type { MoneyMover, MoveRef, MoveResult } from "./money-mover";
+import { LookOnlyMover } from "./pretend";
 import type { Press, PressTransfer, StarlingLink, Store } from "./store";
 
 /** Error names and messages from starling.ts never carry the token or request details. */
@@ -192,7 +193,11 @@ export class StarlingMover implements MoneyMover {
   }
 }
 
-/** The boot decision: a stored Starling link gets a StarlingMover, otherwise `fallback` (the LedgerMover) stays. */
+/**
+ * The boot decision: a stored Starling link gets a StarlingMover, otherwise `fallback` (the LedgerMover) stays.
+ * On a pretend date (ticket 35) the LookOnlyMover always stays: no real money moves and the queue never drains.
+ */
 export async function moverFor(store: Store, fallback: MoneyMover, makeStarling: () => StarlingMover): Promise<MoneyMover> {
+  if (fallback instanceof LookOnlyMover) return fallback;
   return (await store.getSettings()).starling ? makeStarling() : fallback;
 }
