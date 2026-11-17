@@ -24,6 +24,11 @@ export class FakeHaptics implements Haptics {
   }
 }
 
+/** The part of `navigator` that vibrates; absent on iOS Safari. */
+export interface Vibrator {
+  vibrate?(pattern: number[]): boolean;
+}
+
 /**
  * iOS 18 Safari ticks the Taptic Engine when an `<input type="checkbox" switch>`
  * toggles. Toggling it through its label's click() gives a haptic tap from script.
@@ -32,7 +37,11 @@ export class FakeHaptics implements Haptics {
 export class SwitchHaptics implements Haptics {
   private label: HTMLLabelElement | null = null;
 
-  constructor(private doc: Document) {}
+  /** `vibrator` is `navigator` in the app: Android Chrome has `vibrate`, iOS Safari does not. */
+  constructor(
+    private doc: Document,
+    private vibrator: Vibrator = {},
+  ) {}
 
   tap(): void {
     try {
@@ -42,7 +51,13 @@ export class SwitchHaptics implements Haptics {
     }
   }
 
-  vibrate(_pattern: readonly number[]): void {
+  /** The whole pattern through `navigator.vibrate` where it exists; the switch's one tick otherwise. */
+  vibrate(pattern: readonly number[]): void {
+    try {
+      if (this.vibrator.vibrate?.([...pattern])) return;
+    } catch {
+      // fall through to the tick
+    }
     this.tap();
   }
 
