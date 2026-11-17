@@ -8,7 +8,9 @@ import { COIN_MARKUP, confettiMarkup, STARBURST } from "./cup-art";
 /**
  * No haptics here: iOS only ticks the switch haptic inside the user's gesture,
  * and the ceremony runs after the press is persisted (an IndexedDB await later).
- * The cup's click handler taps it synchronously instead (src/ui/cup.ts).
+ * The cup's click handler taps it synchronously instead (src/ui/cup.ts); on
+ * Android that same call requests one pattern timed to this timeline
+ * (src/domain/vibration.ts).
  */
 export interface CeremonyAdapters {
   audio: Audio;

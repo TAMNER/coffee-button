@@ -82,5 +82,5 @@ let shared: Haptics | undefined;
 
 /** One switch for the whole page, created on first use (needs `document`). */
 export function deviceHaptics(): Haptics {
-  return (shared ??= new SwitchHaptics(document));
+  return (shared ??= new SwitchHaptics(document, navigator));
 }

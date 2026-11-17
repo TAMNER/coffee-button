@@ -1,5 +1,7 @@
 import { deviceAudio } from "../adapters/audio";
 import { deviceHaptics } from "../adapters/haptics";
+import { ceremonyTimeline } from "../domain/ceremony-timeline";
+import { pressVibration } from "../domain/vibration";
 import { listItems, nextItem, prevItem } from "../domain/items";
 import { formatPounds } from "../domain/money";
 import { activeItemId, setActiveItem } from "../domain/settings";
@@ -205,7 +207,7 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
   cup.addEventListener("click", async () => {
     // First, before any await: iOS only ticks the switch haptic and resumes
     // audio inside the tap's gesture; after the IndexedDB write it is too late.
-    deviceHaptics().tap();
+    deviceHaptics().vibrate(pressVibration(ceremonyTimeline({ pour: vesselFor(active.icon).pour })));
     deviceAudio().unlock();
     // The item on screen, named explicitly: its switch may still be saving.
     const press = await ctx.ledger.addPress(active.id, ctx.clock.now());
