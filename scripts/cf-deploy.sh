@@ -31,10 +31,21 @@ out=$(npx wrangler deploy 2>&1) || { echo "$out"; exit 1; }
 echo "$out" | tail -8
 app=$(echo "$out" | grep -o 'https://coffee-button\.[a-z0-9-]*\.workers\.dev' | head -1)
 
+# The relay's config keeps ALLOWED_ORIGIN blank (any site) so the repo names no account.
+# Now that the app's address is known, redeploy the relay answering CORS for that origin only.
+if [[ -n "${app:-}" ]]; then
+  echo "== lock the relay to $app"
+  out=$(npx wrangler deploy -c relay-worker/wrangler.jsonc --var "ALLOWED_ORIGIN:$app" 2>&1) || { echo "$out"; exit 1; }
+  echo "$out" | tail -4
+else
+  echo "cf-deploy: could not read the app address; the relay still answers CORS for any site" >&2
+fi
+
 echo
 echo "relay: $relay"
 echo "app:   ${app:-see above}"
 echo "checks (expect 204, then 403):"
 curl -s -o /dev/null -w "  OPTIONS %{http_code}\n" -X OPTIONS "$relay/api/v2/accounts" || true
+echo "  allowed origin: $(curl -s -D - -o /dev/null -X OPTIONS "$relay/api/v2/accounts" | tr -d '\r' | grep -i '^access-control-allow-origin:' | cut -d' ' -f2-) (expect ${app:-the app address})"
 curl -s -o /dev/null -w "  blocked path %{http_code}\n" "$relay/api/v2/account-holder" || true
 [[ -n "${app:-}" ]] && curl -s -o /dev/null -w "  app %{http_code}\n" "$app/" || true
