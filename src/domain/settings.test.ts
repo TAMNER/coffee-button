@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Ledger } from "./ledger";
 import { activeItemId, addItem, removeItem,setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
+import { owed } from "./settle";
 import { MemoryStore } from "./store";
 
 describe("settings: items", () => {
@@ -345,5 +346,20 @@ describe("settings: remove an item (ticket 26)", () => {
     await expect(removeItem(store, "coffee")).rejects.toThrow(/Coffee/);
 
     expect((await store.items.list()).map((i) => i.id)).toEqual(["coffee", "lunch"]);
+  });
+
+  it("removing Beer after a Beer and a Coffee press leaves month, owed and lifetime totals as they were", async () => {
+    const store = new MemoryStore();
+    let n = 0;
+    const ledger = new Ledger(store, () => `press-${++n}`);
+    const now = new Date(2026, 10, 10, 12, 0);
+    await ledger.addPress("beer", new Date(2026, 10, 3, 18, 0));
+    await ledger.addPress("coffee", new Date(2026, 10, 4, 9, 0));
+    const before = [await ledger.monthToDate(now), await owed(store, now), await ledger.lifetime()];
+
+    await removeItem(store, "beer");
+
+    expect(before).toEqual([950, 950, 950]);
+    expect([await ledger.monthToDate(now), await owed(store, now), await ledger.lifetime()]).toEqual(before);
   });
 });
