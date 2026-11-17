@@ -47,8 +47,8 @@ export function homeScreenHintNeeded(standalone: boolean): boolean {
 }
 
 /** Ticket 37: whether a section of the sheet starts unfolded. */
-export function sectionStartsOpen(_section: InfoSection, _standalone: boolean): boolean {
-  return true;
+export function sectionStartsOpen(section: InfoSection, _standalone: boolean): boolean {
+  return section.heading === "The idea";
 }
 
 /** The sheet opens by itself only until it has been seen once. */

@@ -74,6 +74,13 @@ describe("which info sections start open (ticket 37)", () => {
     expect(sectionStartsOpen(section("The idea"), false)).toBe(true);
     expect(sectionStartsOpen(section("The idea"), true)).toBe(true);
   });
+
+  it("folds The money, saving, investment and Swipe whether or not the app is installed", () => {
+    for (const heading of ["The money", "How does saving work?", "How does investment work?", "Swipe"]) {
+      expect(sectionStartsOpen(section(heading), false)).toBe(false);
+      expect(sectionStartsOpen(section(heading), true)).toBe(false);
+    }
+  });
 });
 
 describe("info sheet on first launch", () => {
