@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { ensureDefaultItems, listItems } from "./items";
 import { Ledger } from "./ledger";
-import { activeItemId, addItem, removeItem,setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
+import { activeItemId, addItem, removeItem, setActiveItem, exportData, importData, renameItem, repriceItem, setInvestUrl, setPayday, validateInvestUrl, validatePayday } from "./settings";
 import { owed } from "./settle";
 import { MemoryStore } from "./store";
 
@@ -361,5 +362,18 @@ describe("settings: remove an item (ticket 26)", () => {
 
     expect(before).toEqual([950, 950, 950]);
     expect([await ledger.monthToDate(now), await owed(store, now), await ledger.lifetime()]).toEqual(before);
+  });
+
+  it("export then import keeps Beer removed: the file lists it and the next launch does not add it back", async () => {
+    const source = await storeWithFixture();
+    await removeItem(source, "beer");
+    const json = await exportData(source);
+
+    const target = new MemoryStore();
+    await importData(target, json);
+    await ensureDefaultItems(target);
+
+    expect(JSON.parse(json).settings).toEqual({ paydayDay: 20, removedItemIds: ["beer"] });
+    expect((await listItems(target)).map((i) => i.id)).toEqual(["coffee", "lunch"]);
   });
 });
