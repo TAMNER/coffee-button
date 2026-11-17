@@ -8,7 +8,8 @@ you clear into your Stocks and Shares ISA once a month. See `docs/DESIGN.md`.
 
 ## Install on your iPhone
 
-1. Open <https://tamner.github.io/coffee-button/> in Safari.
+1. Open the app link you were sent in Safari. (The app is hosted on
+   Cloudflare; its address is not written in this repository.)
 2. Tap Share, then Add to Home Screen.
 3. Open Coffee Button from the Home Screen icon.
 
@@ -29,8 +30,16 @@ The token stays on your phone only.
 ## Run your own relay
 
 Starling's API sends no CORS headers, so the app talks to it through a small
-relay. To run your own, serve `node scripts/relay.mjs` behind HTTPS, then set
-the Relay URL in the app's Settings to its address.
+relay. The hosted app uses a Cloudflare Worker (`relay-worker/`, deployed with
+the app by `scripts/cf-deploy.sh`). To run your own, deploy that Worker or
+serve `node scripts/relay.mjs` behind HTTPS, then set the Relay URL in the
+app's Settings to its address.
+
+## Read next
+
+`docs/DESIGN.md` is the agreed design and the reasons behind it.
+`docs/HANDOFF.md` is the current state and what is still open. `CLAUDE.md`
+describes how the code is laid out and the rules it is built under.
 
 ## Develop
 
