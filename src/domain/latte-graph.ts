@@ -66,15 +66,24 @@ export interface LatteGraph {
   savedLabel: string;
   /** "£0 invested" until the first invest. */
   investedLabel: string;
+  /** Under the tray, left: the first glass's month, "Jun". */
+  firstLabel: string;
+  /** Under the tray, right. */
+  lastLabel: string;
 }
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** The graph from the savings series; null before the first press (the shelf shows its hint instead). */
 export function latteGraph(series: SavingsSeries): LatteGraph | null {
   if (series.days.length === 0) return null;
+  const glasses = glassPeriods(series);
   return {
-    glasses: glassPeriods(series),
+    glasses,
     savedLabel: `${formatPoundsShort(series.savedPence)} saved`,
     investedLabel: `${formatPoundsShort(series.investedPence)} invested`,
+    firstLabel: MONTHS[Number(glasses[0].from.slice(5, 7)) - 1],
+    lastLabel: "today",
   };
 }
 

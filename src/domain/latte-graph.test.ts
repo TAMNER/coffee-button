@@ -144,4 +144,11 @@ describe("latteGraph (ticket 33)", () => {
     expect(graph.savedLabel).toBe("£28 saved");
     expect(graph.investedLabel).toBe("£0 invested");
   });
+
+  it("under the tray: the first glass's month on the left, 'today' on the right (series from 15 Jun reads 'Jun')", () => {
+    const presses = [{ id: "a", itemId: "coffee", pricePence: 350, at: new Date(2026, 5, 15, 8).getTime() }];
+    const graph = latteGraph(savingsSeries(presses, [], new Date(2026, 10, 17, 12)))!;
+    expect(graph.firstLabel).toBe("Jun");
+    expect(graph.lastLabel).toBe("today");
+  });
 });
