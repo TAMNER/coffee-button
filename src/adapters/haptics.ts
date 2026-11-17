@@ -1,14 +1,25 @@
 export interface Haptics {
   /** One light tap, where the device supports it. */
   tap(): void;
+  /**
+   * A vibration pattern (alternating vibrate and pause ms, as
+   * `navigator.vibrate` takes it) where the device can play one; one tap
+   * otherwise. Call it inside the user's tap, before any await.
+   */
+  vibrate(pattern: readonly number[]): void;
 }
 
 /** For tests: counts calls; set `fail` to make it throw. */
 export class FakeHaptics implements Haptics {
   taps = 0;
+  patterns: number[][] = [];
   fail = false;
   tap(): void {
     this.taps++;
+    if (this.fail) throw new Error("haptics unavailable");
+  }
+  vibrate(pattern: readonly number[]): void {
+    this.patterns.push([...pattern]);
     if (this.fail) throw new Error("haptics unavailable");
   }
 }
@@ -29,6 +40,10 @@ export class SwitchHaptics implements Haptics {
     } catch {
       // unsupported; degrade silently
     }
+  }
+
+  vibrate(_pattern: readonly number[]): void {
+    this.tap();
   }
 
   private ensureLabel(): HTMLLabelElement {
