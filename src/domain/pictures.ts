@@ -17,3 +17,11 @@ export const PICTURES: readonly Picture[] = [
   { id: "plate", label: "Plate" },
   { id: "jar", label: "Jar" },
 ];
+
+/** The jar: the picture for anything the app has no drawing for. */
+const FALLBACK = "jar";
+
+/** The picture an item's `icon` shows; a name the app does not recognise shows the jar. */
+export function pictureFor(icon: string): Picture {
+  return PICTURES.find((p) => p.id === icon) ?? PICTURES.find((p) => p.id === FALLBACK)!;
+}
