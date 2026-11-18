@@ -257,3 +257,11 @@ describe("latteGraph (ticket 33)", () => {
     expect(graph.alt).toBe("Savings over time: £381.30 saved, £337.20 invested.");
   });
 });
+
+describe("latteGraph axes (Tom, 2026-11-18: the graph must say what it shows)", () => {
+  it("names every glass by the last day it covers, and today's glass as today", () => {
+    expect(latteGraph(series("2026-11-11", 7))!.glassLabels).toEqual(["11 Nov", "12 Nov", "13 Nov", "14 Nov", "15 Nov", "16 Nov", "today"]);
+    // Eight days: the first glass covers 10 and 11 Nov and is named by the 11th.
+    expect(latteGraph(series("2026-11-10", 8))!.glassLabels[0]).toBe("11 Nov");
+  });
+});
