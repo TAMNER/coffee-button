@@ -7,10 +7,10 @@ afterEach(() => {
 });
 
 describe("WebAudioCoin.unlock and the audio session", () => {
-  it("leaves the page's audio session alone, so the ringer switch can mute it", () => {
+  it("asks for the ambient session by name: the ringer switch still mutes it and other apps' music keeps playing", () => {
     const audioSession = { type: "auto" };
     vi.stubGlobal("navigator", { audioSession });
     new WebAudioCoin().unlock();
-    expect(audioSession.type).toBe("auto");
+    expect(audioSession.type).toBe("ambient");
   });
 });

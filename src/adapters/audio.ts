@@ -126,9 +126,12 @@ export class WebAudioCoin implements Audio {
   /** Call inside a user gesture: creates the context lazily and resumes it if needed. */
   unlock(): void {
     try {
-      // Ticket 23: the audio session is left as the browser sets it, so on iOS
-      // the ringer switch mutes the sounds and other apps' music keeps playing.
-      // Setting navigator.audioSession.type = "playback" would override both.
+      // Ticket 23: on iOS the ringer switch mutes the sounds and other apps'
+      // music keeps playing; "playback" would override both. The session is
+      // named "ambient" rather than left on "auto": left alone, the installed
+      // app was silent with the ringer on (2026-11-18). A no-op off Safari.
+      const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+      if (session && session.type !== "ambient") session.type = "ambient";
       const ctx = this.context();
       if (!ctx) return;
       this.samples.start();
