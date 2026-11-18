@@ -28,3 +28,5 @@ Tester feedback 2026-11-17 ("Add a graph of savings and amounts invested over ti
 - [x] Screenshot at 390x844 with three targets and the graph, for one week, about four weeks and about five months of data: the whole shelf fits or scrolls cleanly, both themes
 - [x] In the first week the row starts on the first press day and fills from the left: the glasses after today are days not yet come, drawn empty; the steam is on today's glass; no "today" label until today is the last glass (unit tested, failing first; screenshots `33-first-day-*.png`, `33-day-three-light.png`)
 - [ ] Device check (Tom): the graph after a real press and after a real settle
+
+**2026-11-18 (Tom):** the graph gained a caption, a money scale up the left (nothing, half, all of today's total) and a date under every glass; the two end labels are gone. Saved-and-waiting is now drawn in the cup's coffee colour and invested in a darker espresso (`--espresso`); `--latte` is no longer used. Screenshots `33-axes-*.png`. Caption copy awaits Tom's read.

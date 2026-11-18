@@ -1041,3 +1041,18 @@ body {
 .tap-switch-wrap:active .cup {
   transform: scale(0.96);
 }
+
+/* Graph colours (2026-11-18): money saved and still waiting is drawn in the
+   cup's own coffee colour; what has been invested is a darker espresso. */
+:root {
+  --espresso: #3a1c0e;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --espresso: #4f2a15;
+  }
+}
+:root[data-theme="dark"] {
+  --espresso: #4f2a15;
+}
+.cp-espresso { fill: var(--espresso); }

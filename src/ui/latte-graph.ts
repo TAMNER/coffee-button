@@ -43,17 +43,18 @@ function tumbler(xc: number, yT: number, yB: number, wT: number, wB: number, r: 
 }
 
 /**
- * The drink in one column from x to x+w, standing on yBottom: coffee at the
- * bottom, latte over it, a froth band on top with round bubbles hanging off
+ * The drink in one column from x to x+w, standing on yBottom: invested at the
+ * bottom (dark espresso), saved and waiting over it (the cup's own coffee
+ * colour, Tom 2026-11-18), a froth band on top with round bubbles hanging off
  * it like the real cup's foam. Heights come from glassFill.
  */
 function drink(x: number, w: number, yBottom: number, fill: ReturnType<typeof glassFill>, froth: number, bub: number): string {
   if (fill.savedHeight <= 0) return "";
   const ySaved = yBottom - fill.savedHeight;
   const ft = fill.frothHeight;
-  let out = `<rect class="cp-latte" x="${f1(x)}" y="${f1(ySaved)}" width="${f1(w)}" height="${f1(fill.savedHeight + 20)}"/>`;
+  let out = `<rect class="cp-coffee" x="${f1(x)}" y="${f1(ySaved)}" width="${f1(w)}" height="${f1(fill.savedHeight + 20)}"/>`;
   if (fill.coffeeHeight > 0) {
-    out += `<rect class="cp-coffee" x="${f1(x)}" y="${f1(yBottom - fill.coffeeHeight)}" width="${f1(w)}" height="${f1(fill.coffeeHeight + 20)}"/>`;
+    out += `<rect class="cp-espresso" x="${f1(x)}" y="${f1(yBottom - fill.coffeeHeight)}" width="${f1(w)}" height="${f1(fill.coffeeHeight + 20)}"/>`;
   }
   out += `<rect class="cp-foam" x="${f1(x)}" y="${f1(ySaved)}" width="${f1(w)}" height="${f1(ft)}"/>`;
   if (fill.savedHeight > froth + bub * 2) {
@@ -69,13 +70,14 @@ function drink(x: number, w: number, yBottom: number, fill: ReturnType<typeof gl
 
 /** The row of glasses on the cobalt tray, as in the mockup's graph1. */
 function glassesSvg(graph: LatteGraph): string {
-  const W = 358, H = 200, FROTH = 8, BUB = 3;
+  const W = 358, H = 218, FROTH = 8, BUB = 3;
   const list = graph.glasses;
   const n = list.length;
   // Today's glass is the full one; in the first week the glasses after it are days not yet come, drawn empty.
   const today = list[graph.todayIndex].savedPence;
-  const trayY = H - 18, yT = 58, yB = trayY;
-  const x0 = 6, x1 = 340, pitch = (x1 - x0) / n;
+  const trayY = H - 36, yT = 58, yB = trayY;
+  // The left gutter holds the money scale.
+  const x0 = 40, x1 = 342, pitch = (x1 - x0) / n;
   const wT = Math.min(44, pitch * 0.72), wB = wT * 0.84;
   const ib = yB - 9, ut = yT + 8;
   let shadow = "";
@@ -95,13 +97,25 @@ function glassesSvg(graph: LatteGraph): string {
       ${hl > 10 ? `<rect class="cp-cream" x="${f1(xc - wT / 2 + 7)}" y="${f1(ib - 6 - hl)}" width="3.5" height="${f1(hl)}" rx="1.75" opacity="0.55"/>` : ""}
       ${rim}`;
   });
+  // The scale: a dashed line at nothing, half and all of today's total, drawn behind the glasses.
+  const scale = graph.scale
+    .map(({ label, fraction }) => {
+      const y = f1(ib - fraction * (ib - ut));
+      return `<line class="lg-grid" x1="${x0 - 2}" x2="${W - 12}" y1="${y}" y2="${y}"/><text class="lg-tick" x="${x0 - 6}" y="${y}" dy="0.35em" text-anchor="end">${label}</text>`;
+    })
+    .join("");
+  const dates = graph.glassLabels
+    .map((label, i) => `<text class="lg-date${i === graph.todayIndex ? " is-today" : ""}" x="${f1(x0 + pitch * (i + 0.5))}" y="${trayY + 28}" text-anchor="middle">${label}</text>`)
+    .join("");
   const todayX = x0 + pitch * (graph.todayIndex + 0.5);
   // --n: how many glasses pour, so the steam waits for the last of them.
   return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true" style="--n:${graph.todayIndex + 1}">
+  ${scale}
   <g class="cp-shadow" transform="translate(5 5)">${shadow}<rect x="0" y="${trayY}" width="${W - 12}" height="12" rx="6"/></g>
   <rect class="cp-cobalt" x="0" y="${trayY}" width="${W - 12}" height="12" rx="6"/>
   ${glasses}
   ${steam(todayX, yT - 12, 1)}
+  ${dates}
 </svg>`;
 }
 
@@ -116,7 +130,7 @@ export function latteGraphHtml(graph: LatteGraph, pour: boolean): string {
       <span class="lg-saved"><i class="lg-sw lg-sw-saved"></i>${graph.savedLabel}</span>
       <span class="lg-inv"><i class="lg-sw lg-sw-inv"></i>${graph.investedLabel}</span>
     </div>
+    <p class="lg-caption" aria-hidden="true">Each glass is your total saved by that date.</p>
     ${glassesSvg(graph)}
-    <div class="lg-ends" aria-hidden="true"><span>${graph.firstLabel}</span><span>${graph.lastLabel}</span></div>
   </figure>`;
 }

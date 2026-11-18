@@ -89,10 +89,13 @@ function mountRing(el: HTMLElement, ctx: CupContext): () => void {
   // The disc also moves without changing size when something beside it in the
   // column appears or grows (the Invest button and nudge under the total, a
   // banner above), so the column and the cup's siblings are watched as well.
-  const column = cup?.parentElement;
+  // The button may sit inside the tap switch's wrapper (src/ui/tap-switch.ts);
+  // the wrapper is then the column's child.
+  const slot = cup?.closest(".tap-switch-wrap") ?? cup;
+  const column = slot?.parentElement;
   if (column) {
     observer?.observe(column);
-    for (const sibling of column.children) if (sibling !== cup) observer?.observe(sibling);
+    for (const sibling of column.children) if (sibling !== slot) observer?.observe(sibling);
   }
   window.addEventListener("resize", place);
   // Fonts and layout may settle after mount.

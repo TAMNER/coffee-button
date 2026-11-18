@@ -352,11 +352,10 @@
   vertical-align: 1px;
 }
 .lg-sw-saved {
-  background: var(--foam, #f3ddbb);
-  box-shadow: 2px 2px 0 var(--shadow, #8e2f25);
+  background: var(--coffee, #6b3a22);
 }
 .lg-sw-inv {
-  background: var(--coffee, #6b3a22);
+  background: var(--espresso, #3a1c0e);
 }
 .latte-graph svg {
   display: block;
@@ -416,4 +415,34 @@
     opacity: 1;
     transform: none;
   }
+}
+
+/* Graph axes (2026-11-18): a caption, a money scale up the left and a date
+   under every glass, so the graph says what it shows. */
+.lg-caption {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+.latte-graph .lg-grid {
+  stroke: var(--ink, #1d2a6e);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  opacity: 0.35;
+}
+.latte-graph .lg-tick,
+.latte-graph .lg-date {
+  fill: var(--ink, #1d2a6e);
+  font-size: 9.5px;
+  font-weight: 800;
+}
+.latte-graph .lg-date {
+  font-size: 8.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.latte-graph .lg-date.is-today {
+  opacity: 1;
 }
