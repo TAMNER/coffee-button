@@ -77,6 +77,13 @@ export interface LatteGraph {
   alt: string;
   /** Under each glass: the last day it covers, "12 Jun"; "today" for today's glass. */
   glassLabels: string[];
+  /** The money scale up the side: a label at each fraction of a full glass (today's total). */
+  scale: { label: string; fraction: number }[];
+}
+
+/** A scale label: whole pounds from ten pounds on, pence kept below that. */
+function scaleLabel(pence: number, totalPence: number): string {
+  return totalPence >= 1000 ? `£${Math.round(pence / 100)}` : formatPoundsShort(Math.round(pence));
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -96,6 +103,7 @@ export function latteGraph(series: SavingsSeries): LatteGraph | null {
     lastLabel: todayIndex === glasses.length - 1 ? "today" : "",
     todayIndex,
     alt: `Savings over time: ${savedLabel}, ${investedLabel}.`,
+    scale: [0, 0.5, 1].map((fraction) => ({ label: scaleLabel(series.savedPence * fraction, series.savedPence), fraction })),
     glassLabels: glasses.map((g, i) => (i === todayIndex ? "today" : `${Number(g.to.slice(8, 10))} ${MONTHS[Number(g.to.slice(5, 7)) - 1]}`)),
   };
 }

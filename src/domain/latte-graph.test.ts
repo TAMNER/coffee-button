@@ -265,3 +265,18 @@ describe("latteGraph axes (Tom, 2026-11-18: the graph must say what it shows)", 
     expect(latteGraph(series("2026-11-10", 8))!.glassLabels[0]).toBe("11 Nov");
   });
 });
+
+describe("latteGraph money scale", () => {
+  it("marks nothing, half and all of today's total up the side, in whole pounds from ten pounds on", () => {
+    const graph = latteGraph({ ...series("2026-11-11", 7), savedPence: 38980 })!;
+    expect(graph.scale).toEqual([
+      { label: "£0", fraction: 0 },
+      { label: "£195", fraction: 0.5 },
+      { label: "£390", fraction: 1 },
+    ]);
+  });
+
+  it("keeps the pence under ten pounds", () => {
+    expect(latteGraph(series("2026-11-11", 7))!.scale.map((s) => s.label)).toEqual(["£0", "£3.50", "£7"]);
+  });
+});
