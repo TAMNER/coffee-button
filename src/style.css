@@ -1020,3 +1020,24 @@ body {
   outline: 3px solid var(--mustard-deep, #d48e12);
   outline-offset: 2px;
 }
+
+/* Tap switch (2026-11-18): an invisible real switch over the cup takes the
+   touch so iOS 26.5+ ticks the Taptic Engine; see src/ui/tap-switch.ts. */
+.tap-switch-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.tap-switch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.tap-switch-wrap:active .cup {
+  transform: scale(0.96);
+}

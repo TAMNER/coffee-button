@@ -1,4 +1,5 @@
 import { deviceAudio } from "../adapters/audio";
+import { attachTapSwitch } from "./tap-switch";
 import { deviceHaptics } from "../adapters/haptics";
 import { ceremonyTimeline } from "../domain/ceremony-timeline";
 import { pressVibration } from "../domain/vibration";
@@ -37,8 +38,9 @@ function vesselSvg(item: Item): string {
   return vesselFor(item.icon).svg(`cup-body-clip-${++vessels}`);
 }
 
-function labelText(item: Item): string {
-  return `${item.name.toUpperCase()} · THIS MONTH`;
+/** The month's total is every item's presses together, so the label names no item (Tom, 2026-11-18). */
+function labelText(_item: Item): string {
+  return "SAVED THIS MONTH!!";
 }
 
 function prefersReducedMotion(): boolean {
@@ -91,6 +93,7 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
       <button type="button" data-role="undo">Undo</button>
     </div>`;
   const cup = el.querySelector<HTMLButtonElement>("[data-role=cup]")!;
+  attachTapSwitch(cup);
   const totalAmount = el.querySelector<HTMLElement>("[data-role=total-amount]")!;
   const totalLabel = el.querySelector<HTMLElement>("[data-role=total-label]")!;
   const toast = el.querySelector<HTMLElement>("[data-role=undo-toast]")!;
@@ -143,7 +146,7 @@ function mountCup(el: HTMLElement, ctx: AppContext): () => void {
   };
 
   const render = () => {
-    // The label is separate markup; textContent still reads "£X COFFEE · THIS MONTH".
+    // The label is separate markup; textContent still reads "£X SAVED THIS MONTH!!".
     totalAmount.textContent = formatPounds(monthPence);
   };
   const refresh = async () => {

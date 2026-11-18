@@ -173,7 +173,9 @@ you clear into your Stocks and Shares ISA once a month.
 - Haptics: iOS 18 `<input type="checkbox" switch>` toggle trick. Verify on
   device; degrade silently. On iPhone a web app gets one light tick, and only
   inside the tap itself, so no pattern or stronger buzz is possible there
-  (ticket 36). Where `navigator.vibrate` exists (Android), the tap requests one
+  (ticket 36). From iOS 26.5 a script cannot tick the phone at all, so an
+  invisible real switch lies over the cup and takes the tap itself
+  (`src/ui/tap-switch.ts`, 2026-11-18, awaiting Tom's device check). Where `navigator.vibrate` exists (Android), the tap requests one
   pattern timed to the ceremony, and a longer one for a settle.
 - Known losses vs native: no scheduled local notifications. The ringer
   switch mutes the sounds by choice (ticket 23): on silent a press gives its
