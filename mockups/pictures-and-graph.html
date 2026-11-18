@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Latte Graph Mockup</title>
 <!--
+  Round four (2026-11-18): Tom found the glasses hard to read and asked for
+  three other pictures: stacked espresso cups, a coffee grinder whose beans
+  make the graph, and latte art in chocolate and white milk. Each has a money
+  scale and dates. The round-three pick (Graph 1, in the app) stays at the
+  foot for comparison; Graphs 2 to 4 are gone from this page (see git).
+
   Ticket 27, round three: the latte graph only (the pastry, bag and jar were
   picked and are in the app; Graphs A to D were rejected). Tom's brief: latte
   in a glass, light brown, dark brown, froth; bars, not smooth curves; heat
@@ -28,6 +34,8 @@
   --dark: #1d2a6e; --off: #e3ada0; --off-hi: #ecc4b9; --off-shadow: #cc9283;
   /* NEW (ticket 27, round 3): the light-brown "saved, still waiting" latte layer. */
   --latte: #c68a52;
+  /* Round four: invested money, darker than the cup's coffee. */
+  --espresso: #3a1c0e;
   --font-display: Futura, "Century Gothic", "Avenir Next", "Trebuchet MS", sans-serif;
   color-scheme: light;
 }
@@ -37,7 +45,7 @@
     --mustard-deep: #c9870f; --tomato: #f0705a; --cream: #fff4e2; --shadow: #090b24;
     --ink: #fff4e2; --on-dark: #fff9ef; --coffee: #8a4e2c; --foam: #f3ddbb;
     --dark: #0f1440; --off: #2f3772; --off-hi: #3b4483; --off-shadow: #10143a;
-    --latte: #d29a62;
+    --latte: #d29a62; --espresso: #4f2a15;
     color-scheme: dark;
   }
 }
@@ -46,7 +54,7 @@
   --mustard-deep: #c9870f; --tomato: #f0705a; --cream: #fff4e2; --shadow: #090b24;
   --ink: #fff4e2; --on-dark: #fff9ef; --coffee: #8a4e2c; --foam: #f3ddbb;
   --dark: #0f1440; --off: #2f3772; --off-hi: #3b4483; --off-shadow: #10143a;
-  --latte: #d29a62;
+  --latte: #d29a62; --espresso: #4f2a15;
   color-scheme: dark;
 }
 
@@ -59,6 +67,18 @@
 .cp-coffee { fill: var(--coffee); }
 .cp-foam { fill: var(--foam); }
 .cp-latte { fill: var(--latte); }
+.cp-espresso { fill: var(--espresso); }
+/* Round four: axis text, grid lines, bean creases and the latte-art strokes. */
+.ax { font: 800 9.5px var(--font-display); fill: var(--ink); }
+.ax.date { font-size: 8.5px; letter-spacing: 0.04em; text-transform: uppercase; }
+.ax.on-dark { fill: var(--on-dark); }
+.ax.key { font-size: 11px; }
+.grid { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 4; opacity: 0.35; fill: none; }
+.crease { stroke: var(--foam); stroke-width: 1.3; stroke-linecap: round; fill: none; opacity: 0.85; }
+.milk, .choc, .cut { fill: none; stroke-linecap: round; }
+.milk { stroke: var(--cream); }
+.choc { stroke: var(--espresso); }
+.cut { stroke: var(--latte); }
 .cp-shadow, .cp-shadow * { fill: var(--shadow); }
 .art { display: block; overflow: visible; }
 .art .c-cobalt { fill: var(--cobalt); }
@@ -147,7 +167,7 @@ h2 small { font-size: 13px; font-weight: 600; letter-spacing: 0; }
 </head>
 <body>
 <div class="top">
-  <b>Ticket 27</b>
+  <b>Graph, round four</b>
   <div class="theme" role="group" aria-label="Theme">
     <button type="button" data-set="light">Light</button>
     <button type="button" data-set="dark">Dark</button>
@@ -155,10 +175,10 @@ h2 small { font-size: 13px; font-weight: 600; letter-spacing: 0; }
   </div>
 </div>
 <main>
-  <h1>The latte graph, round three</h1>
-  <p class="lede">Latte in a glass, as bars: dark brown coffee is what you have invested, light brown latte is saved and still waiting, and the cream froth on top marks the total saved. Steam rises off the top. Four different ideas below, each shown with one week of data and with about five months. Flip Light and Dark at the top.</p>
-  <p class="answer">Reply with one line: Graph 1, 2, 3 or 4.</p>
-  <p class="what">Bars: with one week of data there is one bar per day (seven); with five months there is one bar per month, June to November (six, the last one is this month so far). Each bar is the running total at the end of its day or month.</p>
+  <h1>The savings graph, round four</h1>
+  <p class="lede">Three new pictures for the graph on the shelf: stacked espresso cups, a coffee grinder full of beans, and latte art. In all three the colour of the cup's coffee is money saved and still waiting, and the darker espresso brown is money invested. Each has a money scale and a date for every step. Each is shown with one week of data and with about five months. Flip Light and Dark at the top.</p>
+  <p class="answer">Reply with one line: A, B or C, or keep the glasses.</p>
+  <p class="what">With one week of data there is one step per day (seven); with five months there is one per month, June to November (six, the last is this month so far). Each step is the running total at the end of its day or month.</p>
   <div id="graphs"></div>
 </main>
 
@@ -216,7 +236,7 @@ function bars(s) {
   const month = (d) => new Date(s.start + d * DAY).getUTCMonth();
   for (let d = 0; d < s.days; d++) {
     const last = d === s.days - 1;
-    if (s.days <= 14 || last || month(d + 1) !== month(d)) out.push({ saved: s.saved[d], inv: s.invested[d] });
+    if (s.days <= 14 || last || month(d + 1) !== month(d)) out.push({ saved: s.saved[d], inv: s.invested[d], d });
   }
   return out;
 }
@@ -304,105 +324,145 @@ function graph1(s) {
 </svg>`;
 }
 
-/* ---------- Graph 2: one wide glass ---------- */
+/* ---------- Round four: shared pieces ---------- */
 
-function graph2(s) {
-  const W = 358, H = 200;
+/** Under a step: its day ("11 Nov") in a week of data, its month in months of data, "today" for the last. */
+function barLabel(s, b, i, n) {
+  if (i === n - 1) return "today";
+  const dt = new Date(s.start + b.d * DAY);
+  return s.days <= 14 ? `${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}` : MONTHS[dt.getUTCMonth()];
+}
+/** What one cup or bean is worth: the smallest round amount that keeps the tallest stack within `cap`. */
+function niceUnit(max, cap) {
+  for (const u of [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000]) if (max / u <= cap) return u;
+  return Math.ceil(max / cap / 1000) * 1000;
+}
+/** Scale ticks at nothing, half and all of the tallest stack: a dashed line and a money label on the left. */
+function ticks(top, unit, yOf, xText, xa, xb) {
+  const ks = [...new Set([0, Math.round(top / 2), top])];
+  return ks.map((k) => `<line class="grid" x1="${xa}" x2="${xb}" y1="${f1(yOf(k))}" y2="${f1(yOf(k))}"/>` +
+    `<text class="ax" x="${xText}" y="${f1(yOf(k))}" dy="${k ? "0.35em" : "-0.25em"}" text-anchor="end">${money(k * unit)}</text>`).join("");
+}
+
+/* ---------- Graph A: stacked espresso cups ---------- */
+
+/** One little espresso cup standing on yb: saucer, tapered body, tomato handle, a band at the rim. */
+function cup(xc, yb, invested) {
+  const body = tumbler(xc, yb - 16, yb - 2, 24, 17, 4);
+  const saucer = `<rect x="${f1(xc - 15)}" y="${f1(yb - 3)}" width="30" height="3.4" rx="1.7"/>`;
+  const handle = `<path class="cp-tomato" fill-rule="evenodd" d="M${f1(xc + 9)} ${f1(yb - 14)} h9 v9 h-10 v-2.6 h7 v-3.8 h-6Z"/>`;
+  return {
+    sh: `<path d="${body}"/>${saucer}`,
+    art: `${handle}<path class="${invested ? "cp-espresso" : "cp-cream"}" d="${body}"/>` +
+      `<rect class="${invested ? "cp-foam" : "cp-coffee"}" x="${f1(xc - 12)}" y="${f1(yb - 16)}" width="24" height="4"/>` +
+      `<g class="cp-cobalt">${saucer}</g>`,
+  };
+}
+
+function graphA(s) {
+  const W = 358, H = 236, STEP = 18;
   const list = bars(s), n = list.length, max = list[n - 1].saved || 1;
-  const yT = 58, yB = H - 22, xl = 6, xr = 312, taper = 10;
-  const body = `M${xl} ${yT} H${xr} L${xr - taper} ${yB - 14} Q${xr - taper - 1} ${yB} ${xr - taper - 15} ${yB} H${xl + taper + 15} Q${xl + taper + 1} ${yB} ${xl + taper} ${yB - 14}Z`;
-  const ib = yB - 10, ut = yT + 10;
-  const inner = `M${xl + 6} ${yT} H${xr - 6} L${xr - taper - 5} ${ib - 10} Q${xr - taper - 6} ${ib} ${xr - taper - 16} ${ib} H${xl + taper + 16} Q${xl + taper + 6} ${ib} ${xl + taper + 5} ${ib - 10}Z`;
-  const Y = (v) => ib - (v / max) * (ib - ut);
-  const il = xl + 6, ir = xr - 6, gap = 4, cw = (ir - il - gap * (n - 1)) / n;
-  const id = `g2-${++uid}`;
-  let cols = "";
+  const unit = niceUnit(max, 8), count = (v) => Math.round(v / unit);
+  const trayY = H - 34, x0 = 42, x1 = 342, pitch = (x1 - x0) / n;
+  const yOf = (k) => trayY - k * STEP;
+  let shadow = "", body = "", dates = "";
   list.forEach((b, i) => {
-    const x = il + i * (cw + gap);
-    cols += drink(x, cw, ib, Y(b.saved), b.saved ? b.inv / b.saved : 0, 9, 3.4);
+    const xc = x0 + pitch * (i + 0.5) - 3;
+    const total = count(b.saved), inv = Math.min(total, count(b.inv));
+    for (let k = 0; k < total; k++) { const c = cup(xc, yOf(k), k < inv); shadow += c.sh; body += c.art; }
+    dates += `<text class="ax date" x="${f1(xc)}" y="${trayY + 28}" text-anchor="middle">${barLabel(s, b, i, n)}</text>`;
   });
-  const lastX = il + (n - 1) * (cw + gap) + cw / 2;
-  const rim = `<rect class="cp-cobalt" x="${xl - 4}" y="${yT - 7}" width="${xr - xl + 8}" height="11" rx="5.5"/>`;
-  const saucer = `<rect class="cp-cobalt" x="${xl + 2}" y="${yB - 4}" width="${xr - xl - 4}" height="14" rx="7"/>`;
-  // A tomato handle like the cup's: a square loop on the right side.
-  const hy0 = yT + 22, hy1 = yB - 34, hx = xr + 26, t = 11;
-  const handle = `<path class="cp-tomato" fill-rule="evenodd" d="M${xr - 8} ${hy0} H${hx} V${hy1} H${xr - 12} V${hy1 - t} H${hx - t} V${hy0 + t} H${xr - 8}Z"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Latte graph 2">
-  <defs><clipPath id="${id}"><path d="${inner}"/></clipPath></defs>
-  <g class="cp-shadow" transform="translate(6 6)">${handle}<path d="${body}"/>${rim}${saucer}</g>
-  ${saucer}
-  ${handle}
-  <path class="cp-cream" d="${body}"/>
-  <g clip-path="url(#${id})">${cols}</g>
-  <rect class="cp-cream" x="${xl + 12}" y="${yT + 12}" width="4" height="${f1((yB - yT) * 0.55)}" rx="2" opacity="0.55"/>
-  ${rim}
-  ${steam(lastX, yT - 14, 1.05)}
+  const top = count(max), lastX = x0 + pitch * (n - 0.5) - 3;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Graph A: stacked espresso cups">
+  <text class="ax key" x="0" y="12">One cup = ${money(unit)}</text>
+  ${ticks(top, unit, yOf, x0 - 8, x0 - 4, W - 12)}
+  <g class="cp-shadow" transform="translate(4 4)">${shadow}<rect x="0" y="${trayY}" width="${W - 12}" height="12" rx="6"/></g>
+  <rect class="cp-cobalt" x="0" y="${trayY}" width="${W - 12}" height="12" rx="6"/>
+  ${body}
+  ${steam(lastX, yOf(top) - 8, 0.8)}
+  ${dates}
 </svg>`;
 }
 
-/* ---------- Graph 3: chunky latte bars on a cobalt tray ---------- */
+/* ---------- Graph B: a coffee grinder, the beans are the graph ---------- */
 
-function graph3(s) {
-  const W = 358, H = 200;
+function graphB(s) {
+  const W = 358, H = 268, STEP = 11.5;
   const list = bars(s), n = list.length, max = list[n - 1].saved || 1;
-  const trayY = H - 18, ut = 58, ib = trayY;
-  const x0 = 4, x1 = 340, pitch = (x1 - x0) / n, w = pitch * 0.8;
-  const Y = (v) => ib - (v / max) * (ib - ut);
-  let shadow = "", body = "";
+  const unit = niceUnit(max, 10), count = (v) => Math.round(v / unit);
+  const xl = 44, xr = 336, yT = 50, yB = 186, taper = 8, cxm = (xl + xr) / 2;
+  const glass = `M${xl} ${yT} H${xr} L${xr - taper} ${yB - 12} Q${xr - taper - 1} ${yB} ${xr - taper - 13} ${yB} H${xl + taper + 13} Q${xl + taper + 1} ${yB} ${xl + taper} ${yB - 12}Z`;
+  const ib = yB - 9, il = xl + 16, ir = xr - 16, pitch = (ir - il) / n;
+  const rx = Math.min(10.5, pitch * 0.3), ry = 6.4;
+  const yOf = (k) => ib - k * STEP;
+  let beans = "", dates = "";
   list.forEach((b, i) => {
-    const x = x0 + pitch * (i + 0.5) - w / 2;
-    const ys = Math.min(Y(b.saved), ib - 12), r = 7;
-    const bar = `M${f1(x)} ${f1(ys + r)} Q${f1(x)} ${f1(ys)} ${f1(x + r)} ${f1(ys)} H${f1(x + w - r)} Q${f1(x + w)} ${f1(ys)} ${f1(x + w)} ${f1(ys + r)} V${ib + 2} H${f1(x)}Z`;
-    const id = `g3-${++uid}`;
-    shadow += `<path d="${bar}"/>`;
-    body += `<defs><clipPath id="${id}"><path d="${bar}"/></clipPath></defs><g clip-path="url(#${id})">${drink(x, w, ib, ys, b.saved ? b.inv / b.saved : 0, 10, 3.4)}</g>` +
-      `<circle class="cp-latte" cx="${f1(x + w * 0.35)}" cy="${f1(ys + 4)}" r="1.5"/><circle class="cp-latte" cx="${f1(x + w * 0.58)}" cy="${f1(ys + 3)}" r="1.5"/><circle class="cp-latte" cx="${f1(x + w * 0.47)}" cy="${f1(ys + 6.5)}" r="1.2"/>`;
+    const xc = il + pitch * (i + 0.5);
+    const total = count(b.saved), inv = Math.min(total, count(b.inv));
+    for (let k = 0; k < total; k++) {
+      const rot = (k + i) % 2 ? 16 : -16;
+      beans += `<g transform="translate(${f1(xc + ((k % 2) ? 1.5 : -1.5))} ${f1(yOf(k) - STEP / 2)}) rotate(${rot})">` +
+        `<ellipse class="${k < inv ? "cp-espresso" : "cp-coffee"}" rx="${f1(rx)}" ry="${ry}"/>` +
+        `<path class="crease" d="M${f1(-rx * 0.62)} 0.6 Q0 -2.6 ${f1(rx * 0.62)} 0.6"/></g>`;
+    }
+    dates += `<text class="ax date on-dark" x="${f1(xc)}" y="${yB + 17}" text-anchor="middle">${barLabel(s, b, i, n)}</text>`;
+  });
+  const top = count(max);
+  const lid = `<rect x="${xl - 5}" y="${yT - 8}" width="${xr - xl + 10}" height="12" rx="6"/>`;
+  const base = `<rect x="${xl + 6}" y="${yB - 3}" width="${xr - xl - 12}" height="72" rx="9"/>`;
+  const post = `<rect x="${cxm - 5}" y="${yT - 24}" width="10" height="18" rx="2"/>`;
+  const arm = `<rect x="${cxm - 5}" y="${yT - 31}" width="86" height="9" rx="4.5"/>`;
+  const knob = `<circle cx="${cxm + 80}" cy="${yT - 27}" r="9"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Graph B: coffee grinder with beans">
+  <text class="ax key" x="0" y="12">One bean = ${money(unit)}</text>
+  <g class="cp-shadow" transform="translate(6 6)">${arm}${knob}${post}<path d="${glass}"/>${lid}${base}</g>
+  <g class="cp-tomato">${arm}${post}</g><g class="cp-mustard">${knob}</g>
+  <g class="cp-cobalt">${base}</g>
+  <path class="cp-cream" d="${glass}"/>
+  ${ticks(top, unit, yOf, xl - 8, xl + 8, xr - 8)}
+  ${beans}
+  <rect class="cp-cream" x="${xl + 9}" y="${yT + 12}" width="4" height="${f1((yB - yT) * 0.5)}" rx="2" opacity="0.55"/>
+  <g class="cp-cobalt">${lid}</g>
+  ${dates}
+  <rect class="cp-mustard" x="${cxm - 48}" y="${yB + 30}" width="96" height="26" rx="5"/>
+  <circle class="cp-cream" cx="${cxm}" cy="${yB + 43}" r="5"/>
+</svg>`;
+}
+
+/* ---------- Graph C: latte art, white milk and chocolate ---------- */
+
+function graphC(s) {
+  const W = 358, H = 286;
+  const list = bars(s), n = list.length, max = list[n - 1].saved || 1;
+  const cx = 228, cy = 132, WMAX = 66, id = `gc-${++uid}`;
+  const yA = cy - 46, yZ = cy + 62, gap = (yZ - yA) / (n - 1);
+  const sw = Math.min(10, gap * 0.56);
+  let milk = "", choc = "", dates = "";
+  list.forEach((b, i) => {
+    const y = yA + gap * i;
+    const w = Math.max(5, (b.saved / max) * WMAX);
+    const arc = (hw) => `M${f1(cx - hw)} ${f1(y)} Q${cx} ${f1(y - 16)} ${f1(cx + hw)} ${f1(y)}`;
+    milk += `<path class="milk" stroke-width="${f1(sw)}" d="${arc(w)}"/>`;
+    if (b.inv > 0) choc += `<path class="choc" stroke-width="${f1(sw * 0.48)}" d="${arc(Math.max(3, (b.inv / b.saved) * w))}"/>`;
+    dates += `<text class="ax date" x="94" y="${f1(y - 4)}" dy="0.35em" text-anchor="end">${barLabel(s, b, i, n)}</text>`;
   });
   const last = list[n - 1];
-  const lastX = x0 + pitch * (n - 0.5);
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Latte graph 3">
-  <g class="cp-shadow" transform="translate(5 5)">${shadow}<rect x="0" y="${trayY}" width="${W - 12}" height="12" rx="6"/></g>
-  ${body}
-  <rect class="cp-cobalt" x="0" y="${trayY}" width="${W - 12}" height="12" rx="6"/>
-  <circle class="cp-mustard" cx="${W - 30}" cy="${trayY + 6}" r="3"/><circle class="cp-mustard" cx="${W - 42}" cy="${trayY + 6}" r="3"/>
-  ${steam(lastX, Y(last.saved) - 10, 1)}
-</svg>`;
-}
-
-/* ---------- Graph 4: one glass, now ---------- */
-
-function graph4(s) {
-  const W = 358, H = 212;
-  const saved = s.saved[s.days - 1], inv = s.invested[s.days - 1];
-  const xc = 86, yT = 62, yB = H - 22, wT = 80, wB = 66;
-  const body = tumbler(xc, yT, yB, wT, wB, 10);
-  const ib = yB - 11, ys = yT + 12;
-  const frac = saved ? inv / saved : 0, yi = ib - frac * (ib - ys - 16);
-  const id = `g4-${++uid}`;
-  const rim = `<rect class="cp-cobalt" x="${xc - wT / 2 - 4}" y="${yT - 7}" width="${wT + 8}" height="11" rx="5.5"/>`;
-  const saucer = `<rect class="cp-cobalt" x="${xc - 64}" y="${yB - 4}" width="128" height="14" rx="7"/>`;
-  // Labels to the right, each level with a short cobalt tick, kept 22 apart.
-  const waiting = saved - inv;
-  const marks = [
-    { y: ys + 2, text: `${money(saved)} saved`, big: true },
-    { y: (ys + 16 + yi) / 2 + 5, text: `${money(waiting)} waiting` },
-    { y: inv ? (yi + ib) / 2 + 5 : ib, text: `${money(inv)} invested` },
-  ];
-  for (let i = 1; i < marks.length; i++) marks[i].y = Math.max(marks[i].y, marks[i - 1].y + 24);
-  const lx = xc + wT / 2 + 14;
-  const labels = marks.map((m) =>
-    `<rect class="cp-cobalt" x="${lx}" y="${f1(m.y - 6)}" width="16" height="4" rx="2"/>` +
-    `<text class="g-txt${m.big ? " big" : ""}" x="${lx + 24}" y="${f1(m.y)}">${m.text}</text>`).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Latte graph 4">
-  <defs><clipPath id="${id}"><path d="${tumbler(xc, yT, ib, wT - 10, wB - 10, 7)}"/></clipPath></defs>
-  <g class="cp-shadow" transform="translate(6 6)"><path d="${body}"/>${rim}${saucer}</g>
-  ${saucer}
-  <path class="cp-cream" d="${body}"/>
-  <g clip-path="url(#${id})">${drink(xc - wT / 2, wT, ib, ys, frac, 16, 5.5)}</g>
-  <rect class="cp-cream" x="${xc - wT / 2 + 10}" y="${yT + 34}" width="5" height="${f1((yB - yT) * 0.5)}" rx="2.5" opacity="0.55"/>
-  ${rim}
-  ${steam(xc, yT - 14, 1.15)}
-  ${labels}
+  const handle = `<rect x="${cx + 96}" y="${cy - 18}" width="40" height="36" rx="9"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Graph C: latte art">
+  <defs><clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="96"/></clipPath></defs>
+  <g class="cp-shadow" transform="translate(6 6)"><circle cx="${cx}" cy="${cy}" r="124"/></g>
+  <circle class="cp-cobalt" cx="${cx}" cy="${cy}" r="124"/>
+  <g class="cp-shadow" transform="translate(4 4)">${handle}<circle cx="${cx}" cy="${cy}" r="110"/></g>
+  <g class="cp-tomato">${handle}</g>
+  <circle class="cp-cream" cx="${cx}" cy="${cy}" r="110"/>
+  <circle class="cp-latte" cx="${cx}" cy="${cy}" r="96"/>
+  <g clip-path="url(#${id})">
+    <circle class="cp-cream" cx="${cx}" cy="${f1(yA - 26)}" r="6"/>
+    ${milk}${choc}
+    <path class="cut" stroke-width="2" d="M${cx} ${f1(yA - 30)} V${f1(yZ + 2)}"/>
+  </g>
+  ${dates}
+  <text class="ax key" x="${cx}" y="${H - 8}" text-anchor="middle">The widest pour is ${money(last.saved)}, your total today</text>
 </svg>`;
 }
 
@@ -414,32 +474,38 @@ function plank(saved) {
     `<li class="${saved >= p ? "" : "art-off"}"><span class="shelf-art">${real(k)}</span><span class="nm">${n}</span><span class="pr">£${p.toLocaleString("en-GB")}</span></li>`).join("")}</ul></div>`;
 }
 
-function graphBlock(draw, data, label, nowOnly) {
+function graphBlock(g, data, label) {
   const s = series(data);
   const saved = s.saved[s.days - 1], inv = s.invested[s.days - 1];
   const first = MONTHS[new Date(s.start).getUTCMonth()];
+  const [c1, c2] = g.key;
   return `<p class="sub">${label}</p>
     ${plank(saved)}
     <div class="graph">
-      <div class="graph-labels"><span class="saved"><i class="sw" style="background:var(--foam);box-shadow:2px 2px 0 var(--shadow)"></i>${money(saved)} saved</span><span class="inv"><i class="sw" style="background:var(--coffee)"></i>${money(inv)} invested</span></div>
-      ${draw(s)}
-      ${nowOnly ? `<div class="graph-ends now"><span>today</span></div>` : `<div class="graph-ends"><span>${first}</span><span>today</span></div>`}
+      <div class="graph-labels"><span class="saved"><i class="sw" style="background:var(${c1});box-shadow:2px 2px 0 var(--shadow)"></i>${money(saved)} saved</span><span class="inv"><i class="sw" style="background:var(${c2})"></i>${money(inv)} invested</span></div>
+      ${g.draw(s)}
+      ${g.ends ? `<div class="graph-ends"><span>${first}</span><span>today</span></div>` : ""}
     </div>`;
 }
 
 const GRAPHS = [
-  { draw: graph1, what: "A row of latte glasses on a cobalt tray, one per day or month, each filled to what you had saved by then. The newest glass is the one still steaming." },
-  { draw: graph2, what: "One wide glass latte mug on a cobalt saucer, the bars standing side by side inside it as columns of drink, a froth cap on each. Steam rises off the top of the glass over today." },
-  { draw: graph3, what: "No glass at all: just the drink, cut into chunky bars and stood on a cobalt tray like slices of layered latte, each with a froth top dusted with cocoa. Steam curls off today's bar." },
-  { draw: graph4, what: "The simplest one: a single glass, no time line. It shows where you are now, not how you got here: coffee up to what you have invested, latte for what is waiting, froth on top.", nowOnly: true },
+  { tag: "A", draw: graphA, key: ["--coffee", "--espresso"], what: "Stacks of espresso cups on the cobalt tray, one stack per day or month. Every cup is worth the same amount, written top left. Cream cups are saved and waiting; dark cups at the bottom of a stack have been invested. Today's stack steams." },
+  { tag: "B", draw: graphB, key: ["--coffee", "--espresso"], what: "One large hand grinder. The beans in the glass hopper are the graph: a column of beans per day or month, every bean worth the same amount. Lighter beans are saved and waiting; the dark roast at the bottom has been invested. The dates sit on the grinder's body." },
+  { tag: "C", draw: graphC, key: ["--cream", "--espresso"], what: "A cup seen from above, with the graph poured as latte art. Each white pour is one day or month, oldest at the top, and the wider the pour the more you had saved. The chocolate line down the middle of a pour is how much of it has been invested." },
 ];
+const NOW = { draw: graph1, key: ["--foam", "--coffee"], ends: true };
 const week = weekData(), months = monthsData();
-document.getElementById("graphs").innerHTML = GRAPHS.map((g, i) => `<section class="option" id="graph-${i + 1}">
-    <span class="tag">Graph ${i + 1}</span>
+document.getElementById("graphs").innerHTML = GRAPHS.map((g) => `<section class="option" id="graph-${g.tag.toLowerCase()}">
+    <span class="tag">Graph ${g.tag}</span>
     <p class="what">${g.what}</p>
-    ${graphBlock(g.draw, week, "One week of data", g.nowOnly)}
-    ${graphBlock(g.draw, months, "About five months of data", g.nowOnly)}
-  </section>`).join("") + `<p class="data-note">Made-up data: about three presses a week at £3.50 to £8 from 15 June; on the 26th of each month everything saved to the end of the 25th is invested. With one week there has been no invest day yet, so there is no dark coffee layer, only latte under the froth.</p>`;
+    ${graphBlock(g, week, "One week of data")}
+    ${graphBlock(g, months, "About five months of data")}
+  </section>`).join("") + `<h2>For comparison: the glasses <small>(in the app now, before today's scale and dates)</small></h2>
+  <section class="option" id="graph-now">
+    <p class="what">The round-three pick: a row of latte glasses, each filled to what you had saved by then. Here dark brown is invested and light brown is waiting.</p>
+    ${graphBlock(NOW, months, "About five months of data")}
+  </section>
+  <p class="data-note">Made-up data: about three presses a week at £3.50 to £8 from 15 June; on the 26th of each month everything saved to the end of the 25th is invested. With one week there has been no invest day yet, so nothing is dark. Cups and beans are rounded to the nearest whole one.</p>`;
 
 /* ---------- Theme switch ---------- */
 function setTheme(t) {
