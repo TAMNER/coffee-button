@@ -1,4 +1,4 @@
-import { latteGraph, type LatteGraph } from "./latte-graph";
+import { lineGraph, type LineGraph } from "./line-graph";
 import type { Ledger } from "./ledger";
 import { savingsSeries } from "./savings-series";
 import { compound, paceToYearEnd } from "./projections";
@@ -175,8 +175,8 @@ export interface ShelfView {
   starters: ShelfItem[];
   /** "£X owed since October" when a settle is overdue, else null. */
   overdueLine: string | null;
-  /** Ticket 33: the latte graph under the plank; null before the first press. */
-  graph: LatteGraph | null;
+  /** Ticket 39: the line graph under the plank (it replaced ticket 33's glasses); null before the first press. */
+  graph: LineGraph | null;
 }
 
 export interface ShelfViewDeps {
@@ -197,7 +197,7 @@ export async function shelfView({ store, ledger, now, overdueLine }: ShelfViewDe
     targets: shelfState(await shelfTargets(store), lifetimePence),
     starters: await starterChips(store),
     overdueLine: await overdueLine(now),
-    graph: latteGraph(savingsSeries(presses, await store.settlements.list(), now)),
+    graph: lineGraph(savingsSeries(presses, await store.settlements.list(), now)),
   };
 }
 

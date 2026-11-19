@@ -1056,3 +1056,21 @@ body {
   --espresso: #4f2a15;
 }
 .cp-espresso { fill: var(--espresso); }
+
+/* Ticket 39: the line graph's two lines. Saved is blue, invested is the cup's
+   coffee brown; on the dark paper brown disappears, so they are a lighter
+   blue and mustard. */
+:root {
+  --line-saved: #2443b0;
+  --line-inv: #6b3a22;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --line-saved: #8fa4ff;
+    --line-inv: #f5b335;
+  }
+}
+:root[data-theme="dark"] {
+  --line-saved: #8fa4ff;
+  --line-inv: #f5b335;
+}

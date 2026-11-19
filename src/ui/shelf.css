@@ -321,20 +321,21 @@
   outline-offset: 1px;
 }
 
-/* Ticket 33: the latte graph under the plank (src/ui/latte-graph.ts), Graph 1
-   of mockups/pictures-and-graph.html: two labels, glasses on a cobalt tray,
-   the first month and "today" underneath. */
-.latte-graph-slot[hidden] {
+/* Ticket 39: the line graph under the plank (src/ui/line-graph.ts), Graph B of
+   round five of mockups/pictures-and-graph.html. It replaced ticket 33's
+   glasses. Line colours are --line-saved and --line-inv (src/style.css). */
+.line-graph-slot[hidden] {
   display: none;
 }
-.latte-graph {
+.line-graph {
   margin: 4px 0 0;
 }
 .lg-labels {
   display: flex;
   align-items: baseline;
-  gap: 14px;
   flex-wrap: wrap;
+  gap: 14px;
+  font-family: var(--sh-display);
   font-weight: 800;
 }
 .lg-saved {
@@ -345,104 +346,87 @@
 }
 .lg-sw {
   display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  width: 18px;
+  height: 5px;
   margin-right: 6px;
-  vertical-align: 1px;
+  border-radius: 2.5px;
+  vertical-align: 4px;
 }
 .lg-sw-saved {
-  background: var(--coffee, #6b3a22);
+  background: var(--line-saved, #2443b0);
 }
 .lg-sw-inv {
-  background: var(--espresso, #3a1c0e);
+  background: var(--line-inv, #6b3a22);
 }
-.latte-graph svg {
+.line-graph svg {
   display: block;
   width: 100%;
   height: auto;
+  margin-top: 6px;
   overflow: visible;
-  margin-top: 6px;
+  /* A sideways drag reads the graph; an up-and-down one still scrolls the shelf. */
+  touch-action: pan-y;
 }
-.latte-graph .steam path,
-.latte-graph .steam-sh path {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.latte-graph .steam path {
-  stroke: var(--cream, #fff9ef);
-}
-.latte-graph .steam-sh path {
-  stroke: var(--paper-2, #efb9aa);
-}
-.lg-ends {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-/* The pour-in: once per opening of the shelf, each drink rises from below the
-   glass's foot, left to right; the steam follows. With reduced motion asked
-   for, none of this runs and the glasses are simply full. */
-@media (prefers-reduced-motion: no-preference) {
-  .latte-graph.is-pouring .lg-drink {
-    animation: lg-pour 900ms cubic-bezier(0.25, 0.7, 0.3, 1) both;
-    animation-delay: calc(150ms + var(--i, 0) * 80ms);
-  }
-  .latte-graph.is-pouring .lg-steam {
-    animation: lg-steam 500ms ease-out both;
-    animation-delay: calc(700ms + var(--n, 7) * 80ms);
-  }
-}
-@keyframes lg-pour {
-  from {
-    transform: translateY(120px);
-  }
-  to {
-    transform: none;
-  }
-}
-@keyframes lg-steam {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Graph axes (2026-11-18): a caption, a money scale up the left and a date
-   under every glass, so the graph says what it shows. */
-.lg-caption {
-  margin: 4px 0 0;
-  font-size: 13px;
-  font-weight: 700;
-  opacity: 0.8;
-}
-.latte-graph .lg-grid {
-  stroke: var(--ink, #1d2a6e);
-  stroke-width: 1;
-  stroke-dasharray: 2 4;
-  opacity: 0.35;
-}
-.latte-graph .lg-tick,
-.latte-graph .lg-date {
+.lg-tick,
+.lg-date {
+  font: 800 9.5px var(--sh-display);
   fill: var(--ink, #1d2a6e);
-  font-size: 9.5px;
-  font-weight: 800;
 }
-.latte-graph .lg-date {
+.lg-date {
   font-size: 8.5px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+.lg-grid {
+  stroke: var(--ink, #1d2a6e);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  opacity: 0.3;
+}
+.lg-base {
+  stroke: var(--ink, #1d2a6e);
+  stroke-width: 1.5;
   opacity: 0.75;
 }
-.latte-graph .lg-date.is-today {
-  opacity: 1;
+.lg-line {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.lg-line-saved {
+  stroke: var(--line-saved, #2443b0);
+}
+.lg-line-inv {
+  stroke: var(--line-inv, #6b3a22);
+}
+.lg-area-saved {
+  fill: var(--line-saved, #2443b0);
+  opacity: 0.2;
+}
+.lg-area-inv {
+  fill: var(--line-inv, #6b3a22);
+  opacity: 0.5;
+}
+.lg-dot {
+  stroke: var(--paper, #f6cdc1);
+  stroke-width: 2;
+}
+.lg-dot-saved {
+  fill: var(--line-saved, #2443b0);
+}
+.lg-dot-inv {
+  fill: var(--line-inv, #6b3a22);
+}
+.lg-cross {
+  stroke: var(--ink, #1d2a6e);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.lg-readout {
+  min-height: 1.4em;
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
 }

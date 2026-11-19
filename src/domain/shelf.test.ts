@@ -122,14 +122,15 @@ describe("shelfView", () => {
     ]);
   });
 
-  it("ticket 33: carries the latte graph from presses and settlements; seven daily glasses in the first week", async () => {
+  it("ticket 39: carries the line graph from presses and settlements, starting on the first press day", async () => {
     const store = new MemoryStore();
     await store.presses.put({ id: "p1", itemId: "coffee", pricePence: 2800, at: new Date(2026, 10, 12, 8).getTime() });
     await store.settlements.put({ id: "s1", amountPence: 1000, at: new Date(2026, 10, 15, 8).getTime() });
 
     const view = await shelfView({ store, ledger: new Ledger(store), now: new Date(2026, 10, 17, 12), overdueLine: () => null });
 
-    expect(view.graph?.glasses).toHaveLength(7);
+    expect(view.graph?.points).toHaveLength(6);
+    expect(view.graph?.points[5].readout).toBe("Today: £28 saved, £10 invested");
     expect(view.graph?.savedLabel).toBe("£28 saved");
     expect(view.graph?.investedLabel).toBe("£10 invested");
   });
