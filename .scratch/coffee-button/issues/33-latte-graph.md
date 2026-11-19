@@ -30,3 +30,5 @@ Tester feedback 2026-11-17 ("Add a graph of savings and amounts invested over ti
 - [ ] Device check (Tom): the graph after a real press and after a real settle
 
 **2026-11-18 (Tom):** the graph gained a caption, a money scale up the left (nothing, half, all of today's total) and a date under every glass; the two end labels are gone. Saved-and-waiting is now drawn in the cup's coffee colour and invested in a darker espresso (`--espresso`); `--latte` is no longer used. Screenshots `33-axes-*.png`. Caption copy awaits Tom's read.
+
+**2026-11-19 (Tom):** superseded by ticket 39, a plain line graph. The glasses, their modules, tests and CSS are removed.

@@ -136,20 +136,20 @@ you clear into your Stocks and Shares ISA once a month.
   user typed and fills the remaining places with starters, cheapest first at
   the user's prices; the other starters leave the plank. It runs once.
   Nothing the user typed is ever removed automatically.
-- **Latte graph (2026-11-17, tickets 32 and 33).** Under the plank, savings
-  over time as a row of seven latte glasses on a cobalt tray. The days since
-  the first press (at least seven) are shared out evenly among the glasses, so
-  early on each glass is a day and later each is a few weeks; the row always
-  runs from the first press to today. Each glass is filled to what had been
-  saved by then: the top of the cream froth is the total saved, dark coffee
-  under it is what had been invested, light latte is saved and still waiting.
-  Steam curls off the newest glass. The only labels are "£X saved" and
-  "£Y invested" (pence shown when there are any; "£0 invested" shown before
-  the first invest), the first month and "today". No gridlines, no axis
-  numbers, nothing to tap. The drink pours in once when the shelf opens, and
-  simply appears under reduced motion. Absent before the first press. The
-  author rejected two smoother versions (area charts, then cut-paper waves)
-  before choosing bars as glasses; do not go back to a curve.
+- **Line graph (2026-11-19, tickets 32 and 39).** Under the plank, savings
+  over time as an ordinary line graph. The saved line climbs with each press,
+  with a pale fill under it; the invested line is a staircase that jumps on
+  each invest day, with a solid fill. The band between them is money still
+  waiting. "£X saved" and "£Y invested" sit above (pence shown when there are
+  any; "£0 invested" and no invested line before the first invest). A money
+  scale in round steps runs up the side and dates run along the bottom: days
+  in the first week, a few dated ticks up to two months, month names beyond.
+  It starts on the first press day and the first week fills from the left.
+  Touching the plot moves a marker to the nearest day and a line underneath
+  reads that day's two figures. No animation. Absent before the first press.
+  History: the author first rejected area charts and cut-paper waves, chose a
+  row of latte glasses (ticket 33), looked at cups, a grinder and latte art,
+  then dropped all of them for this; do not go back to pictures.
 - **Also shown.** Owed-since line when a settle is overdue. Nothing beyond
   the pace line, the compounding line, the plank and the graph.
 - **Tone.** Whimsical objects. No mascot, no happy characters.
