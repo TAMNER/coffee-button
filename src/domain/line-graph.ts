@@ -20,6 +20,10 @@ export interface LineGraph {
   alt: string;
   /** The money scale: a label at each fraction of the plot's height, from £0 up. */
   yTicks: { label: string; fraction: number }[];
+  /** Tick marks along the bottom, as fractions across. */
+  xTicks: number[];
+  /** Dates or month names along the bottom, each centred on its fraction across. */
+  xLabels: { label: string; x: number }[];
   /** One per day from the first press to today, oldest first. */
   points: LinePoint[];
 }
@@ -38,6 +42,46 @@ export const MIN_SPAN_DAYS = 7;
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 /** "12 Jun" from "2026-06-12". */
+const DAY_MS = 24 * 60 * 60 * 1000;
+/** The "YYYY-MM-DD" label `k` days after `day`. */
+const addDays = (day: string, k: number) => new Date(Date.parse(`${day}T00:00:00Z`) + k * DAY_MS).toISOString().slice(0, 10);
+/** Longer than this and the bottom shows months, not dates. */
+const MAX_DATED_DAYS = 62;
+/** A month's stretch narrower than this share of the plot gets no name. */
+const MIN_MONTH_WIDTH = 0.07;
+const MAX_MONTH_NAMES = 8;
+
+/**
+ * The bottom axis for `n` days starting on `first`, on a plot `span` days
+ * wide. A week or less: every day of the span. Up to two months: at most six
+ * dates stepping back evenly from today. Longer: month starts and names.
+ */
+function xAxis(first: string, n: number, span: number): Pick<LineGraph, "xTicks" | "xLabels"> {
+  const at = (i: number) => i / (span - 1);
+  const dated = (i: number) => ({ label: i === n - 1 ? "today" : dayMonth(addDays(first, i)), x: at(i) });
+  if (n <= MAX_DATED_DAYS) {
+    const step = n <= MIN_SPAN_DAYS ? 1 : Math.ceil((n - 1) / 5);
+    const days: number[] = [];
+    for (let i = n <= MIN_SPAN_DAYS ? span - 1 : n - 1; i >= 0; i -= step) days.unshift(i);
+    return { xTicks: days.map(at), xLabels: days.map(dated) };
+  }
+  const starts: number[] = [];
+  for (let i = 1; i < n; i++) if (addDays(first, i).endsWith("-01")) starts.push(i);
+  const edges = [0, ...starts, n - 1];
+  const names = edges.slice(0, -1).map((from, k) => ({
+    label: MONTHS[Number(addDays(first, from).slice(5, 7)) - 1],
+    x: (at(from) + at(edges[k + 1])) / 2,
+    width: at(edges[k + 1]) - at(from),
+  }));
+  const every = Math.ceil(names.length / MAX_MONTH_NAMES);
+  return {
+    xTicks: starts.map(at),
+    xLabels: names
+      .filter((m, k) => (names.length - 1 - k) % every === 0 && (every > 1 || m.width >= MIN_MONTH_WIDTH))
+      .map(({ label, x }) => ({ label, x })),
+  };
+}
+
 const dayMonth = (day: string) => `${Number(day.slice(8, 10))} ${MONTHS[Number(day.slice(5, 7)) - 1]}`;
 
 /** The largest round step that keeps the scale to at most five lines: 1, 2, 2.5 or 5 times a power of ten (never half a penny). */
@@ -69,6 +113,7 @@ export function lineGraph(series: SavingsSeries): LineGraph | null {
     readout: `${i === days.length - 1 ? "Today" : dayMonth(d.day)}: ${formatPoundsShort(d.savedPence)} saved, ${formatPoundsShort(d.investedPence)} invested`,
   }));
   return {
+    ...xAxis(days[0].day, days.length, span),
     points,
     savedLabel,
     investedLabel,

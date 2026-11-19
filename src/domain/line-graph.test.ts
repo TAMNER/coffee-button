@@ -69,4 +69,47 @@ describe("lineGraph (ticket 39)", () => {
       "Today: £11.50 saved, £3.50 invested",
     ]);
   });
+
+  describe("the dates along the bottom", () => {
+    it("in the first week: a tick and a date for each of the seven days, today named, the days to come dated", () => {
+      const g = lineGraph(climbing("2026-11-15", 3))!;
+      expect(g.xTicks).toEqual([0, 1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6, 1]);
+      expect(g.xLabels.map((l) => l.label)).toEqual(["15 Nov", "16 Nov", "today", "18 Nov", "19 Nov", "20 Nov", "21 Nov"]);
+      expect(g.xLabels.map((l) => l.x)).toEqual(g.xTicks);
+    });
+
+    it("from eight days to two months: at most six dated ticks, evenly spaced back from today", () => {
+      const eight = lineGraph(climbing("2026-11-10", 8))!;
+      expect(eight.xLabels).toEqual([
+        { label: "11 Nov", x: 1 / 7 },
+        { label: "13 Nov", x: 3 / 7 },
+        { label: "15 Nov", x: 5 / 7 },
+        { label: "today", x: 1 },
+      ]);
+      expect(eight.xTicks).toEqual([1 / 7, 3 / 7, 5 / 7, 1]);
+      const month = lineGraph(climbing("2026-10-18", 31))!;
+      expect(month.xLabels.map((l) => l.label)).toEqual(["18 Oct", "24 Oct", "30 Oct", "5 Nov", "11 Nov", "today"]);
+    });
+
+    it("beyond two months: a tick where each month starts and the month's name in the middle of its stretch", () => {
+      // 15 Jun to 17 Nov 2026: 156 days.
+      const g = lineGraph(climbing("2026-06-15", 156))!;
+      expect(g.xTicks).toEqual([16, 47, 78, 108, 139].map((d) => d / 155));
+      expect(g.xLabels.map((l) => l.label)).toEqual(["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"]);
+      expect(g.xLabels[0].x).toBe(8 / 155);
+      expect(g.xLabels[5].x).toBe((139 + 155) / 2 / 155);
+    });
+
+    it("a sliver of a first month is too narrow for its name", () => {
+      // 29 Jun to 17 Nov 2026.
+      const g = lineGraph(climbing("2026-06-29", 142))!;
+      expect(g.xLabels.map((l) => l.label)).toEqual(["Jul", "Aug", "Sep", "Oct", "Nov"]);
+    });
+
+    it("over years, month names thin out so they never crowd; the newest month keeps its name", () => {
+      const g = lineGraph(climbing("2024-11-01", 747))!; // to 17 Nov 2026
+      expect(g.xLabels.length).toBeLessThanOrEqual(8);
+      expect(g.xLabels[g.xLabels.length - 1].label).toBe("Nov");
+    });
+  });
 });
