@@ -42,4 +42,31 @@ describe("lineGraph (ticket 39)", () => {
     expect(labels(90000)).toEqual(["£0", "£250", "£500", "£750", "£1000"]);
     expect(lineGraph(series("2026-11-11", [2800]))!.yTicks.map((t) => t.fraction)).toEqual([0, 1 / 3, 2 / 3, 1]);
   });
+
+  it("starts on the first press day and spans a full week until there is one: three days in, the line stops partway", () => {
+    // savingsSeries reaches back seven days; the days before the first press are not drawn.
+    const g = lineGraph(series("2026-11-11", [0, 0, 0, 0, 350, 350, 1150]))!;
+    expect(g.points.map((p) => p.x)).toEqual([0, 1 / 6, 2 / 6]);
+    expect(g.points.map((p) => p.saved)).toEqual([350 / 1500, 350 / 1500, 1150 / 1500]);
+  });
+
+  it("from a week on, the first press is the left edge and today the right; invested is on the same scale", () => {
+    const g = lineGraph(series("2026-10-18", Array.from({ length: 31 }, (_, i) => 100 * (i + 1)), Array.from({ length: 31 }, (_, i) => (i >= 8 ? 800 : 0))))!;
+    expect(g.points).toHaveLength(31);
+    expect(g.points[0].x).toBe(0);
+    expect(g.points[30].x).toBe(1);
+    expect(g.points[15].x).toBe(0.5);
+    expect(g.points[30].saved).toBe(3100 / 4000);
+    expect(g.points[7].invested).toBe(0);
+    expect(g.points[8].invested).toBe(800 / 4000);
+  });
+
+  it("every point says its day and both figures; the last one says Today", () => {
+    const g = lineGraph(series("2026-11-11", [350, 350, 1150], [0, 0, 350]))!;
+    expect(g.points.map((p) => p.readout)).toEqual([
+      "11 Nov: £3.50 saved, £0 invested",
+      "12 Nov: £3.50 saved, £0 invested",
+      "Today: £11.50 saved, £3.50 invested",
+    ]);
+  });
 });
