@@ -29,7 +29,9 @@ fi
 # address or an https: form link. Not set here; export it before running to build one in.
 # With none, the line and button are not shown.
 # A built-in email address is visible to anyone who opens the app.
-BUILD_ID="$(git rev-parse --short HEAD)" VITE_DEFAULT_RELAY_URL="${VITE_DEFAULT_RELAY_URL:-https://black-box.<tailnet>.ts.net:8443}" npm run build
+# This machine's tailnet name is read from Tailscale, never written in the repository.
+TS_HOST="$(tailscale status --json | python3 -I -c 'import json,sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))')"
+BUILD_ID="$(git rev-parse --short HEAD)" VITE_DEFAULT_RELAY_URL="${VITE_DEFAULT_RELAY_URL:-https://$TS_HOST:8443}" npm run build
 
 mkdir -p "$UNIT_DIR"
 cat > "$UNIT" <<UNIT
@@ -85,5 +87,5 @@ curl -fsS -o /dev/null -w "local   %{http_code}\n" "http://127.0.0.1:$PORT/"
 systemctl --user is-active coffee-button-relay.service
 # The relay refuses everything off its allow-list, so 403 here means healthy.
 curl -sS -o /dev/null -w "relay   %{http_code} (expect 403)\n" "http://127.0.0.1:$RELAY_PORT/"
-URL="https://$(tailscale status --json | python3 -I -c 'import json,sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))')"
+URL="https://$TS_HOST"
 curl -fsS -o /dev/null -w "tailnet %{http_code} $URL\n" "$URL/" || echo "tailnet check failed (certificate may take a minute on first use)"
