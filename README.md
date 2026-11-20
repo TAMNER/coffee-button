@@ -1,10 +1,45 @@
 # Coffee Button
 
-## What it is
+A Home Screen web app that is just a coffee cup. Tap it when you skip buying a
+coffee: a two-second ceremony plays and the coffee's price goes on a ledger you
+clear into your Stocks and Shares ISA once a month.
 
-A Home Screen web app that is just a coffee cup: tap it when you skip buying a
-coffee and a two-second ceremony plays. The coffee's price is added to a ledger
-you clear into your Stocks and Shares ISA once a month. See `docs/DESIGN.md`.
+<p>
+  <img src="docs/screens/cup.png" width="260" alt="The cup screen: a drawn coffee cup, this month's total and an Invest button" />
+  <img src="docs/screens/shelf.png" width="260" alt="The shelf screen: the year-end pace, three savings targets and a graph of saved against invested" />
+</p>
+
+The screenshots use made-up data (`.scratch/coffee-button/test-data/`).
+
+## What this repository is
+
+A showcase, not a product. I built it for myself and a few friends to try, and
+I am publishing it as a record of how it was built rather than as an app to
+install. The interesting part is the process, and all of it is in the
+repository:
+
+- **A design agreed before any code.** `docs/DESIGN.md` was written after a
+  questioning session on 3 November 2026 and has been kept current since, with
+  each later decision dated and tied to its ticket.
+- **Small tickets with acceptance boxes.** All 39 are in
+  `.scratch/coffee-button/issues/`, with the screenshots taken to check them in
+  `.scratch/coffee-button/shots/`.
+- **Test-first, at agreed seams.** 394 Vitest tests. The rules live in
+  `src/domain` as pure functions with a test beside every module; each device
+  (clock, clipboard, audio, haptics, timers, storage) sits behind one interface
+  with a real implementation and a fake. The DOM glue in `src/ui` is not unit
+  tested, by decision; it is checked by screenshot and on a phone.
+- **Built with AI coding agents under written rules.** `CLAUDE.md` is the
+  rulebook the agents worked to, and `docs/HANDOFF.md` is the running state one
+  session leaves for the next. The commits carry a `Co-Authored-By` line for
+  the model that wrote them.
+- **Feedback rounds from real testers**, triaged into tickets and built: see
+  the dated entries at the top of `docs/HANDOFF.md`.
+
+It also talks to a real bank: with a Starling personal access token, each press
+moves the coffee's price into a savings Space, through a small relay
+(`relay-worker/`) because Starling's API sends no CORS headers. The token stays
+on the phone and is never exported.
 
 ## Install on your iPhone
 
