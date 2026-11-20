@@ -31,7 +31,7 @@ repository:
   tested, by decision; it is checked by screenshot and on a phone.
 - **Built with AI coding agents under written rules.** `CLAUDE.md` is the
   rulebook the agents worked to, and `docs/HANDOFF.md` is the running state one
-  session leaves for the next. The commits carry a `Co-Authored-By` line for
+  session leaves for the next. Most commits carry a `Co-Authored-By` line for
   the model that wrote them.
 - **Feedback rounds from real testers**, triaged into tickets and built: see
   the dated entries at the top of `docs/HANDOFF.md`.
